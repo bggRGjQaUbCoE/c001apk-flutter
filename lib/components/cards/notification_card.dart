@@ -22,23 +22,27 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isFollow = data.type == 'contacts_follow';
     return Material(
       color: Theme.of(context).colorScheme.onInverseSurface,
       borderRadius: const BorderRadius.all(Radius.circular(12)),
       child: InkWell(
         onTap: () {
-          dom.Document document = parse(data.note);
-          String? link = document
-              .querySelectorAll('a[href]')
-              .firstOrNull
-              ?.attributes['href'];
-          if (link != null) {
-            Utils.onOpenLink(link);
+          if (isFollow) {
+            Utils.onOpenLink(data.url ?? '');
+          } else {
+            dom.Document document = parse(data.note);
+            String? link = document
+                .querySelectorAll('a[href]')
+                .firstOrNull
+                ?.attributes['href'];
+            if (link != null) {
+              Utils.onOpenLink(link);
+            }
           }
         },
-        onLongPress: () {
-          // todo delete
-        },
+        onLongPress: () =>
+            Get.toNamed('/copy', parameters: {'text': data.note ?? ''}),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: Stack(
           children: [
@@ -71,7 +75,8 @@ class NotificationCard extends StatelessWidget {
                     height: 30,
                     width: 30,
                     child: GestureDetector(
-                      onTap: () => Get.toNamed('/u/${data.uid}'),
+                      onTap: () =>
+                          Get.toNamed('/u/${data.fromuid ?? data.uid ?? ''}'),
                       child: CircleAvatar(
                         backgroundImage: CachedNetworkImageProvider(
                           data.fromUserAvatar ?? '',
@@ -88,16 +93,25 @@ class NotificationCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         htmlText(data.fromusername ?? ''),
-                        htmlText(data.note ?? ''),
+                        htmlText(
+                          data.note ?? '',
+                          onViewFan: isFollow
+                              ? () => Get.toNamed('/u/${data.fromuid}')
+                              : null,
+                        ),
                         if (!data.picArr.isNullOrEmpty)
-                          LayoutBuilder(builder: (context, constraints) {
-                            double maxWidth = constraints.maxWidth;
-                            return image(
-                              maxWidth,
-                              data.picArr!,
-                              padding: const EdgeInsets.only(top: 10),
-                            );
-                          }),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                double maxWidth = constraints.maxWidth;
+                                return image(
+                                  maxWidth,
+                                  data.picArr!,
+                                );
+                              },
+                            ),
+                          ),
                         const SizedBox(height: 5),
                         Text(
                           DateUtil.fromToday(data.dateline),
@@ -123,7 +137,7 @@ class NotificationCard extends StatelessWidget {
   }
 }
 
-enum PanelAction { copy, block, report }
+enum PanelAction { delete, block, report }
 
 class _MorePanel extends StatelessWidget {
   const _MorePanel({
@@ -137,9 +151,10 @@ class _MorePanel extends StatelessWidget {
   Future<dynamic> menuActionHandler(PanelAction type,
       {BuildContext? context, String? rid, String? frid}) async {
     switch (type) {
-      case PanelAction.copy:
+      case PanelAction.delete:
         Get.back();
-        Get.toNamed('/copy', parameters: {'text': note});
+        // todo: delete
+        SmartDialog.showToast('delete');
         break;
       case PanelAction.block:
         Get.back();
@@ -182,10 +197,11 @@ class _MorePanel extends StatelessWidget {
             ),
           ),
           ListTile(
-            onTap: () async => await menuActionHandler(PanelAction.copy),
+            onTap: () async => await menuActionHandler(PanelAction.delete),
             minLeadingWidth: 0,
             leading: const Icon(Icons.copy, size: 19),
-            title: Text('Copy', style: Theme.of(context).textTheme.titleSmall),
+            title:
+                Text('Delete', style: Theme.of(context).textTheme.titleSmall),
           ),
           ListTile(
             onTap: () async => await menuActionHandler(PanelAction.block),

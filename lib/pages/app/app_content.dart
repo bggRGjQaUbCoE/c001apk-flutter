@@ -53,6 +53,7 @@ class _AppContentState extends State<AppContent>
         break;
     }
 
+    _appController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _appController.scrollController = NestedInnerScrollController();
     _appController.returnTopController =
         Get.find<ReturnTopController>(tag: widget.packageName);

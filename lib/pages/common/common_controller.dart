@@ -48,7 +48,7 @@ abstract class CommonController {
 
   LoadingState loadingState = LoadingState.loading();
   LoadingState footerState = LoadingState.loading();
-  final refreshKey = GlobalKey<RefreshIndicatorState>();
+  GlobalKey<RefreshIndicatorState>? refreshKey;
   ScrollController? scrollController;
   ReturnTopController? returnTopController;
 
@@ -56,6 +56,6 @@ abstract class CommonController {
     await scrollController?.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
     returnTopController?.setIndex(999);
-    refreshKey.currentState?.show();
+    refreshKey?.currentState?.show();
   }
 }

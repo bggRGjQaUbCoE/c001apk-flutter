@@ -29,17 +29,26 @@ class FeedReplyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isFeedReply = data.fetchType == 'feed_reply';
     return Material(
-      color: isReply2Reply && !isTopReply
+      color: !isFeedReply || (isReply2Reply && !isTopReply)
           ? Theme.of(context).colorScheme.onInverseSurface
           : Colors.transparent,
+      borderRadius:
+          !isFeedReply ? const BorderRadius.all(Radius.circular(12)) : null,
       child: InkWell(
         onTap: () {
-          SmartDialog.showToast('todo: reply');
+          if (isFeedReply) {
+            SmartDialog.showToast('todo: reply');
+          } else {
+            Utils.onOpenLink(data.url ?? '');
+          }
         },
         onLongPress: () {
           Get.toNamed('/copy', parameters: {'text': data.message.toString()});
         },
+        borderRadius:
+            !isFeedReply ? const BorderRadius.all(Radius.circular(12)) : null,
         child: Stack(
           children: [
             Align(
@@ -63,7 +72,10 @@ class FeedReplyCard extends StatelessWidget {
                   )),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: !isFeedReply ? 10 : 16,
+                vertical: !isFeedReply ? 10 : 12,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,42 +100,25 @@ class FeedReplyCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        htmlText(
-                          !isReply2Reply
-                              ? '${data.userInfo?.username}${data.uid == data.feedUid ? ' [楼主]' : ''}'
-                              : () {
-                                  String replyTag = data.uid == data.feedUid
-                                      ? ' [楼主] '
-                                      : data.uid == uid && !isTopReply
-                                          ? ' [层主] '
-                                          : '';
-                                  if (isTopReply) {
-                                    return '<a class="feed-link-uname" href="/u/${data.uid}">${data.userInfo?.username}$replyTag</a>';
-                                  }
-                                  String rReplyTag = data.ruid == data.feedUid
-                                      ? ' [楼主] '
-                                      : data.ruid == uid
-                                          ? ' [层主] '
-                                          : '';
-                                  return data.ruid == 0
-                                      ? '<a class="feed-link-uname" href="/u/${data.uid}">${data.userInfo?.username}$replyTag</a>'
-                                      : '<a class="feed-link-uname" href="/u/${data.uid}">${data.userInfo?.username}$replyTag</a>回复<a class="feed-link-uname" href="/u/${data.rusername}">${data.rusername}$rReplyTag</a>';
-                                }(),
-                        ),
-                        // const SizedBox(height: 5),
+                        _username(),
                         htmlText(data.message.toString()),
-                        if (!data.picArr.isNullOrEmpty)
-                          LayoutBuilder(builder: (context, constraints) {
-                            double maxWidth = constraints.maxWidth;
-                            return image(
-                              maxWidth,
-                              data.picArr!,
-                              padding: const EdgeInsets.only(top: 10),
-                            );
-                          }),
+                        if (!data.picArr.isNullOrEmpty) ...[
+                          const SizedBox(height: 10),
+                          _image(),
+                        ],
+                        if (!isFeedReply &&
+                            data.feed != null &&
+                            !isReply2Reply) ...[
+                          const SizedBox(height: 10),
+                          _feed(context),
+                        ],
+                        const SizedBox(height: 10),
                         _bottomInfo(context),
-                        if (!isReply2Reply && !data.replyRows.isNullOrEmpty)
+                        if (!isReply2Reply &&
+                            !data.replyRows.isNullOrEmpty) ...[
+                          const SizedBox(height: 10),
                           _replyRows(context),
+                        ],
                       ],
                     ),
                   )
@@ -136,47 +131,136 @@ class FeedReplyCard extends StatelessWidget {
     );
   }
 
-  Widget _replyRows(BuildContext context) {
+  Widget _image() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double maxWidth = constraints.maxWidth;
+        return image(
+          maxWidth,
+          data.picArr!,
+        );
+      },
+    );
+  }
+
+  Widget _username() {
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Material(
-        clipBehavior: Clip.hardEdge,
-        color: Theme.of(context).colorScheme.onInverseSurface,
+      padding: const EdgeInsets.only(right: 12),
+      child: htmlText(
+        !isReply2Reply
+            ? '${data.userInfo?.username}${data.uid == data.feedUid ? ' [楼主]' : ''}'
+            : () {
+                String replyTag = data.uid == data.feedUid
+                    ? ' [楼主] '
+                    : data.uid == uid && !isTopReply
+                        ? ' [层主] '
+                        : '';
+                if (isTopReply) {
+                  return '<a class="feed-link-uname" href="/u/${data.uid}">${data.userInfo?.username}$replyTag</a>';
+                }
+                String rReplyTag = data.ruid == data.feedUid
+                    ? ' [楼主] '
+                    : data.ruid == uid
+                        ? ' [层主] '
+                        : '';
+                return data.ruid == 0
+                    ? '<a class="feed-link-uname" href="/u/${data.uid}">${data.userInfo?.username}$replyTag</a>'
+                    : '<a class="feed-link-uname" href="/u/${data.uid}">${data.userInfo?.username}$replyTag</a>回复<a class="feed-link-uname" href="/u/${data.rusername}">${data.rusername}$rReplyTag</a>';
+              }(),
+      ),
+    );
+  }
+
+  Widget _feed(BuildContext context) {
+    Datum feed = Datum.fromJson(data.feed);
+    return Material(
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: const BorderRadius.all(Radius.circular(12)),
+      child: InkWell(
+        onTap: () => Utils.onOpenLink(feed.url ?? ''),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ...data.replyRows!.map((item) => _replyRowsItem(context, item)),
-            if (data.replyRowsMore != null && data.replyRowsMore! > 0)
-              InkWell(
-                onTap: () {
-                  showCupertinoModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return Reply2ReplyPage(
-                          id: data.id.toString(),
-                          replynum: data.replynum,
-                          originReply: data);
-                    },
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  alignment: Alignment.centerLeft,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: Text(
-                    '查看更多回复(${data.replynum})',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              if (!feed.pic.isNullOrEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    imageUrl: feed.pic!,
+                    fit: BoxFit.cover,
+                    width: 40,
+                    height: 40,
                   ),
                 ),
-              )
-          ],
+                const SizedBox(width: 10),
+              ],
+              Expanded(
+                flex: 1,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '@${feed.username}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      Utils.parseHtmlString(feed.message ?? ''),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.outline),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _replyRows(BuildContext context) {
+    return Material(
+      clipBehavior: Clip.hardEdge,
+      color: Theme.of(context).colorScheme.onInverseSurface,
+      borderRadius: const BorderRadius.all(Radius.circular(12)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...data.replyRows!.map((item) => _replyRowsItem(context, item)),
+          if (data.replyRowsMore != null && data.replyRowsMore! > 0)
+            InkWell(
+              onTap: () {
+                showCupertinoModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return Reply2ReplyPage(
+                        id: data.id.toString(),
+                        replynum: data.replynum,
+                        originReply: data);
+                  },
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Text(
+                  '查看更多回复(${data.replynum})',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+            )
+        ],
       ),
     );
   }
@@ -244,36 +328,33 @@ class FeedReplyCard extends StatelessWidget {
   }
 
   Widget _bottomInfo(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Text(
-              DateUtil.fromToday(data.dateline),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                    color: Theme.of(context).colorScheme.outline,
-                  ),
-            ),
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Text(
+            DateUtil.fromToday(data.dateline),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
           ),
-          IconText(
-            icon: Icons.message_outlined,
-            text: data.replynum.toString(),
-            onTap: null,
-          ),
-          const SizedBox(width: 10),
-          IconText(
-            icon: Icons.thumb_up_outlined,
-            text: data.likenum.toString(),
-            onTap: () {
-              SmartDialog.showToast('todo: like');
-            },
-          ),
-        ],
-      ),
+        ),
+        IconText(
+          icon: Icons.message_outlined,
+          text: data.replynum.toString(),
+          onTap: null,
+        ),
+        const SizedBox(width: 10),
+        IconText(
+          icon: Icons.thumb_up_outlined,
+          text: data.likenum.toString(),
+          onTap: () {
+            SmartDialog.showToast('todo: like');
+          },
+        ),
+      ],
     );
   }
 }

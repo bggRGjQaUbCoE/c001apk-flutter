@@ -73,10 +73,13 @@ class _NotificationPageState extends State<NotificationPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_title),
+        bottom: const PreferredSize(
+          preferredSize: Size.zero,
+          child: Divider(height: 1),
+        ),
       ),
       body: _notificationController.loadingState is Success
           ? RefreshIndicator(
-              key: _notificationController.refreshKey,
               backgroundColor: Theme.of(context).colorScheme.onSecondary,
               onRefresh: () async {
                 _notificationController.onReset();

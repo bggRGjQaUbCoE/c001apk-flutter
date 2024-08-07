@@ -12,6 +12,13 @@ class UserController extends CommonController {
   String? username;
 
   @override
+  void handleResponse(List<Datum> dataList) {
+    if (dataList.lastOrNull?.entityTemplate == 'noMoreDataCard') {
+      isEnd = true;
+    }
+  }
+
+  @override
   Future<LoadingState> customFetchData() {
     return NetworkRepo.getUserFeed(
       uid: uid,

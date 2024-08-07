@@ -64,6 +64,7 @@ class _SearchResultContentState extends State<SearchResultContent>
   void initState() {
     super.initState();
 
+    _searchController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _searchController.scrollController = ScrollController();
     _searchController.returnTopController = Get.find<ReturnTopController>(
         tag:

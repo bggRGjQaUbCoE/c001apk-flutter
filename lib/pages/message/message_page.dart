@@ -45,7 +45,6 @@ class _MessagePageState extends State<MessagePage> {
     Icons.mail_outline,
   ];
   late final MessageController _messageController = MessageController();
-  late final config = Provider.of<AppConfigProvider>(context);
 
   List<int?>? _firstList;
   List<int?>? _thirdList;

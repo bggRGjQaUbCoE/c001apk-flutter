@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
@@ -10,9 +11,10 @@ Widget htmlText(
   String html, {
   double fontSize = 15,
   bool isBold = false,
+  List<String>? picArr,
   Function? onClick,
   Function? onShowTotalReply,
-  List<String>? picArr,
+  Function? onViewFan,
 }) {
   RegExp regExp = RegExp('\\[[^\\]]+\\]');
   String htmlConvert = html.replaceAll('\n', '<br/>').replaceAllMapped(
@@ -44,6 +46,10 @@ Widget htmlText(
           "imgList": !picArr.isNullOrEmpty ? picArr : [url],
         };
         Get.toNamed('/imageview', arguments: arguments);
+      } else if (url == '/contacts/fans') {
+        if (onViewFan != null) {
+          onViewFan();
+        }
       } else {
         Utils.onOpenLink(url, null);
       }
@@ -82,34 +88,49 @@ Widget htmlText(
                           width: size * 1.3,
                           height: size * 1.3,
                         )
-                      : Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 2,
-                            vertical: 1,
-                          ),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Theme.of(Get.context!).colorScheme.primary,
+                      : src.startsWith('http')
+                          ? CachedNetworkImage(
+                              imageUrl: src,
+                              width: size * 1.3,
+                              height: size * 1.3,
+                              errorWidget: (context, url, _) => Icon(
+                                size: size * 1.3,
+                                Icons.broken_image_outlined,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 2,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(Get.context!)
+                                      .colorScheme
+                                      .primary,
+                                ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(4)),
+                              ),
+                              child: Text(
+                                src,
+                                style: TextStyle(
+                                  height: 1,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize - 4,
+                                  color: Theme.of(Get.context!)
+                                      .colorScheme
+                                      .primary,
+                                ),
+                                strutStyle: StrutStyle(
+                                  height: 1,
+                                  leading: 0,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSize - 4,
+                                ),
+                              ),
                             ),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(4)),
-                          ),
-                          child: Text(
-                            src,
-                            style: TextStyle(
-                              height: 1,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize - 4,
-                              color: Theme.of(Get.context!).colorScheme.primary,
-                            ),
-                            strutStyle: StrutStyle(
-                              height: 1,
-                              leading: 0,
-                              fontWeight: FontWeight.bold,
-                              fontSize: fontSize - 3,
-                            ),
-                          ),
-                        ),
             );
           }
       }

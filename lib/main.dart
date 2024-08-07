@@ -24,12 +24,13 @@ void main() async {
 
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
     await windowManager.ensureInitialized();
-    WindowOptions windowOptions = const WindowOptions(
-      size: Size(500, 700),
+    WindowOptions windowOptions = WindowOptions(
+      minimumSize: const Size(300, 700),
+      size: const Size(300, 700),
       center: true,
-      // backgroundColor: Colors.white,
       skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.hidden,
+      titleBarStyle:
+          Platform.isMacOS ? TitleBarStyle.hidden : TitleBarStyle.normal,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.show();

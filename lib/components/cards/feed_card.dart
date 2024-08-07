@@ -49,24 +49,170 @@ class FeedCard extends StatelessWidget {
             children: [
               header(context, data, isFeedContent),
               ..._message(),
-              if (!data.picArr.isNullOrEmpty)
-                LayoutBuilder(builder: (context, constraints) {
-                  double maxWidth = constraints.maxWidth;
-                  return image(
-                    maxWidth,
-                    data.picArr!,
-                    padding: EdgeInsets.only(
-                      left: isFeedContent ? 16 : 10,
-                      top: 10,
-                      right: isFeedContent ? 16 : 10,
-                    ),
-                  );
-                }),
+              if (!data.picArr.isNullOrEmpty) _image(),
+              if (!data.forwardSourceType.isNullOrEmpty)
+                _forwardSourceFeed(context),
               if (!data.replyRows.isNullOrEmpty) _hotReply(context),
+              if (!data.extraUrl.isNullOrEmpty) _extraUrl(context),
               bottomInfo(context, data, isFeedContent, _onViewFeed),
               if (data.targetRow != null || !data.relationRows.isNullOrEmpty)
                 _rows(context),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _image() {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: isFeedContent ? 16 : 10,
+        top: 10,
+        right: isFeedContent ? 16 : 10,
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double maxWidth = constraints.maxWidth;
+          return image(
+            maxWidth,
+            data.picArr!,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _forwardSourceFeed(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(
+        left: isFeedContent ? 16 : 10,
+        top: 10,
+        right: isFeedContent ? 16 : 10,
+      ),
+      child: Material(
+        color: isFeedContent
+            ? Theme.of(context).colorScheme.onInverseSurface
+            : Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        child: InkWell(
+          onTap: data.forwardSourceFeed != null
+              ? () => Get.toNamed('/feed/${data.forwardSourceFeed?.id}')
+              : null,
+          onLongPress: data.forwardSourceFeed != null
+              ? () => Get.toNamed('/copy',
+                  parameters: {'text': data.forwardSourceFeed?.message ?? ''})
+              : null,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: data.forwardSourceFeed == null
+                ? Text(
+                    '动态已被删除',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  )
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!data
+                          .forwardSourceFeed!.messageTitle.isNullOrEmpty) ...[
+                        htmlText(
+                            '<a class="feed-link-uname" href="/u/${data.forwardSourceFeed?.uid}">@${data.forwardSourceFeed?.username}</a>: ${data.forwardSourceFeed?.messageTitle}'),
+                        htmlText(data.forwardSourceFeed?.message ?? ''),
+                      ],
+                      if (data.forwardSourceFeed!.messageTitle.isNullOrEmpty)
+                        htmlText(
+                            '<a class="feed-link-uname" href="/u/${data.forwardSourceFeed?.uid}">@${data.forwardSourceFeed?.username}</a>: ${data.forwardSourceFeed?.message}'),
+                      if (!data.forwardSourceFeed!.picArr.isNullOrEmpty) ...[
+                        const SizedBox(height: 10),
+                        LayoutBuilder(
+                          builder: (context, constraints) => image(
+                              constraints.maxWidth,
+                              data.forwardSourceFeed!.picArr!),
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _extraUrl(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(
+        left: isFeedContent ? 16 : 10,
+        top: 10,
+        right: isFeedContent ? 16 : 10,
+      ),
+      child: Material(
+        color: isFeedContent
+            ? Theme.of(context).colorScheme.onInverseSurface
+            : Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        child: InkWell(
+          onTap: () => Utils.onOpenLink(data.extraUrl!),
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              children: [
+                !data.extraPic.isNullOrEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          imageUrl: data.extraPic!,
+                        ),
+                      )
+                    : Container(
+                        width: 40,
+                        height: 40,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                        child: Icon(
+                          Icons.link_rounded,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 1,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.extraTitle.toString(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        data.extraUrl.toString(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: Theme.of(context).colorScheme.outline),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -80,7 +226,7 @@ class FeedCard extends StatelessWidget {
         : ''' <a class="feed-forward-pic" href=${reply.pic}>查看图片(${reply.picArr!.length})</a>''';
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(left: 10, top: 10, right: 10),
+      margin: const EdgeInsets.only(left: 10, top: 10, right: 10),
       child: Material(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.all(Radius.circular(12)),

@@ -23,7 +23,7 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
           : ExtraDataArr.fromJson(json['extraDataArr'] as Map<String, dynamic>),
       // extraData: json['extraData'] as String?,
       id: json['id'],
-      // type: (json['type'] as num?)?.toInt(),
+      type: json['type'],
       // fid: (json['fid'] as num?)?.toInt(),
       // forwardid: json['forwardid'] as String?,
       // sourceId: json['source_id'] as String?,
@@ -128,7 +128,10 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       // shareUrl: json['shareUrl'] as String?,
       // extraFromApi: json['extra_fromApi'] as String?,
       sourceFeed: json['sourceFeed'],
-      // forwardSourceType: json['forwardSourceType'] as String?,
+      forwardSourceType: json['forwardSourceType'] as String?,
+      forwardSourceFeed: json['forwardSourceFeed'] == null
+          ? null
+          : Datum.fromJson(json['forwardSourceFeed'] as Map<String, dynamic>),
       // canDisallowReply: (json['canDisallowReply'] as num?)?.toInt(),
       // disallowRepost: (json['disallow_repost'] as num?)?.toInt(),
       // longLocation: json['long_location'] as String?,
@@ -147,6 +150,9 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       fUserInfo: json['fUserInfo'] == null
           ? null
           : UserInfo.fromJson(json['fUserInfo'] as Map<String, dynamic>),
+      likeUserInfo: json['likeUserInfo'] == null
+          ? null
+          : UserInfo.fromJson(json['likeUserInfo'] as Map<String, dynamic>),
       relationRows: (json['relationRows'] as List<dynamic>?)
           ?.map((e) => RelationRow.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -199,6 +205,14 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       fromusername: json['fromusername'] as String?,
       fromuid: (json['fromuid'] as num?)?.toInt(),
       note: json['note'] as String?,
+      likeTime: json['likeTime'],
+      messageUserAvatar: json['messageUserAvatar'] as String?,
+      messagePic: json['message_pic'] as String?,
+      messageUid: (json['messageUid'] as num?)?.toInt(),
+      messageUsername: json['messageUsername'] as String?,
+      unreadNum: (json['unreadNum'] as num?)?.toInt(),
+      isTop: (json['isTop'] as num?)?.toInt(),
+      ukey: json['ukey'] as String?,
     );
 
 Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
@@ -214,7 +228,7 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'extraDataArr': instance.extraDataArr,
       // 'extraData': instance.extraData,
       'id': instance.id,
-      // 'type': instance.type,
+      'type': instance.type,
       // 'fid': instance.fid,
       // 'forwardid': instance.forwardid,
       // 'source_id': instance.sourceId,
@@ -317,7 +331,8 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       // 'shareUrl': instance.shareUrl,
       // 'extra_fromApi': instance.extraFromApi,
       'sourceFeed': instance.sourceFeed,
-      // 'forwardSourceType': instance.forwardSourceType,
+      'forwardSourceType': instance.forwardSourceType,
+      'forwardSourceFeed': instance.forwardSourceFeed,
       // 'canDisallowReply': instance.canDisallowReply,
       // 'disallow_repost': instance.disallowRepost,
       // 'long_location': instance.longLocation,
@@ -330,6 +345,7 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'replyRowsMore': instance.replyRowsMore,
       'userInfo': instance.userInfo,
       'fUserInfo': instance.fUserInfo,
+      'likeUserInfo': instance.likeUserInfo,
       'relationRows': instance.relationRows,
       'targetRow': instance.targetRow,
       // 'pickType': instance.pickType,
@@ -372,4 +388,12 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'fromusername': instance.fromusername,
       'fromuid': instance.fromuid,
       'note': instance.note,
+      'likeTime': instance.likeTime,
+      'message_pic': instance.messagePic,
+      'messageUserAvatar': instance.messageUserAvatar,
+      'messageUid': instance.messageUid,
+      'messageUsername': instance.messageUsername,
+      'unreadNum': instance.unreadNum,
+      'is_top': instance.isTop,
+      'ukey': instance.ukey,
     };

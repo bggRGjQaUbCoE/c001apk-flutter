@@ -20,6 +20,7 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   void dispose() {
+    _controller.dispose();
     _focusNode.dispose();
     super.dispose();
   }
@@ -65,6 +66,7 @@ class _SearchPageState extends State<SearchPage> {
             IconButton(
               onPressed: () {
                 _controller.clear();
+                _focusNode.requestFocus();
                 setState(() => _shouldShowClearBtn = false);
               },
               icon: const Icon(Icons.clear),

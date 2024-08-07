@@ -1,3 +1,6 @@
+import 'package:c001apk_flutter/components/cards/like_card.dart';
+import 'package:c001apk_flutter/components/cards/message_card.dart';
+import 'package:c001apk_flutter/components/cards/notification_card.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/cards/app_card.dart';
@@ -45,12 +48,16 @@ Widget itemCard(
     case 'feed':
       return FeedCard(data: data, isFeedContent: isFeedContent);
     case 'feed_reply':
-      return FeedReplyCard(
-        data: data,
-        isReply2Reply: isReply2Reply,
-        isTopReply: isTopReply,
-        uid: uid,
-      );
+      if (data.likeUserInfo != null) {
+        return LikeCard(data: data);
+      } else {
+        return FeedReplyCard(
+          data: data,
+          isReply2Reply: isReply2Reply,
+          isTopReply: isTopReply,
+          uid: uid,
+        );
+      }
     case 'apk':
       return AppCard(
         appCardType: AppCardType.APP,
@@ -88,9 +95,9 @@ Widget itemCard(
         isHomeCard: isHomeCard,
       );
     case 'notification':
-      return const ListTile(title: Text('notification'));
+      return NotificationCard(data: data);
     case 'message':
-      return const ListTile(title: Text('message'));
+      return MessageCard(data: data);
     case 'collection':
       return const ListTile(title: Text('collection'));
   }

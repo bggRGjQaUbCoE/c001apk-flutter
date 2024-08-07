@@ -115,7 +115,7 @@ class _AppUpdateCardState extends State<AppUpdateCard> {
                                 Utils.onDownloadFile(_url!, _name);
                               } else {
                                 _url = await Utils.onGetDownloadUrl(
-                                  _name,
+                                  widget.data.title!,
                                   widget.data.packageName!,
                                   widget.data.id!,
                                   widget.data.apkversionname!,

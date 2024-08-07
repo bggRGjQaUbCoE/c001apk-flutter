@@ -32,6 +32,7 @@ class _CoolpicContentState extends State<CoolpicContent>
   void initState() {
     super.initState();
 
+    _coolpicController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _coolpicController.scrollController = ScrollController();
     _coolpicController.returnTopController =
         Get.find<ReturnTopController>(tag: widget.title);

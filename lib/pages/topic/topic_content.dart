@@ -46,6 +46,7 @@ class _TopicContentState extends State<TopicContent>
   void initState() {
     super.initState();
 
+    _topicController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _topicController.scrollController = ScrollController();
     _topicController.returnTopController =
         Get.find<ReturnTopController>(tag: widget.tag ?? widget.id);

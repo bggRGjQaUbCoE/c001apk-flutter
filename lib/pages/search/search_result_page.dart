@@ -139,7 +139,10 @@ class _SearchResultPageState extends State<SearchResultPage>
                   }
                 },
               )
-            : null,
+            : const PreferredSize(
+                preferredSize: Size.zero,
+                child: Divider(height: 1),
+              ),
       ),
       body: TabBarView(
         controller: _tabController,

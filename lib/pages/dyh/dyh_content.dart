@@ -33,6 +33,7 @@ class _DyhContentState extends State<DyhContent>
   void initState() {
     super.initState();
 
+    _dyhController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _dyhController.scrollController = ScrollController();
     _dyhController.returnTopController =
         Get.find<ReturnTopController>(tag: widget.id + widget.title);

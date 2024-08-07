@@ -60,6 +60,12 @@ class _CarouselPageState extends State<CarouselPage>
     _onGetData(true);
   }
 
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
+  }
+
   Future<void> _onGetData([bool isRefresh = false]) async {
     if (!_isLoading) {
       _isLoading = true;

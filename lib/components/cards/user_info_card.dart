@@ -69,14 +69,17 @@ class UserInfoCard extends StatelessWidget {
                   };
                   Get.toNamed('/imageview', arguments: arguments);
                 },
-                child: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: ClipOval(
-                      child: CachedNetworkImage(
-                        imageUrl: data.userAvatar.toString(),
-                      ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      width: 4,
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: CircleAvatar(
+                    backgroundImage: CachedNetworkImageProvider(
+                      data.userAvatar ?? '',
                     ),
                   ),
                 ),

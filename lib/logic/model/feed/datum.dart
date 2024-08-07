@@ -24,7 +24,7 @@ class Datum {
   ExtraDataArr? extraDataArr;
   // String? extraData;
   dynamic id;
-  // int? type;
+  dynamic type;
   // int? fid;
   // String? forwardid;
   // @JsonKey(name: 'source_id')
@@ -183,7 +183,8 @@ class Datum {
   // @JsonKey(name: 'extra_fromApi')
   // String? extraFromApi;
   dynamic sourceFeed;
-  // String? forwardSourceType;
+  String? forwardSourceType;
+  Datum? forwardSourceFeed;
   // int? canDisallowReply;
   // @JsonKey(name: 'disallow_repost')
   // int? disallowRepost;
@@ -202,6 +203,7 @@ class Datum {
   int? replyRowsMore;
   UserInfo? userInfo;
   UserInfo? fUserInfo;
+  UserInfo? likeUserInfo;
   List<RelationRow>? relationRows;
   TargetRow? targetRow;
   // String? pickType;
@@ -257,6 +259,16 @@ class Datum {
   String? fromusername;
   int? fromuid;
   String? note;
+  dynamic likeTime;
+  @JsonKey(name: 'message_pic')
+  String? messagePic;
+  String? messageUserAvatar;
+  int? messageUid;
+  String? messageUsername;
+  int? unreadNum;
+  @JsonKey(name: 'is_top')
+  int? isTop;
+  String? ukey;
 
   Datum({
     this.entityType,
@@ -271,7 +283,7 @@ class Datum {
     this.extraDataArr,
     // this.extraData,
     this.id,
-    // this.type,
+    this.type,
     // this.fid,
     // this.forwardid,
     // this.sourceId,
@@ -375,7 +387,8 @@ class Datum {
     // this.shareUrl,
     // this.extraFromApi,
     this.sourceFeed,
-    // this.forwardSourceType,
+    this.forwardSourceType,
+    this.forwardSourceFeed,
     // this.canDisallowReply,
     // this.disallowRepost,
     // this.longLocation,
@@ -388,6 +401,7 @@ class Datum {
     this.replyRowsMore,
     this.userInfo,
     this.fUserInfo,
+    this.likeUserInfo,
     this.relationRows,
     this.targetRow,
     // this.pickType,
@@ -430,6 +444,14 @@ class Datum {
     this.fromusername,
     this.fromuid,
     this.note,
+    this.likeTime,
+    this.messagePic,
+    this.messageUserAvatar,
+    this.messageUid,
+    this.messageUsername,
+    this.unreadNum,
+    this.isTop,
+    this.ukey,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => _$DatumFromJson(json);

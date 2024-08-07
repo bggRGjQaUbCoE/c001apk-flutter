@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../components/nine_grid_view.dart';
+import '../../constants/constants.dart';
 import '../../utils/utils.dart';
 
 Widget image(
   double maxWidth,
   List<String> picArr, {
-  EdgeInsets padding = EdgeInsets.zero,
   bool isFeedArticle = false,
   String? articleImg,
 }) {
@@ -37,7 +37,6 @@ Widget image(
     space: 5,
     height: isFeedArticle || picArr.length == 1 ? imageHeight : null,
     width: isFeedArticle || picArr.length == 1 ? imageWidth : maxWidth,
-    padding: padding,
     itemCount: isFeedArticle ? 1 : picArr.length,
     itemBuilder: (context, index) => GestureDetector(
       onTap: () {
@@ -58,18 +57,68 @@ Widget image(
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: CachedNetworkImage(
-            width: imageWidth,
-            height: imageHeight,
-            imageUrl:
-                isFeedArticle ? '$articleImg.s.jpg' : '${picArr[index]}.s.jpg',
-            fit: picArr.length == 1 ? BoxFit.fill : BoxFit.cover,
-            errorWidget: (context, url, error) => Icon(
-              Icons.broken_image_outlined,
-              color: Theme.of(context).colorScheme.outline,
-            ),
+          child: Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              CachedNetworkImage(
+                width: imageWidth,
+                height: imageHeight,
+                imageUrl: isFeedArticle
+                    ? '$articleImg${Constants.SUFFIX_THUMBNAIL}'
+                    : '${picArr[index]}${Constants.SUFFIX_THUMBNAIL}',
+                fit: picArr.length == 1 ? BoxFit.fill : BoxFit.cover,
+                placeholder: (context, url) => DecoratedBox(
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                errorWidget: (context, url, error) => DecoratedBox(
+                  decoration: BoxDecoration(
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              if (picArr[index].endsWith(Constants.SUFFIX_GIF))
+                _badge(context, 'GIF'),
+              if (!picArr[index].endsWith(Constants.SUFFIX_GIF) &&
+                  _isLongImage(picArr[index]))
+                _badge(context, '长图'),
+            ],
           ),
         ),
+      ),
+    ),
+  );
+}
+
+bool _isLongImage(String url) {
+  List<double> imageLp = Utils.getImageLp(url);
+  return imageLp[1] / imageLp[0] >= 22 / 9;
+}
+
+Widget _badge(BuildContext context, String title) {
+  return Container(
+    margin: const EdgeInsets.all(5),
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+    decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.secondary,
+        borderRadius: BorderRadius.circular(4)),
+    child: Text(
+      title,
+      style: TextStyle(
+        height: 1,
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: Theme.of(context).colorScheme.onSecondary,
+      ),
+      strutStyle: const StrutStyle(
+        height: 1,
+        leading: 0,
+        fontSize: 13,
       ),
     ),
   );

@@ -159,6 +159,8 @@ class _LoginPageState extends State<LoginPage> {
     _accountController.dispose();
     _pwdController.dispose();
     _captchaController.dispose();
+    _pwdFocusNode.dispose();
+    _captchaFocusNode.dispose();
     super.dispose();
   }
 

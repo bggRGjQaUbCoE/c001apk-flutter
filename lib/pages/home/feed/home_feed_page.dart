@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../../components/common_body.dart';
-import '../../../components/nested_tab_bar_view.dart';
 import '../../../logic/state/loading_state.dart';
 import '../../../pages/home/feed/home_feed_controller.dart';
 import '../../../pages/home/home_page.dart' show TabType;
@@ -50,7 +49,8 @@ class _HomeFeedPageState extends State<HomeFeedPage>
   void initState() {
     super.initState();
 
-    _homeFeedController.scrollController = NestedInnerScrollController();
+    _homeFeedController.refreshKey = GlobalKey<RefreshIndicatorState>();
+    _homeFeedController.scrollController = ScrollController();
     _homeFeedController.returnTopController =
         Get.find<ReturnTopController>(tag: 'home');
 

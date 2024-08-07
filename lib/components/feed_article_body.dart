@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../../components/html_text.dart';
@@ -26,8 +27,10 @@ Widget feedArticleBody(
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: GestureDetector(
-          onLongPress: () =>
-              Get.toNamed('/copy', parameters: {'text': data.message.orEmpty}),
+          onLongPress: () {
+            Get.toNamed('/copy', parameters: {'text': data.message.orEmpty});
+            HapticFeedback.mediumImpact();
+          },
           child: htmlText(
             data.message.orEmpty,
             fontSize: 16,

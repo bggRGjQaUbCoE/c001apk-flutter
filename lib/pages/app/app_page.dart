@@ -63,6 +63,7 @@ class _AppPageState extends State<AppPage> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 

@@ -8,14 +8,14 @@ import 'package:indent/indent.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../components/cards/user_info_card.dart';
-import '../../../components/footer.dart';
-import '../../../components/item_card.dart';
-import '../../../logic/model/feed/datum.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/user/user_controller.dart';
-import '../../../utils/extensions.dart';
-import '../../../utils/utils.dart';
+import '../../components/cards/user_info_card.dart';
+import '../../components/footer.dart';
+import '../../components/item_card.dart';
+import '../../logic/model/feed/datum.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/user/user_controller.dart';
+import '../../utils/extensions.dart';
+import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
 enum UserMenuItem { Copy, Share, Block, Report, UserInfo }
@@ -38,6 +38,12 @@ class _UserPageState extends State<UserPage> {
   void initState() {
     super.initState();
     _onGetUserData();
+  }
+
+  @override
+  void dispose() {
+    _userController.dispose();
+    super.dispose();
   }
 
   void _onReGetUserData() {
@@ -148,7 +154,7 @@ class _UserPageState extends State<UserPage> {
                 if (!_userController.isEnd && !_userController.isLoading) {
                   _onGetUserFeed(isRefresh: false);
                 }
-                return footerWidget(_userController.footerState, () {
+                return footerWidget(_userController.footerState!, () {
                   _userController.isEnd = false;
                   setState(() =>
                       _userController.footerState = LoadingState.loading());
@@ -197,12 +203,12 @@ class _UserPageState extends State<UserPage> {
                     ),
                     slivers: [
                       SliverToBoxAdapter(
-                        child: _buildUserInfo(_userController.userState),
+                        child: _buildUserInfo(_userController.userState!),
                       ),
-                      _buildUserFeed(_userController.loadingState),
+                      _buildUserFeed(_userController.loadingState!),
                     ],
                   )
-                : Center(child: _buildUserInfo(_userController.userState)),
+                : Center(child: _buildUserInfo(_userController.userState!)),
           ),
           Positioned(
             left: 0,

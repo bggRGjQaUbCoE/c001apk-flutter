@@ -3,22 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:provider/provider.dart';
 
-import '../../../components/cards/message_first_card.dart';
-import '../../../components/cards/message_header_card.dart';
-import '../../../components/cards/message_second_card.dart';
-import '../../../components/cards/message_third_card.dart';
-import '../../../components/cards/notification_card.dart';
-import '../../../components/footer.dart';
-import '../../../components/sliver_pinned_box_adapter.dart';
-import '../../../logic/model/check_count/check_count.dart';
-import '../../../logic/model/check_count/datum.dart' as checkcountdata;
-import '../../../logic/model/feed/data_model.dart';
-import '../../../logic/model/feed/datum.dart';
-import '../../../logic/network/network_repo.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/message/message_controller.dart';
-import '../../../pages/noitfication/notification_page.dart';
-import '../../../providers/app_config_provider.dart';
+import '../../components/cards/message_first_card.dart';
+import '../../components/cards/message_header_card.dart';
+import '../../components/cards/message_second_card.dart';
+import '../../components/cards/message_third_card.dart';
+import '../../components/cards/notification_card.dart';
+import '../../components/footer.dart';
+import '../../components/sliver_pinned_box_adapter.dart';
+import '../../logic/model/check_count/check_count.dart';
+import '../../logic/model/check_count/datum.dart' as checkcountdata;
+import '../../logic/model/feed/data_model.dart';
+import '../../logic/model/feed/datum.dart';
+import '../../logic/network/network_repo.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/message/message_controller.dart';
+import '../../pages/noitfication/notification_page.dart';
+import '../../providers/app_config_provider.dart';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key});
@@ -164,7 +164,7 @@ class _MessagePageState extends State<MessagePage> {
                     !_messageController.isLoading) {
                   _onGetMessage(isRefresh: false);
                 }
-                return footerWidget(_messageController.footerState, () {
+                return footerWidget(_messageController.footerState!, () {
                   _messageController.isEnd = false;
                   if (mounted) {
                     setState(() => _messageController.footerState =
@@ -276,9 +276,9 @@ class _MessagePageState extends State<MessagePage> {
               itemCount: 7,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  return messageFirstCard(context, _firstList);
+                  return messageFirstCard(_config.isLogin, context, _firstList);
                 } else if (index == 1) {
-                  return messageSeconfCard(context);
+                  return messageSeconfCard(_config.isLogin, context);
                 } else if (index >= 2 && index <= 6) {
                   return messageThirdCard(
                     context,
@@ -300,7 +300,7 @@ class _MessagePageState extends State<MessagePage> {
               separatorBuilder: (_, index) => const SizedBox(height: 10),
             ),
           ),
-          if (_config.isLogin) _buildMessage(_messageController.loadingState),
+          if (_config.isLogin) _buildMessage(_messageController.loadingState!),
         ],
       ),
     );

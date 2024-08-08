@@ -3,15 +3,15 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../logic/network/network_repo.dart';
-import '../../../logic/model/feed/datum.dart';
-import '../../../logic/model/feed/tab_list.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/home/return_top_controller.dart';
-import '../../../pages/topic/topic_content.dart';
-import '../../../pages/topic/topic_order_controller.dart';
-import '../../../utils/extensions.dart';
-import '../../../utils/utils.dart';
+import '../../logic/network/network_repo.dart';
+import '../../logic/model/feed/datum.dart';
+import '../../logic/model/feed/tab_list.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/home/return_top_controller.dart';
+import '../../pages/topic/topic_content.dart';
+import '../../pages/topic/topic_order_controller.dart';
+import '../../utils/extensions.dart';
+import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
 enum TopicMenuItem { Copy, Share, Sort, Block }
@@ -26,15 +26,14 @@ class TopicPage extends StatefulWidget {
   State<TopicPage> createState() => _TopicPageState();
 }
 
-class _TopicPageState extends State<TopicPage>
-    with SingleTickerProviderStateMixin {
+class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
   String? _tag = Get.parameters['tag'];
   String? _id = Get.parameters['id'];
   String? _title;
   String? _entityType;
   List<TabList>? _tabList;
 
-  LoadingState _topicState = LoadingState.loading();
+  LoadingState? _topicState = LoadingState.loading();
   bool _shouldShowActions = false;
 
   TabController? _tabController;
@@ -61,6 +60,7 @@ class _TopicPageState extends State<TopicPage>
 
   @override
   void dispose() {
+    _topicState = null;
     _tabController?.dispose();
     super.dispose();
   }

@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../utils/extensions.dart';
-import '../../../utils/utils.dart';
+import '../../utils/extensions.dart';
+import '../../utils/utils.dart';
 
 extension StringExtensions on String {
   String get getAllLinkAndText {

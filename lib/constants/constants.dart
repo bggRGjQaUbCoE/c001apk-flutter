@@ -72,6 +72,7 @@ class Constants {
     'verticalColumnsFullPageCard',
     'noMoreDataCard',
     'time',
+    'messageCard',
   ];
 
   static Map<int, Color> getSwatch(int r, int g, int b) {

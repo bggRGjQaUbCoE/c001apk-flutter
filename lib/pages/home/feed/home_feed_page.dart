@@ -65,7 +65,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
 
   @override
   void dispose() {
-    _homeFeedController.scrollController?.dispose();
+    _homeFeedController.dispose();
     super.dispose();
   }
 

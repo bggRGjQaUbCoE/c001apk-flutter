@@ -1,21 +1,23 @@
-import 'package:c001apk_flutter/components/cards/like_card.dart';
-import 'package:c001apk_flutter/components/cards/message_card.dart';
-import 'package:c001apk_flutter/components/cards/notification_card.dart';
 import 'package:flutter/material.dart';
 
-import '../../components/cards/app_card.dart';
-import '../../components/cards/carousel_card.dart';
-import '../../components/cards/feed_card.dart';
-import '../../components/cards/feed_reply_card.dart';
-import '../../components/cards/icon_link_grid_card.dart';
-import '../../components/cards/icon_mini_grid_card.dart';
-import '../../components/cards/icon_mini_scroll_card.dart';
-import '../../components/cards/icon_scroll_card.dart';
-import '../../components/cards/image_square_scroll_card.dart';
-import '../../components/cards/image_text_scroll_card.dart';
-import '../../components/cards/title_card.dart';
-import '../../logic/model/feed/datum.dart';
-import '../../utils/extensions.dart';
+import '../components/cards/app_card.dart';
+import '../components/cards/carousel_card.dart';
+import '../components/cards/collection_card.dart';
+import '../components/cards/feed_card.dart';
+import '../components/cards/feed_reply_card.dart';
+import '../components/cards/icon_link_grid_card.dart';
+import '../components/cards/icon_mini_grid_card.dart';
+import '../components/cards/icon_mini_scroll_card.dart';
+import '../components/cards/icon_scroll_card.dart';
+import '../components/cards/image_square_scroll_card.dart';
+import '../components/cards/image_text_scroll_card.dart';
+import '../components/cards/like_card.dart';
+import '../components/cards/message_card.dart';
+import '../components/cards/notification_card.dart';
+import '../components/cards/text_card.dart';
+import '../components/cards/title_card.dart';
+import '../logic/model/feed/datum.dart';
+import '../utils/extensions.dart';
 
 Widget itemCard(
   Datum data, {
@@ -44,6 +46,10 @@ Widget itemCard(
           return IconScrollCard(data: data);
         case 'imageTextScrollCard':
           return ImageTextScrollCard(data: data);
+        case 'noMoreDataCard':
+          return TextCard(text: data.title.orEmpty, isEndCard: true);
+        case 'messageCard':
+          return TextCard(text: data.description.orEmpty, isMessage: true);
       }
     case 'feed':
       return FeedCard(data: data, isFeedContent: isFeedContent);
@@ -99,7 +105,7 @@ Widget itemCard(
     case 'message':
       return MessageCard(data: data);
     case 'collection':
-      return const ListTile(title: Text('collection'));
+      return CollectionCard(data: data);
   }
   return ListTile(
     title: Text(data.entityType.toString()),

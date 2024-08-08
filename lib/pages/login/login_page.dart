@@ -9,13 +9,13 @@ import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
 import 'package:provider/provider.dart';
 
-import '../../../constants/constants.dart';
-import '../../../logic/model/login/login_response.dart';
-import '../../../logic/network/network_repo.dart';
-import '../../../providers/app_config_provider.dart';
-import '../../../utils/extensions.dart';
-import '../../../utils/token_util.dart';
-import '../../../utils/utils.dart';
+import '../../constants/constants.dart';
+import '../../logic/model/login/login_response.dart';
+import '../../logic/network/network_repo.dart';
+import '../../providers/app_config_provider.dart';
+import '../../utils/extensions.dart';
+import '../../utils/token_util.dart';
+import '../../utils/utils.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

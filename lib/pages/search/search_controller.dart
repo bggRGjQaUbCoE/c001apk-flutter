@@ -1,6 +1,6 @@
-import '../../../logic/network/network_repo.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/common/common_controller.dart';
+import '../../logic/network/network_repo.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/common/common_controller.dart';
 
 class SearchController extends CommonController {
   SearchController({

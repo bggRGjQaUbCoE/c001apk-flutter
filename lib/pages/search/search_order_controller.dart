@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
 
-import '../../../pages/search/search_result_page.dart'
+import '../../pages/search/search_result_page.dart'
     show SearchType, SearchSortType;
 
 class SearchOrderController extends GetxController {

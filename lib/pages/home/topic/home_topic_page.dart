@@ -29,6 +29,12 @@ class _HomeTopicPageState extends State<HomeTopicPage> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _homeTopicController.obx(
       (data) {

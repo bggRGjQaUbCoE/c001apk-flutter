@@ -11,7 +11,7 @@ class DyhPage extends StatefulWidget {
   State<DyhPage> createState() => _DyhPageState();
 }
 
-class _DyhPageState extends State<DyhPage> with SingleTickerProviderStateMixin {
+class _DyhPageState extends State<DyhPage> with TickerProviderStateMixin {
   final String _id = Get.parameters['id'] ?? '';
   String _title = Get.parameters['title'] ?? '';
 

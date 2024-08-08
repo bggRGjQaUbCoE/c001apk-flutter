@@ -28,7 +28,7 @@ class AppPage extends StatefulWidget {
   State<AppPage> createState() => _AppPageState();
 }
 
-class _AppPageState extends State<AppPage> with SingleTickerProviderStateMixin {
+class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
   final String _packageName = Get.parameters['packageName'].orEmpty;
   String? _id;
   String? _appName;
@@ -37,7 +37,7 @@ class _AppPageState extends State<AppPage> with SingleTickerProviderStateMixin {
   late final String _entityType;
   String? _url;
 
-  LoadingState _appState = LoadingState.loading();
+  LoadingState? _appState = LoadingState.loading();
 
   double _scrollRatio = 0;
 
@@ -64,6 +64,7 @@ class _AppPageState extends State<AppPage> with SingleTickerProviderStateMixin {
   void dispose() {
     _tabController.dispose();
     _scrollController.dispose();
+    _appState = null;
     super.dispose();
   }
 

@@ -12,7 +12,7 @@ class CoolpicPage extends StatefulWidget {
 }
 
 class _CoolpicPageState extends State<CoolpicPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   String _title = Get.parameters['title'] ?? '';
 
   late final TabController _tabController =

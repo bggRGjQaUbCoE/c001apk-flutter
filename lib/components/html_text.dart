@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
 
-import '../../utils/emoji_util.dart';
-import '../../utils/extensions.dart';
-import '../../utils/utils.dart';
+import '../utils/emoji_util.dart';
+import '../utils/extensions.dart';
+import '../utils/utils.dart';
 
 Widget htmlText(
   String html, {

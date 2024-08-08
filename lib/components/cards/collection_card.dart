@@ -1,0 +1,66 @@
+import 'package:c001apk_flutter/pages/ffflist/ffflist_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../logic/model/feed/datum.dart';
+
+class CollectionCard extends StatelessWidget {
+  const CollectionCard({super.key, required this.data});
+
+  final Datum data;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => Get.toNamed('ffflist', arguments: {
+        'id': data.id.toString(),
+        'title': data.title,
+        'type': FFFListType.COLLECTION_ITEM,
+      }),
+      borderRadius: BorderRadius.circular(12),
+      child: Ink(
+        decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.onInverseSurface,
+            borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: data.coverPic ?? '',
+                width: 53,
+                height: 40,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+                flex: 1,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(data.title ?? ''),
+                    DefaultTextStyle(
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                      child: Row(
+                        children: [
+                          Text(data.isOpenTitle ?? ''),
+                          Text('${data.followNum}人关注'),
+                          Text('${data.itemNum}个内容'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ))
+          ],
+        ),
+      ),
+    );
+  }
+}

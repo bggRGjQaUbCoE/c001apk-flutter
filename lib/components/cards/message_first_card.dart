@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../pages/ffflist/ffflist_page.dart' show FFFListType;
 
 Widget messageFirstCard(
+  bool isLogin,
   BuildContext context,
   List<int?>? values,
 ) {
@@ -8,14 +12,39 @@ Widget messageFirstCard(
     clipBehavior: Clip.hardEdge,
     borderRadius: const BorderRadius.all(Radius.circular(12)),
     color: Theme.of(context).colorScheme.onInverseSurface,
-    child: messageFirstCardRow(context, values, ['动态', '关注', '粉丝']),
+    child: messageFirstCardRow(
+      context,
+      values,
+      ['动态', '关注', '粉丝'],
+      [
+        isLogin
+            ? () => Get.toNamed(
+                  '/ffflist',
+                  arguments: {'type': FFFListType.FEED},
+                )
+            : () {},
+        isLogin
+            ? () => Get.toNamed(
+                  '/ffflist',
+                  arguments: {'type': FFFListType.FOLLOW},
+                )
+            : () {},
+        isLogin
+            ? () => Get.toNamed(
+                  '/ffflist',
+                  arguments: {'type': FFFListType.FAN},
+                )
+            : () {},
+      ],
+    ),
   );
 }
 
 Widget messageFirstCardRow(
   BuildContext context,
   List<int?>? values,
-  List<String> titles, [
+  List<String> titles,
+  List<Function()> onTaps, [
   List<IconData>? icons,
 ]) {
   return IntrinsicHeight(
@@ -23,8 +52,13 @@ Widget messageFirstCardRow(
       children: [
         Expanded(
           flex: 1,
-          child:
-              _messageFirstCardItem(context, values?[0], titles[0], icons?[0]),
+          child: _messageFirstCardItem(
+            context,
+            values?[0],
+            titles[0],
+            onTaps[0],
+            icons?[0],
+          ),
         ),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
@@ -32,8 +66,13 @@ Widget messageFirstCardRow(
         ),
         Expanded(
           flex: 1,
-          child:
-              _messageFirstCardItem(context, values?[1], titles[1], icons?[1]),
+          child: _messageFirstCardItem(
+            context,
+            values?[1],
+            titles[1],
+            onTaps[1],
+            icons?[1],
+          ),
         ),
         const Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
@@ -41,8 +80,13 @@ Widget messageFirstCardRow(
         ),
         Expanded(
           flex: 1,
-          child:
-              _messageFirstCardItem(context, values?[2], titles[2], icons?[2]),
+          child: _messageFirstCardItem(
+            context,
+            values?[2],
+            titles[2],
+            onTaps[2],
+            icons?[2],
+          ),
         ),
       ],
     ),
@@ -52,11 +96,12 @@ Widget messageFirstCardRow(
 Widget _messageFirstCardItem(
   BuildContext context,
   int? value,
-  String title, [
+  String title,
+  Function() onTap, [
   IconData? icon,
 ]) {
   return InkWell(
-    onTap: () {},
+    onTap: onTap,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Visibility(

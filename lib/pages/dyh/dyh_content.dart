@@ -50,7 +50,7 @@ class _DyhContentState extends State<DyhContent>
 
   @override
   void dispose() {
-    _dyhController.scrollController?.dispose();
+    _dyhController.dispose();
     super.dispose();
   }
 

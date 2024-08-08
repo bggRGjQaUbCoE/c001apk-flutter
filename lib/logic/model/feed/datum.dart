@@ -213,6 +213,8 @@ class Datum {
   // @JsonKey(name: 'include_goods_ids')
   // List<String>? includeGoodsIds;
   String? cover;
+  @JsonKey(name: 'cover_pic')
+  String? coverPic;
   dynamic level;
   dynamic follow;
   @JsonKey(name: 'be_like_num')
@@ -247,6 +249,7 @@ class Datum {
   String? targetType;
   @JsonKey(name: 'fans_num')
   dynamic fansNum;
+  @JsonKey(name: 'comment_num')
   dynamic commentNum;
   int? feedUid;
   @JsonKey(name: 'message_raw_output')
@@ -269,6 +272,11 @@ class Datum {
   @JsonKey(name: 'is_top')
   int? isTop;
   String? ukey;
+  String? description;
+  @JsonKey(name: 'is_open_title')
+  String? isOpenTitle;
+  @JsonKey(name: 'item_num')
+  int? itemNum;
 
   Datum({
     this.entityType,
@@ -409,6 +417,7 @@ class Datum {
     this.userAction,
     // this.includeGoodsIds,
     this.cover,
+    this.coverPic,
     this.level,
     this.follow,
     this.beLikeNum,
@@ -452,6 +461,9 @@ class Datum {
     this.unreadNum,
     this.isTop,
     this.ukey,
+    this.description,
+    this.isOpenTitle,
+    this.itemNum,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => _$DatumFromJson(json);

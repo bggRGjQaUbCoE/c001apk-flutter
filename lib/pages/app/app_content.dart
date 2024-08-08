@@ -54,7 +54,6 @@ class _AppContentState extends State<AppContent>
     }
 
     _appController.refreshKey = GlobalKey<RefreshIndicatorState>();
-    _appController.scrollController = NestedInnerScrollController();
     _appController.returnTopController =
         Get.find<ReturnTopController>(tag: widget.packageName);
 
@@ -69,7 +68,7 @@ class _AppContentState extends State<AppContent>
 
   @override
   void dispose() {
-    _appController.scrollController?.dispose();
+    _appController.dispose();
     super.dispose();
   }
 
@@ -103,6 +102,8 @@ class _AppContentState extends State<AppContent>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    _appController.scrollController ??=
+        NestedInnerScrollController.maybeOf(context);
     return _appController.loadingState is Success
         ? RefreshIndicator(
             key: _appController.refreshKey,

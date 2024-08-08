@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../components/common_body.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/noitfication/notification_controller.dart';
+import '../../components/common_body.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/noitfication/notification_controller.dart';
 
 // ignore: constant_identifier_names
 enum NotificationType { AT, COMMENT, LIKE, FOLLOW, MESSAGE }
@@ -33,6 +33,12 @@ class _NotificationPageState extends State<NotificationPage> {
       NotificationType.MESSAGE => '/v6/message/list',
     },
   );
+
+  @override
+  void dispose() {
+    _notificationController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {

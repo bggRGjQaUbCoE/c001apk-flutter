@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:get/get.dart';
 
-import '../../../components/common_body.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/home/return_top_controller.dart';
-import '../../../pages/topic/topic_controller.dart';
-import '../../../pages/topic/topic_order_controller.dart';
-import '../../../pages/topic/topic_page.dart' show TopicSortType;
+import '../../components/common_body.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/home/return_top_controller.dart';
+import '../../pages/topic/topic_controller.dart';
+import '../../pages/topic/topic_order_controller.dart';
+import '../../pages/topic/topic_page.dart' show TopicSortType;
 
 class TopicContent extends StatefulWidget {
   const TopicContent({
@@ -93,7 +93,7 @@ class _TopicContentState extends State<TopicContent>
 
   @override
   void dispose() {
-    _topicController.scrollController?.dispose();
+    _topicController.dispose();
     super.dispose();
   }
 

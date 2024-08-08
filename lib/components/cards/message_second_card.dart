@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../components/cards/message_first_card.dart'
     show messageFirstCardRow;
+import '../../pages/ffflist/ffflist_page.dart' show FFFListType;
 
-Widget messageSeconfCard(BuildContext context) {
+Widget messageSeconfCard(bool isLogin, BuildContext context) {
   return Material(
     clipBehavior: Clip.hardEdge,
     borderRadius: const BorderRadius.all(Radius.circular(12)),
@@ -20,6 +22,16 @@ Widget messageSeconfCard(BuildContext context) {
             '我的常去',
           ],
           [
+            () {},
+            () {},
+            isLogin
+                ? () => Get.toNamed(
+                      '/ffflist',
+                      arguments: {'type': FFFListType.RECENT},
+                    )
+                : () {},
+          ],
+          [
             Icons.archive_outlined,
             Icons.history,
             Icons.my_location,
@@ -32,6 +44,26 @@ Widget messageSeconfCard(BuildContext context) {
             '我的收藏',
             '我的赞',
             '我的回复',
+          ],
+          [
+            isLogin
+                ? () => Get.toNamed(
+                      '/ffflist',
+                      arguments: {'type': FFFListType.COLLECTION},
+                    )
+                : () {},
+            isLogin
+                ? () => Get.toNamed(
+                      '/ffflist',
+                      arguments: {'type': FFFListType.LIKE},
+                    )
+                : () {},
+            isLogin
+                ? () => Get.toNamed(
+                      '/ffflist',
+                      arguments: {'type': FFFListType.REPLY},
+                    )
+                : () {},
           ],
           [
             Icons.star_border,

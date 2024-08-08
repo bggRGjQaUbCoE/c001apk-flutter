@@ -1,24 +1,25 @@
+import 'package:c001apk_flutter/pages/ffflist/ffflist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../pages/app/app_page.dart';
-import '../../../pages/carousel/carousel_page.dart';
-import '../../../pages/coolpic/coolpic_page.dart';
-import '../../../pages/dyh/dyh_page.dart';
-import '../../../pages/feed/feed_page.dart';
-import '../../../pages/home/app/update/app_update_page.dart';
-import '../../../pages/login/login_page.dart';
-import '../../../pages/main/main_page.dart';
-import '../../../pages/noitfication/notification_page.dart';
-import '../../../pages/others/copy_page.dart';
-import '../../../pages/others/imageview_page.dart';
-import '../../../pages/search/search_page.dart';
-import '../../../pages/search/search_result_page.dart';
-import '../../../pages/settings/about_page.dart';
-import '../../../pages/settings/params_page.dart';
-import '../../../pages/topic/topic_page.dart';
-import '../../../pages/user/user_page.dart';
-import '../../../pages/webview/webview_page.dart';
+import '../pages/app/app_page.dart';
+import '../pages/carousel/carousel_page.dart';
+import '../pages/coolpic/coolpic_page.dart';
+import '../pages/dyh/dyh_page.dart';
+import '../pages/feed/feed_page.dart';
+import '../pages/home/app/update/app_update_page.dart';
+import '../pages/login/login_page.dart';
+import '../pages/main/main_page.dart';
+import '../pages/noitfication/notification_page.dart';
+import '../pages/others/copy_page.dart';
+import '../pages/others/imageview_page.dart';
+import '../pages/search/search_page.dart';
+import '../pages/search/search_result_page.dart';
+import '../pages/settings/about_page.dart';
+import '../pages/settings/params_page.dart';
+import '../pages/topic/topic_page.dart';
+import '../pages/user/user_page.dart';
+import '../pages/webview/webview_page.dart';
 
 class AppPages {
   static GetPage _getPage({
@@ -108,6 +109,10 @@ class AppPages {
     _getPage(
       name: '/notification',
       page: () => const NotificationPage(),
+    ),
+    _getPage(
+      name: '/ffflist',
+      page: () => const FFFListPage(),
     ),
   ];
 }

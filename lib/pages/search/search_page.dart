@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../utils/extensions.dart';
+import '../../utils/extensions.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -25,13 +25,14 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-  void onSearch(String text) {
-    Get.toNamed('/searchResult', parameters: {
+  void onSearch(String text) async {
+    await Get.toNamed('/searchResult', parameters: {
       'keyword': text,
       if (!_title.isNullOrEmpty) 'title': _title!,
       if (!_pageType.isNullOrEmpty) 'pageType': _pageType!,
       if (!_pageParam.isNullOrEmpty) 'pageParam': _pageParam!,
     });
+    _focusNode.requestFocus();
   }
 
   @override
@@ -82,13 +83,12 @@ class _SearchPageState extends State<SearchPage> {
             tooltip: 'Search',
           ),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.zero,
+          child: Divider(height: 1),
+        ),
       ),
-      body: const Column(
-        children: [
-          Divider(height: 1),
-          Center(child: Text('search history')),
-        ],
-      ),
+      body: const Center(child: Text('search history')),
     );
   }
 }

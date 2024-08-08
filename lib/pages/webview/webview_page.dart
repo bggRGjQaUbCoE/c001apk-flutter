@@ -4,11 +4,11 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-import '../../../constants/constants.dart';
-import '../../../providers/app_config_provider.dart';
-import '../../../utils/cache_util.dart';
-import '../../../utils/extensions.dart';
-import '../../../utils/utils.dart';
+import '../../constants/constants.dart';
+import '../../providers/app_config_provider.dart';
+import '../../utils/cache_util.dart';
+import '../../utils/extensions.dart';
+import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
 enum WebviewMenuItem { Refresh, Copy, Open_In_Browser, Clear_Cache, Go_Back }

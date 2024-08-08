@@ -1,7 +1,7 @@
-import '../../../logic/model/feed/datum.dart';
-import '../../../logic/network/network_repo.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/common/common_controller.dart';
+import '../../logic/model/feed/datum.dart';
+import '../../logic/network/network_repo.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/common/common_controller.dart';
 
 class UserController extends CommonController {
   UserController({
@@ -15,6 +15,7 @@ class UserController extends CommonController {
   void handleResponse(List<Datum> dataList) {
     if (dataList.lastOrNull?.entityTemplate == 'noMoreDataCard') {
       isEnd = true;
+      footerState = LoadingState.empty();
     }
   }
 
@@ -28,7 +29,7 @@ class UserController extends CommonController {
     );
   }
 
-  LoadingState userState = LoadingState.loading();
+  LoadingState? userState = LoadingState.loading();
 
   Future<LoadingState> onGetUserData() async {
     LoadingState<dynamic> loadingState =
@@ -40,5 +41,11 @@ class UserController extends CommonController {
     }
 
     return loadingState;
+  }
+
+  @override
+  void dispose() {
+    userState = null;
+    super.dispose();
   }
 }

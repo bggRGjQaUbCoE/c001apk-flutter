@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../logic/state/loading_state.dart';
+import '../logic/state/loading_state.dart';
 
 Widget footerWidget(LoadingState footerState, Function() onReload) {
   switch (footerState) {

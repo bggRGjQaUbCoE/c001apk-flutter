@@ -168,6 +168,7 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       //     ?.map((e) => e as String)
       //     .toList(),
       cover: json['cover'] as String?,
+      coverPic: json['cover_pic'] as String?,
       level: json['level'],
       follow: json['follow'],
       beLikeNum: json['be_like_num'],
@@ -195,7 +196,7 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       commentnumTxt: json['commentnum_txt'],
       targetType: json['targetType'] as String?,
       fansNum: json['fans_num'],
-      commentNum: json['commentNum'],
+      commentNum: json['comment_num'],
       feedUid: (json['feedUid'] as num?)?.toInt(),
       messageRawOutput: json['message_raw_output'] as String?,
       isStickTop: (json['isStickTop'] as num?)?.toInt(),
@@ -213,6 +214,9 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       unreadNum: (json['unreadNum'] as num?)?.toInt(),
       isTop: (json['isTop'] as num?)?.toInt(),
       ukey: json['ukey'] as String?,
+      description: json['description'] as String?,
+      isOpenTitle: json['is_open_title'] as String?,
+      itemNum: (json['item_num'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
@@ -353,6 +357,7 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'userAction': instance.userAction,
       // 'include_goods_ids': instance.includeGoodsIds,
       'cover': instance.cover,
+      'cover_pic': instance.coverPic,
       'level': instance.level,
       'follow': instance.follow,
       'be_like_num': instance.beLikeNum,
@@ -378,7 +383,7 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'commentnum_txt': instance.commentnumTxt,
       'target_type': instance.targetType,
       'fans_num': instance.fansNum,
-      'commentNum': instance.commentNum,
+      'comment_num': instance.commentNum,
       'feedUid': instance.feedUid,
       'message_raw_output': instance.messageRawOutput,
       'isStickTop': instance.isStickTop,
@@ -396,4 +401,7 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'unreadNum': instance.unreadNum,
       'is_top': instance.isTop,
       'ukey': instance.ukey,
+      'description': instance.description,
+      'is_open_title': instance.isOpenTitle,
+      'item_num': instance.itemNum,
     };

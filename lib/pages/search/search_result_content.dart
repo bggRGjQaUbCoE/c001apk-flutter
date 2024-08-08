@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:get/get.dart';
 
-import '../../../components/common_body.dart';
-import '../../../logic/state/loading_state.dart';
-import '../../../pages/home/return_top_controller.dart';
-import '../../../pages/search/search_controller.dart';
-import '../../../pages/search/search_order_controller.dart';
-import '../../../pages/search/search_result_page.dart'
+import '../../components/common_body.dart';
+import '../../logic/state/loading_state.dart';
+import '../../pages/home/return_top_controller.dart';
+import '../../pages/search/search_controller.dart';
+import '../../pages/search/search_order_controller.dart';
+import '../../pages/search/search_result_page.dart'
     show SearchContentType, SearchSortType, SearchType;
 
 class SearchResultContent extends StatefulWidget {
@@ -152,7 +152,7 @@ class _SearchResultContentState extends State<SearchResultContent>
 
   @override
   void dispose() {
-    _searchController.scrollController?.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 

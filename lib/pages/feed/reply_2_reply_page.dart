@@ -32,6 +32,12 @@ class _Reply2ReplyPageState extends State<Reply2ReplyPage> {
     _onGetData();
   }
 
+  @override
+  void dispose() {
+    _replyController.dispose();
+    super.dispose();
+  }
+
   Future<void> _onGetData({bool isRefresh = true}) async {
     var responseState = await _replyController.onGetData();
     if (responseState != null) {

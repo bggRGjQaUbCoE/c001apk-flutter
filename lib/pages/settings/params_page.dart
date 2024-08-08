@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/dialog.dart';
-import '../../../providers/app_config_provider.dart';
+import '../../components/dialog.dart';
+import '../../providers/app_config_provider.dart';
 
 class ParamsPage extends StatelessWidget {
   const ParamsPage({super.key});

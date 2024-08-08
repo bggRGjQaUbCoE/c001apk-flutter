@@ -46,8 +46,8 @@ abstract class CommonController {
     return null;
   }
 
-  LoadingState loadingState = LoadingState.loading();
-  LoadingState footerState = LoadingState.loading();
+  LoadingState? loadingState = LoadingState.loading();
+  LoadingState? footerState = LoadingState.loading();
   GlobalKey<RefreshIndicatorState>? refreshKey;
   ScrollController? scrollController;
   ReturnTopController? returnTopController;
@@ -57,5 +57,15 @@ abstract class CommonController {
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
     returnTopController?.setIndex(999);
     refreshKey?.currentState?.show();
+  }
+
+  void dispose() {
+    loadingState = null;
+    loadingState = null;
+    refreshKey = null;
+    scrollController?.dispose();
+    scrollController = null;
+    returnTopController?.dispose();
+    returnTopController = null;
   }
 }

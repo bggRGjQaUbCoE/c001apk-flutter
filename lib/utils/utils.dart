@@ -13,9 +13,10 @@ import 'package:crypto/crypto.dart';
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart' as dom;
 
-import '../../../constants/constants.dart';
-import '../../../logic/network/network_repo.dart';
-import '../../../utils/extensions.dart';
+import '../constants/constants.dart';
+import '../logic/network/network_repo.dart';
+import '../utils/extensions.dart';
+import '../pages/ffflist/ffflist_page.dart' show FFFListType;
 
 // ignore: constant_identifier_names
 enum ReportType { Feed, Reply, User }
@@ -198,6 +199,13 @@ class Utils {
           'url': path.replaceFirst('#', ''),
           'title': title.orEmpty,
           'isInit': '1',
+        },
+      );
+    } else if (path.startsWith(Constants.PREFIX_USER_LIST)) {
+      Get.toNamed(
+        '/ffflist',
+        arguments: {
+          'type': FFFListType.USER_FOLLOW,
         },
       );
     } else if (path.startsWith(Constants.PREFIX_DYH)) {

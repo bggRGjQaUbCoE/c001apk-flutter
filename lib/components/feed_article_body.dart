@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../../components/html_text.dart';
-import '../../components/imageview.dart';
-import '../../logic/model/feed_article/feed_article.dart';
-import '../../utils/extensions.dart';
-import '../../utils/utils.dart';
+import '../components/html_text.dart';
+import '../components/imageview.dart';
+import '../logic/model/feed_article/feed_article.dart';
+import '../utils/extensions.dart';
+import '../utils/utils.dart';
 
 Widget feedArticleBody(
   double maxWidth,
@@ -19,7 +19,7 @@ Widget feedArticleBody(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: htmlText(
           data.title.orEmpty,
-          fontSize: 18,
+          fontSize: 17,
           isBold: true,
         ),
       );
@@ -44,7 +44,7 @@ Widget feedArticleBody(
           mainAxisSize: MainAxisSize.min,
           children: [
             image(
-              maxWidth,
+              maxWidth - 32,
               picArr,
               isFeedArticle: true,
               articleImg: data.url.orEmpty,

@@ -29,14 +29,10 @@ class FeedPage extends StatefulWidget {
   State<FeedPage> createState() => _FeedPageState();
 }
 
-class _FeedPageState extends State<FeedPage>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  LoadingState _feedState = LoadingState.loading();
-  LoadingState _replyState = LoadingState.loading();
-  LoadingState _footerState = LoadingState.loading();
+class _FeedPageState extends State<FeedPage> {
+  LoadingState? _feedState = LoadingState.loading();
+  LoadingState? _replyState = LoadingState.loading();
+  LoadingState? _footerState = LoadingState.loading();
   String? _feedTypeName;
   int? _feedUid;
   String? _feedUsername;
@@ -71,6 +67,16 @@ class _FeedPageState extends State<FeedPage>
   Set<ReplySortType> _segmentedButtonSelection = <ReplySortType>{
     ReplySortType.def
   };
+
+  @override
+  void dispose() {
+    _feedState = null;
+    _replyState = null;
+    _footerState = null;
+    _articleList = null;
+    _articleImgList = null;
+    super.dispose();
+  }
 
   Future<void> _getFeedData() async {
     LoadingState<dynamic> response =
@@ -356,7 +362,7 @@ class _FeedPageState extends State<FeedPage>
                 if (!_isEnd && !_isLoading) {
                   _getFeedReply();
                 }
-                return footerWidget(_footerState, () {
+                return footerWidget(_footerState!, () {
                   _isEnd = false;
                   if (mounted) {
                     setState(() => _footerState = LoadingState.loading());
@@ -385,7 +391,6 @@ class _FeedPageState extends State<FeedPage>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Scaffold(
       appBar: AppBar(
         title: _feedTypeName.isNullOrEmpty ? null : Text(_feedTypeName!),
@@ -407,7 +412,11 @@ class _FeedPageState extends State<FeedPage>
                         SmartDialog.showToast('todo: block');
                         break;
                       case FeedMenuItem.Report:
-                        Utils.report(_id, ReportType.Feed);
+                        if (Utils.isSupportWebview()) {
+                          Utils.report(_id, ReportType.Feed);
+                        } else {
+                          SmartDialog.showToast('not supported');
+                        }
                         break;
                     }
                   },

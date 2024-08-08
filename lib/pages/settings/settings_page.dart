@@ -5,11 +5,11 @@ import 'package:get/get.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
-import '../../../components/dialog.dart';
-import '../../../constants/constants.dart';
-import '../../../providers/app_config_provider.dart';
-import '../../../utils/cache_util.dart';
-import '../../../utils/utils.dart';
+import '../../components/dialog.dart';
+import '../../constants/constants.dart';
+import '../../providers/app_config_provider.dart';
+import '../../utils/cache_util.dart';
+import '../../utils/utils.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

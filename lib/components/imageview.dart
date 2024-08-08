@@ -4,9 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../components/nine_grid_view.dart';
-import '../../constants/constants.dart';
-import '../../utils/utils.dart';
+import '../components/nine_grid_view.dart';
+import '../constants/constants.dart';
+import '../utils/utils.dart';
 
 Widget image(
   double maxWidth,
@@ -67,20 +67,8 @@ Widget image(
                     ? '$articleImg${Constants.SUFFIX_THUMBNAIL}'
                     : '${picArr[index]}${Constants.SUFFIX_THUMBNAIL}',
                 fit: picArr.length == 1 ? BoxFit.fill : BoxFit.cover,
-                placeholder: (context, url) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                errorWidget: (context, url, error) => DecoratedBox(
-                  decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                placeholder: (context, url) => _placeHolder(context),
+                errorWidget: (context, url, error) => _placeHolder(context),
               ),
               if (picArr[index].endsWith(Constants.SUFFIX_GIF))
                 _badge(context, 'GIF'),
@@ -91,6 +79,15 @@ Widget image(
           ),
         ),
       ),
+    ),
+  );
+}
+
+Widget _placeHolder(BuildContext context) {
+  return DecoratedBox(
+    decoration: BoxDecoration(
+      color: Theme.of(context).colorScheme.outline.withOpacity(0.25),
+      borderRadius: BorderRadius.circular(12),
     ),
   );
 }

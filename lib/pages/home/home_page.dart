@@ -3,10 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../pages/home/app/app_list_page.dart';
-import '../../../pages/home/feed/home_feed_page.dart';
-import '../../../pages/home/return_top_controller.dart';
-import '../../../pages/home/topic/home_topic_page.dart';
+import '../../pages/home/app/app_list_page.dart';
+import '../../pages/home/feed/home_feed_page.dart';
+import '../../pages/home/return_top_controller.dart';
+import '../../pages/home/topic/home_topic_page.dart';
 
 // ignore: constant_identifier_names
 enum TabType { FOLLOW, APP, FEED, HOT, TOPIC, PRODUCT, COOLPIC, NONE }
@@ -18,8 +18,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late TabController _tabController;
   final ReturnTopController _pageScrollController =
       Get.find<ReturnTopController>(tag: 'home');

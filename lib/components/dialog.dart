@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
 
-import '../../constants/constants.dart';
-import '../../utils/utils.dart';
+import '../constants/constants.dart';
+import '../utils/utils.dart';
 
 class SliderDialog extends StatefulWidget {
   const SliderDialog(

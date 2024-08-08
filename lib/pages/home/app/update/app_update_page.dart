@@ -28,7 +28,7 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
   late String _pkgs;
 
   final AppListController _appListController = Get.put(AppListController());
-  LoadingState _loadingState = LoadingState.loading();
+  LoadingState? _loadingState = LoadingState.loading();
   int? _length;
 
   @override
@@ -49,6 +49,12 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
     Map<String, String> pkgsMap = Map.fromIterables(_packageNames, values);
     _pkgs = TokenUtils.getBase64(jsonEncode(pkgsMap));
     _getData();
+  }
+
+  @override
+  void dispose() {
+    _loadingState = null;
+    super.dispose();
   }
 
   Future<void> _getData() async {

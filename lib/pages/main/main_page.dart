@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../../../logic/network/request.dart';
-import '../../../pages/home/return_top_controller.dart';
-import '../../../pages/home/home_page.dart';
-import '../../../pages/main/controller.dart';
-import '../../../pages/message/message_page.dart';
-import '../../../pages/settings/settings_page.dart';
+import '../../logic/network/request.dart';
+import '../../pages/home/return_top_controller.dart';
+import '../../pages/home/home_page.dart';
+import '../../pages/main/controller.dart';
+import '../../pages/message/message_page.dart';
+import '../../pages/settings/settings_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});

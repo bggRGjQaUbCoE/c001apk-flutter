@@ -6,10 +6,10 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:provider/provider.dart';
 
-import '../../../logic/network/network_repo.dart';
-import '../../../logic/model/check_info/check.dart';
-import '../../../providers/app_config_provider.dart';
-import '../../../utils/extensions.dart';
+import '../../logic/network/network_repo.dart';
+import '../../logic/model/check_info/check.dart';
+import '../../providers/app_config_provider.dart';
+import '../../utils/extensions.dart';
 
 class MainController extends GetxController {
   final _config = Provider.of<AppConfigProvider>(Get.context!, listen: false);

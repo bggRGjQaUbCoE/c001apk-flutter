@@ -82,7 +82,7 @@ class AppCard extends StatelessWidget {
                     ? data.title.orEmpty
                     : appCardType == AppCardType.USER
                         ? data.userInfo?.username ?? ''
-                        : appCardType == AppCardType.CONTACTS
+                        : appCardType == AppCardType.RECENT
                             ? '${data.targetTypeTitle}: ${data.title}'
                             : data.userInfo?.username != null
                                 ? data.userInfo!.username.toString()

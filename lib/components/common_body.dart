@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../components/footer.dart';
-import '../../components/item_card.dart';
-import '../../logic/model/feed/datum.dart';
-import '../../logic/state/loading_state.dart';
-import '../../pages/common/common_controller.dart';
+import '../components/footer.dart';
+import '../components/item_card.dart';
+import '../logic/model/feed/datum.dart';
+import '../logic/state/loading_state.dart';
+import '../pages/common/common_controller.dart';
 
 Widget _bodyState(String text, Function() onTap) {
   return GestureDetector(
@@ -67,7 +67,7 @@ Widget buildBody(
             if (!commonController.isEnd && !commonController.isLoading) {
               onGetData(false);
             }
-            return footerWidget(commonController.footerState, () {
+            return footerWidget(commonController.footerState!, () {
               commonController.isEnd = false;
               setFooterState(LoadingState.loading());
               onGetData(false);

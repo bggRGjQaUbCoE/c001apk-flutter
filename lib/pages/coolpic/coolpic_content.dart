@@ -50,7 +50,7 @@ class _CoolpicContentState extends State<CoolpicContent>
 
   @override
   void dispose() {
-    _coolpicController.scrollController?.dispose();
+    _coolpicController.dispose();
     super.dispose();
   }
 

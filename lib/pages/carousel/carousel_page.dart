@@ -27,7 +27,7 @@ class CarouselPage extends StatefulWidget {
 }
 
 class _CarouselPageState extends State<CarouselPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late bool _isInit;
   late String _url;
   late String _title;
@@ -37,8 +37,8 @@ class _CarouselPageState extends State<CarouselPage>
 
   TabController? _tabController;
 
-  LoadingState _loadingState = LoadingState.loading();
-  LoadingState _footerState = LoadingState.loading();
+  LoadingState? _loadingState = LoadingState.loading();
+  LoadingState? _footerState = LoadingState.loading();
 
   String? _firstItem;
   String? _lastItem;
@@ -62,6 +62,8 @@ class _CarouselPageState extends State<CarouselPage>
 
   @override
   void dispose() {
+    _loadingState = null;
+    _footerState = null;
     _tabController?.dispose();
     super.dispose();
   }
@@ -170,7 +172,7 @@ class _CarouselPageState extends State<CarouselPage>
               if (!_isEnd && !_isLoading) {
                 _onGetData();
               }
-              return footerWidget(_footerState, () {
+              return footerWidget(_footerState!, () {
                 _isEnd = false;
                 setState(() => _footerState = LoadingState.loading());
                 _onGetData();
@@ -219,7 +221,7 @@ class _CarouselPageState extends State<CarouselPage>
                         onRefresh: () async {
                           await _onRefresh();
                         },
-                        child: _buildBody(_loadingState),
+                        child: _buildBody(_loadingState!),
                       )
                     : TabBarView(
                         controller: _tabController,
@@ -238,13 +240,13 @@ class _CarouselPageState extends State<CarouselPage>
                 onRefresh: () async {
                   await _onRefresh();
                 },
-                child: _buildBody(_loadingState),
+                child: _buildBody(_loadingState!),
               )
         : _isInit
             ? Scaffold(
                 appBar: AppBar(),
-                body: Center(child: _buildBody(_loadingState)),
+                body: Center(child: _buildBody(_loadingState!)),
               )
-            : Center(child: _buildBody(_loadingState));
+            : Center(child: _buildBody(_loadingState!));
   }
 }

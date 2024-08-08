@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '../../../utils/download_util.dart';
-import '../../../utils/utils.dart';
+import '../../utils/download_util.dart';
+import '../../utils/utils.dart';
 
 class ImageViewPage extends StatefulWidget {
   const ImageViewPage({super.key});

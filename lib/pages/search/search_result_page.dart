@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../pages/home/return_top_controller.dart';
-import '../../../pages/search/search_order_controller.dart';
-import '../../../pages/search/search_result_content.dart';
-import '../../../utils/extensions.dart';
+import '../../pages/home/return_top_controller.dart';
+import '../../pages/search/search_order_controller.dart';
+import '../../pages/search/search_result_content.dart';
+import '../../utils/extensions.dart';
 
 enum SearchContentType { FEED, APP, GAME, TOPIC, PRODUCT, USER }
 
@@ -34,7 +34,7 @@ class SearchResultPage extends StatefulWidget {
 }
 
 class _SearchResultPageState extends State<SearchResultPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final String _keyword = Get.parameters['keyword'] ?? '';
   final String? _title = Get.parameters['title'];
   final String? _pageType = Get.parameters['pageType'];

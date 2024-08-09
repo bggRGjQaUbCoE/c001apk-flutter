@@ -18,7 +18,7 @@ class HomeFeedNewController extends CommonController {
   final String? title;
 
   @override
-  Future<LoadingState> customFetchData() {
+  Future<LoadingState> customGetData() {
     return tabType == TabType.FEED
         ? NetworkRepo.getHomeFeed(
             page: page,
@@ -35,5 +35,11 @@ class HomeFeedNewController extends CommonController {
             lastItem: lastItem,
             page: page,
           );
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    onGetData();
   }
 }

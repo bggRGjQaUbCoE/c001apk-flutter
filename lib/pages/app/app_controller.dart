@@ -1,25 +1,43 @@
+import 'package:get/get.dart';
+
+import '../../logic/model/feed/datum.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
-import '../../pages/common/common_controller.dart';
 
-class AppController extends CommonController {
-  AppController({
-    required this.url,
-    required this.title,
-  });
+class AppController extends GetxController {
+  AppController({required this.packageName});
+  final String packageName;
 
-  final String url;
-  final String title;
+  late final String? id;
+  late final int? commentStatus;
+  late final String? commentStatusText;
+  late final String? entityType;
+
+  Rx<LoadingState> appState = LoadingState.loading().obs;
+  RxString appName = ''.obs;
+
+  Future<void> _getAppData() async {
+    LoadingState response = await NetworkRepo.getAppInfo(id: packageName);
+    if (response is Success) {
+      id = (response.response as Datum).id.toString();
+      commentStatus = (response.response as Datum).commentStatus;
+      commentStatusText = (response.response as Datum).commentStatusText;
+      entityType = (response.response as Datum).entityType ?? '';
+      appState.value = LoadingState.success(response.response);
+      appName.value = (response.response as Datum).title ?? '';
+    } else {
+      appState.value = response;
+    }
+  }
+
+  void regetData() {
+    appState.value = LoadingState.loading();
+    _getAppData();
+  }
 
   @override
-  Future<LoadingState> customFetchData() {
-    return NetworkRepo.getDataList(
-      url: url,
-      title: title,
-      subTitle: '',
-      firstItem: firstItem,
-      lastItem: lastItem,
-      page: page,
-    );
+  void onInit() {
+    super.onInit();
+    _getAppData();
   }
 }

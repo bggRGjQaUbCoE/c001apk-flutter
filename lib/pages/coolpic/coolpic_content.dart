@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../components/common_body.dart';
-import '../../logic/state/loading_state.dart';
 import '../../pages/coolpic/coolpic_controller.dart';
 import '../../pages/home/return_top_controller.dart';
 
@@ -25,8 +24,10 @@ class _CoolpicContentState extends State<CoolpicContent>
   @override
   bool get wantKeepAlive => true;
 
-  late final _coolpicController =
-      CoolpicController(type: widget.type, title: widget.title);
+  late final _coolpicController = Get.put(
+    CoolpicController(type: widget.type, title: widget.title),
+    tag: widget.type + widget.title,
+  );
 
   @override
   void initState() {
@@ -44,56 +45,17 @@ class _CoolpicContentState extends State<CoolpicContent>
         _coolpicController.animateToTop();
       }
     });
-
-    _onGetData();
   }
 
   @override
   void dispose() {
-    _coolpicController.dispose();
+    _coolpicController.scrollController?.dispose();
     super.dispose();
-  }
-
-  Future<void> _onGetData({bool isRefresh = true}) async {
-    var responseState = await _coolpicController.onGetData();
-    if (responseState != null) {
-      setState(() {
-        if (isRefresh) {
-          _coolpicController.loadingState = responseState;
-        } else if (responseState is Success &&
-            _coolpicController.loadingState is Success) {
-          _coolpicController.loadingState = LoadingState.success(
-              (_coolpicController.loadingState as Success).response +
-                  responseState.response);
-        } else {
-          _coolpicController.footerState = responseState;
-        }
-      });
-    }
-  }
-
-  Widget _buildBody() {
-    return buildBody(
-      _coolpicController,
-      (isRefresh) => _onGetData(isRefresh: isRefresh),
-      (state) => setState(() => _coolpicController.loadingState = state),
-      (state) => setState(() => _coolpicController.footerState = state),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return _coolpicController.loadingState is Success
-        ? RefreshIndicator(
-            key: _coolpicController.refreshKey,
-            backgroundColor: Theme.of(context).colorScheme.onSecondary,
-            onRefresh: () async {
-              _coolpicController.onReset();
-              await _onGetData();
-            },
-            child: _buildBody(),
-          )
-        : Center(child: _buildBody());
+    return commonBody(_coolpicController);
   }
 }

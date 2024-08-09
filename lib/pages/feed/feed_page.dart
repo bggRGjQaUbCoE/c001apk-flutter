@@ -75,6 +75,7 @@ class _FeedPageState extends State<FeedPage> {
     _footerState = null;
     _articleList = null;
     _articleImgList = null;
+
     super.dispose();
   }
 

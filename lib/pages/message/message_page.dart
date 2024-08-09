@@ -44,7 +44,8 @@ class _MessagePageState extends State<MessagePage> {
     Icons.person_add_outlined,
     Icons.mail_outline,
   ];
-  late final MessageController _messageController = MessageController();
+  late final MessageController _messageController =
+      Get.put(MessageController());
 
   List<int?>? _firstList;
   List<int?>? _thirdList;
@@ -90,6 +91,12 @@ class _MessagePageState extends State<MessagePage> {
   }
 
   @override
+  void dispose() {
+    _messageController.scrollController?.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     if (_config.isLogin) {
@@ -101,26 +108,7 @@ class _MessagePageState extends State<MessagePage> {
     _messageController.onReset();
     await _getProfile();
     await _checkCount();
-    await _onGetMessage(isRefresh: true);
-  }
-
-  Future<void> _onGetMessage({bool isRefresh = true}) async {
-    var responseState = await _messageController.onGetData();
-    if (responseState != null) {
-      setState(() {
-        if (isRefresh) {
-          _messageController.loadingState = responseState;
-        } else if (responseState is Success &&
-            _messageController.loadingState is Success) {
-          _messageController.loadingState = LoadingState.success(
-              (_messageController.loadingState as Success).response +
-                  responseState.response);
-        } else {
-          _messageController.footerState = responseState;
-        }
-      });
-    }
-    _isRefreshing = false;
+    await _messageController.onGetData();
   }
 
   Widget _buildMessage(LoadingState loadingState) {
@@ -162,16 +150,14 @@ class _MessagePageState extends State<MessagePage> {
                 if (!_isRefreshing &&
                     !_messageController.isEnd &&
                     !_messageController.isLoading) {
-                  _onGetMessage(isRefresh: false);
+                  _messageController.onGetData(false);
                 }
-                return footerWidget(_messageController.footerState!, () {
-                  _messageController.isEnd = false;
-                  if (mounted) {
-                    setState(() => _messageController.footerState =
-                        LoadingState.loading());
-                  }
-                  _onGetMessage(isRefresh: false);
-                });
+                return Obx(() =>
+                    footerWidget(_messageController.footerState.value, () {
+                      _messageController.isEnd = false;
+                      _messageController.setFooterState(LoadingState.loading());
+                      _messageController.onGetData(false);
+                    }));
               } else {
                 return NotificationCard(
                   data: dataList[index],
@@ -248,12 +234,10 @@ class _MessagePageState extends State<MessagePage> {
                                         ..setExp(0)
                                         ..setNextExp(1)
                                         ..setIsLogin(false);
-                                      setState(() {
-                                        _messageController.loadingState =
-                                            LoadingState.loading();
-                                        _messageController.footerState =
-                                            LoadingState.loading();
-                                      });
+                                      _messageController.setLoadingState(
+                                          LoadingState.loading());
+                                      _messageController.setFooterState(
+                                          LoadingState.loading());
                                       Get.back();
                                     },
                                     child: const Text('确定'),
@@ -300,7 +284,8 @@ class _MessagePageState extends State<MessagePage> {
               separatorBuilder: (_, index) => const SizedBox(height: 10),
             ),
           ),
-          if (_config.isLogin) _buildMessage(_messageController.loadingState!),
+          if (_config.isLogin)
+            Obx(() => _buildMessage(_messageController.loadingState.value)),
         ],
       ),
     );

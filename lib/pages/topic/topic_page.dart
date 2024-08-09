@@ -3,12 +3,10 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../logic/network/network_repo.dart';
-import '../../logic/model/feed/datum.dart';
-import '../../logic/model/feed/tab_list.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/home/return_top_controller.dart';
 import '../../pages/topic/topic_content.dart';
+import '../../pages/topic/topic_controller.dart';
 import '../../pages/topic/topic_order_controller.dart';
 import '../../utils/extensions.dart';
 import '../../utils/utils.dart';
@@ -28,17 +26,14 @@ class TopicPage extends StatefulWidget {
 
 class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
   String? _tag = Get.parameters['tag'];
-  String? _id = Get.parameters['id'];
-  String? _title;
-  String? _entityType;
-  List<TabList>? _tabList;
+  final String? _id = Get.parameters['id'];
 
-  LoadingState? _topicState = LoadingState.loading();
   bool _shouldShowActions = false;
 
   TabController? _tabController;
   late final ReturnTopController _pageScrollController;
   late final TopicOrderController _topicOrderController;
+  late final TopicController _topicController;
 
   @override
   void initState() {
@@ -54,69 +49,39 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
 
     _pageScrollController = Get.put(ReturnTopController(), tag: _tag ?? _id);
     _topicOrderController = Get.put(TopicOrderController(), tag: _tag ?? _id);
-
-    _getTopicData();
-  }
-
-  @override
-  void dispose() {
-    _topicState = null;
-    _tabController?.dispose();
-    super.dispose();
-  }
-
-  void setShouldShowActions(int index) {
-    _shouldShowActions =
-        _entityType == 'product' && _tabList![index].title == '讨论';
-  }
-
-  Future<void> _getTopicData() async {
-    LoadingState<dynamic> response = await NetworkRepo.getDataFromUrl(
-      url: !_tag.isNullOrEmpty
-          ? '/v6/topic/newTagDetail'
-          : !_id.isNullOrEmpty
-              ? '/v6/product/detail'
-              : '',
-      data: {
-        if (!_tag.isNullOrEmpty) 'tag': _tag,
-        if (!_id.isNullOrEmpty) 'id': _id!,
-      },
+    _topicController = Get.put(
+      TopicController(tag: _tag, id: _id),
+      tag: '$_tag$_id',
     );
-    if (response is Success) {
-      _id = (response.response as Datum).id.toString();
-      _title = (response.response as Datum).title;
-      _entityType = (response.response as Datum).entityType;
-      _tabList = (response.response as Datum).tabList;
-      String selectedTab = (response.response as Datum).selectedTab!;
-      int initialIndex =
-          _tabList!.map((item) => item.pageName).toList().indexOf(selectedTab);
+    _topicController.initialIndex.listen((initialIndex) {
       _tabController = TabController(
         vsync: this,
         initialIndex: initialIndex < 0 ? 0 : initialIndex,
-        length: _tabList!.length,
+        length: _topicController.tabList!.length,
       );
       setShouldShowActions(initialIndex);
       _tabController?.addListener(() {
         setState(() => setShouldShowActions(_tabController!.index));
       });
-      setState(() {
-        _topicState = LoadingState.success(response.response);
-      });
-    } else {
-      setState(() => _topicState = response);
-    }
+    });
   }
 
-  void _onReGetTopicData() {
-    setState(() => _topicState = LoadingState.loading());
-    _getTopicData();
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
-  Widget _buildBody() {
-    switch (_topicState) {
+  void setShouldShowActions(int index) {
+    _shouldShowActions = _topicController.entityType == 'product' &&
+        _topicController.tabList![index].title == '讨论';
+  }
+
+  Widget _buildBody(LoadingState topicState) {
+    switch (topicState) {
       case Empty():
         return GestureDetector(
-          onTap: _onReGetTopicData,
+          onTap: _topicController.onReGetTopicData,
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10.0),
@@ -125,11 +90,11 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
         );
       case Error():
         return GestureDetector(
-          onTap: _onReGetTopicData,
+          onTap: _topicController.onReGetTopicData,
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10.0),
-            child: Text((_topicState as Error).errMsg),
+            child: Text(topicState.errMsg),
           ),
         );
     }
@@ -138,111 +103,121 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return _topicState is Success
-        ? Scaffold(
-            appBar: AppBar(
-              title: Text(
-                _title!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              bottom: TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                tabs: _tabList!
-                    .map((item) => Tab(text: item.title.toString()))
-                    .toList(),
-                onTap: (value) {
-                  if (!_tabController!.indexIsChanging) {
-                    _pageScrollController.setIndex(value);
-                  }
-                },
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () => Get.toNamed('/search', parameters: {
-                    'title': _title!,
-                    'pageType':
-                        _entityType == 'topic' ? 'tag' : 'product_phone',
-                    'pageParam': _entityType == 'topic' ? _title! : _id!,
-                  }),
-                  icon: const Icon(Icons.search),
+    return Obx(
+      () => _topicController.topicState.value is Success
+          ? Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  _topicController.title!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                PopupMenuButton(
-                  onSelected: (TopicMenuItem item) {
-                    switch (item) {
-                      case TopicMenuItem.Copy:
-                        Utils.copyText(Utils.getShareUrl(
-                          _entityType == 'topic' ? _title! : _id!,
-                          _entityType == 'topic'
-                              ? ShareType.t
-                              : ShareType.product,
-                        ));
-                        break;
-                      case TopicMenuItem.Share:
-                        Share.share(Utils.getShareUrl(
-                          _entityType == 'topic' ? _title! : _id!,
-                          _entityType == 'topic'
-                              ? ShareType.t
-                              : ShareType.product,
-                        ));
-                        break;
-                      case TopicMenuItem.Sort:
-                        _showPopupMenu();
-                        break;
-                      case TopicMenuItem.Block:
-                        SmartDialog.showToast('todo: block');
-                        break;
+                bottom: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  tabs: _topicController.tabList!
+                      .map((item) => Tab(text: item.title.toString()))
+                      .toList(),
+                  onTap: (value) {
+                    if (!_tabController!.indexIsChanging) {
+                      _pageScrollController.setIndex(value);
                     }
                   },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: TopicMenuItem.Copy,
-                      child: Text(TopicMenuItem.Copy.name),
-                    ),
-                    PopupMenuItem(
-                      value: TopicMenuItem.Share,
-                      child: Text(TopicMenuItem.Share.name),
-                    ),
-                    if (_shouldShowActions)
-                      PopupMenuItem(
-                        value: TopicMenuItem.Sort,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Text(TopicMenuItem.Sort.name),
-                            ),
-                            const Icon(Icons.arrow_right)
-                          ],
-                        ),
-                      ),
-                    PopupMenuItem(
-                      value: TopicMenuItem.Block,
-                      child: Text(TopicMenuItem.Block.name),
-                    ),
-                  ],
                 ),
-              ],
+                actions: [
+                  IconButton(
+                    onPressed: () => Get.toNamed('/search', parameters: {
+                      'title': _topicController.title!,
+                      'pageType': _topicController.entityType == 'topic'
+                          ? 'tag'
+                          : 'product_phone',
+                      'pageParam': _topicController.entityType == 'topic'
+                          ? _topicController.title!
+                          : _id!,
+                    }),
+                    icon: const Icon(Icons.search),
+                  ),
+                  PopupMenuButton(
+                    onSelected: (TopicMenuItem item) {
+                      switch (item) {
+                        case TopicMenuItem.Copy:
+                          Utils.copyText(Utils.getShareUrl(
+                            _topicController.entityType == 'topic'
+                                ? _topicController.title!
+                                : _id!,
+                            _topicController.entityType == 'topic'
+                                ? ShareType.t
+                                : ShareType.product,
+                          ));
+                          break;
+                        case TopicMenuItem.Share:
+                          Share.share(Utils.getShareUrl(
+                            _topicController.entityType == 'topic'
+                                ? _topicController.title!
+                                : _id!,
+                            _topicController.entityType == 'topic'
+                                ? ShareType.t
+                                : ShareType.product,
+                          ));
+                          break;
+                        case TopicMenuItem.Sort:
+                          _showPopupMenu();
+                          break;
+                        case TopicMenuItem.Block:
+                          SmartDialog.showToast('todo: block');
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: TopicMenuItem.Copy,
+                        child: Text(TopicMenuItem.Copy.name),
+                      ),
+                      PopupMenuItem(
+                        value: TopicMenuItem.Share,
+                        child: Text(TopicMenuItem.Share.name),
+                      ),
+                      if (_shouldShowActions)
+                        PopupMenuItem(
+                          value: TopicMenuItem.Sort,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: Text(TopicMenuItem.Sort.name),
+                              ),
+                              const Icon(Icons.arrow_right)
+                            ],
+                          ),
+                        ),
+                      PopupMenuItem(
+                        value: TopicMenuItem.Block,
+                        child: Text(TopicMenuItem.Block.name),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              body: TabBarView(
+                controller: _tabController,
+                children: _topicController.tabList!
+                    .map((item) => TopicContent(
+                          tag: _tag,
+                          id: _id,
+                          index: _topicController.tabList!.indexOf(item),
+                          entityType: _topicController.entityType!,
+                          url: item.url.toString(),
+                          title: item.title.toString(),
+                        ))
+                    .toList(),
+              ),
+            )
+          : Scaffold(
+              appBar: AppBar(),
+              body:
+                  Center(child: _buildBody(_topicController.topicState.value)),
             ),
-            body: TabBarView(
-              controller: _tabController,
-              children: _tabList!
-                  .map((item) => TopicContent(
-                        tag: _tag,
-                        id: _id,
-                        index: _tabList!.indexOf(item),
-                        entityType: _entityType!,
-                        url: item.url.toString(),
-                        title: item.title.toString(),
-                      ))
-                  .toList(),
-            ),
-          )
-        : Scaffold(
-            appBar: AppBar(),
-            body: Center(child: _buildBody()),
-          );
+    );
   }
 
   void _showPopupMenu() async {

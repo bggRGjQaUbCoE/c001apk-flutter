@@ -16,7 +16,7 @@ class FFFListController extends CommonController {
   final int? showDefault;
 
   @override
-  Future<LoadingState> customFetchData() {
+  Future<LoadingState> customGetData() {
     return NetworkRepo.getDataListFromUrl(
       url: url,
       data: {
@@ -28,5 +28,11 @@ class FFFListController extends CommonController {
         if (lastItem != null) 'lastItem': lastItem,
       },
     );
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    onGetData();
   }
 }

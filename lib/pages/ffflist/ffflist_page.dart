@@ -1,11 +1,11 @@
 // ignore_for_file: constant_identifier_names
 
-import 'package:c001apk_flutter/pages/carousel/carousel_page.dart';
-import 'package:c001apk_flutter/pages/ffflist/ffflist_content.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
+import '../../pages/carousel/carousel_page.dart';
+import '../../pages/ffflist/ffflist_content.dart';
 import '../../providers/app_config_provider.dart';
 
 enum FFFListType {

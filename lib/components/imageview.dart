@@ -100,22 +100,21 @@ bool _isLongImage(String url) {
 Widget _badge(BuildContext context, String title) {
   return Container(
     margin: const EdgeInsets.all(5),
-    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+    padding: const EdgeInsets.all(4),
     decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.secondary,
+        color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(4)),
     child: Text(
       title,
       style: TextStyle(
         height: 1,
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        color: Theme.of(context).colorScheme.onSecondary,
+        fontSize: 12,
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
       ),
       strutStyle: const StrutStyle(
         height: 1,
         leading: 0,
-        fontSize: 13,
+        fontSize: 12,
       ),
     ),
   );

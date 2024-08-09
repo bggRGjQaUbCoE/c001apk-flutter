@@ -51,7 +51,9 @@ class CollectionCard extends StatelessWidget {
                       child: Row(
                         children: [
                           Text(data.isOpenTitle ?? ''),
+                          const SizedBox(width: 10),
                           Text('${data.followNum}人关注'),
+                          const SizedBox(width: 10),
                           Text('${data.itemNum}个内容'),
                         ],
                       ),

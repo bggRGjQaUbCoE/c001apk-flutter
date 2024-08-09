@@ -12,7 +12,7 @@ class DyhController extends CommonController {
   final String id;
 
   @override
-  Future<LoadingState> customFetchData() {
+  Future<LoadingState> customGetData() {
     return NetworkRepo.getDyhDetail(
       dyhId: id,
       type: type,
@@ -20,5 +20,11 @@ class DyhController extends CommonController {
       firstItem: firstItem,
       lastItem: lastItem,
     );
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    onGetData();
   }
 }

@@ -18,36 +18,67 @@ Widget _bodyState(String text, Function() onTap) {
   );
 }
 
-Widget buildBody(
-  CommonController commonController,
-  Function(bool) onGetData,
-  Function(LoadingState) setLoadingState,
-  Function(LoadingState) setFooterState, {
+Widget commonBody(
+  CommonController commonController, {
+  bool isHomeCard = false,
   bool isReply2Reply = false,
   dynamic uid,
 }) {
-  switch (commonController.loadingState) {
+  return Obx(
+    () => commonController.loadingState.value is Success
+        ? RefreshIndicator(
+            key: commonController.refreshKey,
+            backgroundColor: Theme.of(Get.context!).colorScheme.onSecondary,
+            onRefresh: () async {
+              commonController.onReset();
+              await commonController.onGetData();
+            },
+            child: buildBody(
+              commonController,
+              isHomeCard: isHomeCard,
+              isReply2Reply: isReply2Reply,
+              uid: uid,
+            ),
+          )
+        : Center(
+            child: buildBody(
+              commonController,
+              isHomeCard: isHomeCard,
+              isReply2Reply: isReply2Reply,
+              uid: uid,
+            ),
+          ),
+  );
+}
+
+Widget buildBody(
+  CommonController commonController, {
+  bool isHomeCard = false,
+  bool isReply2Reply = false,
+  dynamic uid,
+}) {
+  switch (commonController.loadingState.value) {
     case Empty():
       return _bodyState(
         'EMPTY',
         () {
           commonController.isEnd = false;
-          setLoadingState(LoadingState.loading());
-          onGetData(true);
+          commonController.setLoadingState(LoadingState.loading());
+          commonController.onGetData(true);
         },
       );
     case Error():
       return _bodyState(
-        (commonController.loadingState as Error).errMsg,
+        (commonController.loadingState.value as Error).errMsg,
         () {
           commonController.isEnd = false;
-          setLoadingState(LoadingState.loading());
-          onGetData(true);
+          commonController.setLoadingState(LoadingState.loading());
+          commonController.onGetData(true);
         },
       );
     case Success():
-      var dataList =
-          (commonController.loadingState as Success).response as List<Datum>;
+      var dataList = (commonController.loadingState.value as Success).response
+          as List<Datum>;
       return ListView.separated(
         controller: commonController.scrollController,
         physics: AlwaysScrollableScrollPhysics(
@@ -65,16 +96,18 @@ Widget buildBody(
         itemBuilder: (_, index) {
           if (index == dataList.length) {
             if (!commonController.isEnd && !commonController.isLoading) {
-              onGetData(false);
+              commonController.onGetData(false);
             }
-            return footerWidget(commonController.footerState!, () {
-              commonController.isEnd = false;
-              setFooterState(LoadingState.loading());
-              onGetData(false);
-            });
+            return Obx(
+                () => footerWidget(commonController.footerState.value, () {
+                      commonController.isEnd = false;
+                      commonController.setFooterState(LoadingState.loading());
+                      commonController.onGetData(false);
+                    }));
           } else {
             return itemCard(
               dataList[index],
+              isHomeCard: isHomeCard,
               isReply2Reply: isReply2Reply,
               isTopReply: isReply2Reply && index == 0,
               uid: uid,

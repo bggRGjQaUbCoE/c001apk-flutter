@@ -10,7 +10,7 @@ class NotificationController extends CommonController {
   final String url;
 
   @override
-  Future<LoadingState> customFetchData() {
+  Future<LoadingState> customGetData() {
     return NetworkRepo.getDataListFromUrl(
       url: url,
       data: {
@@ -19,5 +19,11 @@ class NotificationController extends CommonController {
         if (lastItem != null) 'lastItem': lastItem,
       },
     );
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    onGetData();
   }
 }

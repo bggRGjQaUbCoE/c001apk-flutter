@@ -5,15 +5,16 @@ import '../../pages/common/common_controller.dart';
 
 class MessageController extends CommonController {
   @override
-  void handleResponse(List<Datum> dataList) {
+  List<Datum>? handleResponse(List<Datum> dataList) {
     super.handleResponse(dataList);
     if (dataList.lastOrNull?.entityTemplate == 'noMoreDataCard') {
       isEnd = true;
     }
+    return null;
   }
 
   @override
-  Future<LoadingState> customFetchData() {
+  Future<LoadingState> customGetData() {
     return NetworkRepo.getDataListFromUrl(
       url: '/v6/notification/list',
       data: {

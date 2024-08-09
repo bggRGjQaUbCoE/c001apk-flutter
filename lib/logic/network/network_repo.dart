@@ -268,6 +268,7 @@ class NetworkRepo {
     required String? firstItem,
     required String? lastItem,
     required int page,
+    bool inCluldeConfigCard = false,
   }) async {
     return getListData(
       () => Request().get(
@@ -281,6 +282,7 @@ class NetworkRepo {
           'page': page,
         },
       ),
+      inCluldeConfigCard: inCluldeConfigCard,
     );
   }
 }
@@ -295,10 +297,15 @@ Future<LoadingState> getData(Future<Response<dynamic>> Function() get) async {
 }
 
 Future<LoadingState> getListData(
-    Future<Response<dynamic>> Function() get) async {
+  Future<Response<dynamic>> Function() get, {
+  bool inCluldeConfigCard = false,
+}) async {
   try {
     var response = await get();
-    return handleListResponse(response);
+    return handleListResponse(
+      response,
+      inCluldeConfigCard: inCluldeConfigCard,
+    );
   } catch (err) {
     return LoadingState.error(err.toString());
   }
@@ -321,7 +328,10 @@ LoadingState handleDataResponse(Response<dynamic> response) {
   }
 }
 
-LoadingState handleListResponse(Response<dynamic> response) {
+LoadingState handleListResponse(
+  Response<dynamic> response, {
+  bool inCluldeConfigCard = false,
+}) {
   if (response.statusCode == HttpStatus.ok) {
     DataListModel responseData = DataListModel.fromJson(response.data);
     if (!responseData.message.isNullOrEmpty) {
@@ -330,7 +340,9 @@ LoadingState handleListResponse(Response<dynamic> response) {
       if (!responseData.data.isNullOrEmpty) {
         List<Datum> filterList = responseData.data!.where((item) {
           return Constants.entityTypeList.contains(item.entityType) ||
-              Constants.entityTemplateList.contains(item.entityTemplate);
+              (Constants.entityTemplateList +
+                      (inCluldeConfigCard ? ['configCard'] : []))
+                  .contains(item.entityTemplate);
         }).toList();
         return LoadingState.success(filterList);
       } else {

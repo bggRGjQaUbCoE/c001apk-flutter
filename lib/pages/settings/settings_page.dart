@@ -341,7 +341,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           ListTile(
             title: const Text('Clear Cache'),
-            subtitle: Text(_cacheSize),
+            subtitle: _cacheSize.isNotEmpty ? Text(_cacheSize) : null,
             leading: const Icon(Icons.cleaning_services_outlined),
             onTap: () async {
               await _getCacheSize();

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../components/common_body.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/home/return_top_controller.dart';
-import '../../pages/topic/topic_controller.dart';
+import '../../pages/topic/topic_content_controller.dart';
 import '../../pages/topic/topic_order_controller.dart';
 import '../../pages/topic/topic_page.dart' show TopicSortType;
 
@@ -35,12 +35,21 @@ class _TopicContentState extends State<TopicContent>
   @override
   bool get wantKeepAlive => true;
 
-  late final _topicController = TopicController(
-    url: widget.url,
-    title: widget.title,
+  late final _topicController = Get.put(
+    TopicContentController(
+      url: widget.url,
+      title: widget.title,
+    ),
+    tag: widget.url + widget.title,
   );
 
-  late final TopicOrderController _topicOrderController;
+  late final TopicOrderController? _topicOrderController;
+
+  @override
+  void dispose() {
+    _topicController.scrollController?.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -60,7 +69,7 @@ class _TopicContentState extends State<TopicContent>
     if (widget.entityType == 'product' && widget.title == '讨论') {
       _topicOrderController =
           Get.find<TopicOrderController>(tag: widget.tag ?? widget.id);
-      _topicOrderController.topicSortType.listen((type) {
+      _topicOrderController?.topicSortType.listen((type) {
         _topicController.url =
             '/page?url=/product/feedList?type=feed&id=${widget.id}&';
         switch (type) {
@@ -78,65 +87,19 @@ class _TopicContentState extends State<TopicContent>
             _topicController.title = '热度';
             break;
         }
-        if (_topicController.loadingState is Success) {
+        if (_topicController.loadingState.value is Success) {
           _topicController.animateToTop();
         } else {
-          setState(
-              () => _topicController.loadingState = LoadingState.loading());
-          _onGetData();
+          _topicController.setLoadingState(LoadingState.loading());
+          _topicController.onGetData();
         }
       });
     }
-
-    _onGetData();
-  }
-
-  @override
-  void dispose() {
-    _topicController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _onGetData({bool isRefresh = true}) async {
-    var responseState = await _topicController.onGetData();
-    if (responseState != null) {
-      setState(() {
-        if (isRefresh) {
-          _topicController.loadingState = responseState;
-        } else if (responseState is Success &&
-            _topicController.loadingState is Success) {
-          _topicController.loadingState = LoadingState.success(
-              (_topicController.loadingState as Success).response +
-                  responseState.response);
-        } else {
-          _topicController.footerState = responseState;
-        }
-      });
-    }
-  }
-
-  Widget _buildBody() {
-    return buildBody(
-      _topicController,
-      (isRefresh) => _onGetData(isRefresh: isRefresh),
-      (state) => setState(() => _topicController.loadingState = state),
-      (state) => setState(() => _topicController.footerState = state),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return _topicController.loadingState is Success
-        ? RefreshIndicator(
-            key: _topicController.refreshKey,
-            backgroundColor: Theme.of(context).colorScheme.onSecondary,
-            onRefresh: () async {
-              _topicController.onReset();
-              await _onGetData();
-            },
-            child: _buildBody(),
-          )
-        : Center(child: _buildBody());
+    return commonBody(_topicController);
   }
 }

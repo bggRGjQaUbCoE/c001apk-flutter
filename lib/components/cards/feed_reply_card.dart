@@ -62,7 +62,7 @@ class FeedReplyCard extends StatelessWidget {
                           return _MorePanel(
                             id: data.id.toString(),
                             uid: data.uid.toString(),
-                            reply: data,
+                            reply: data..fetchType = 'feed_reply',
                           );
                         },
                       ),

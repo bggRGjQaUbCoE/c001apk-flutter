@@ -12,6 +12,7 @@ import '../../pages/home/home_page.dart';
 import '../../pages/main/controller.dart';
 import '../../pages/message/message_page.dart';
 import '../../pages/settings/settings_page.dart';
+import '../../utils/storage_util.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -31,6 +32,12 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     Request();
     _mainController.checkLoginInfo();
+  }
+
+  @override
+  void dispose() async {
+    await GStorage.close();
+    super.dispose();
   }
 
   void onBackPressed() async {

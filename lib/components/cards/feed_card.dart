@@ -52,8 +52,8 @@ class FeedCard extends StatelessWidget {
               if (!data.picArr.isNullOrEmpty) _image(),
               if (!data.forwardSourceType.isNullOrEmpty)
                 _forwardSourceFeed(context),
-              if (!data.replyRows.isNullOrEmpty) _hotReply(context),
               if (!data.extraUrl.isNullOrEmpty) _extraUrl(context),
+              if (!data.replyRows.isNullOrEmpty) _hotReply(context),
               bottomInfo(context, data, isFeedContent, _onViewFeed),
               if (data.targetRow != null || !data.relationRows.isNullOrEmpty)
                 _rows(context),
@@ -159,7 +159,7 @@ class FeedCard extends StatelessWidget {
             : Theme.of(context).colorScheme.surface,
         borderRadius: const BorderRadius.all(Radius.circular(12)),
         child: InkWell(
-          onTap: () => Utils.onOpenLink(data.extraUrl!),
+          onTap: () => Utils.onOpenLink(data.extraUrl!, data.extraTitle ?? ''),
           borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(10),

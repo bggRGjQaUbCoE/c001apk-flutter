@@ -19,7 +19,7 @@ class SearchController extends CommonController {
   final String? pageParam;
 
   @override
-  Future<LoadingState> customFetchData() {
+  Future<LoadingState> customGetData() {
     return NetworkRepo.getSearch(
       type: type,
       feedType: feedType,
@@ -32,5 +32,11 @@ class SearchController extends CommonController {
       firstItem: firstItem,
       lastItem: lastItem,
     );
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    onGetData();
   }
 }

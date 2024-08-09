@@ -73,6 +73,7 @@ class Constants {
     'noMoreDataCard',
     'time',
     'messageCard',
+    // 'configCard',
   ];
 
   static Map<int, Color> getSwatch(int r, int g, int b) {

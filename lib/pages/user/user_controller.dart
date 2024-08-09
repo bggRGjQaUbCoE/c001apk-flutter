@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 import '../../logic/model/feed/datum.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
@@ -12,15 +14,16 @@ class UserController extends CommonController {
   String? username;
 
   @override
-  void handleResponse(List<Datum> dataList) {
+  List<Datum>? handleResponse(List<Datum> dataList) {
     if (dataList.lastOrNull?.entityTemplate == 'noMoreDataCard') {
       isEnd = true;
-      footerState = LoadingState.empty();
+      footerState.value = LoadingState.empty();
     }
+    return null;
   }
 
   @override
-  Future<LoadingState> customFetchData() {
+  Future<LoadingState> customGetData() {
     return NetworkRepo.getUserFeed(
       uid: uid,
       page: page,
@@ -29,23 +32,26 @@ class UserController extends CommonController {
     );
   }
 
-  LoadingState? userState = LoadingState.loading();
+  Rx<LoadingState> userState = LoadingState.loading().obs;
 
-  Future<LoadingState> onGetUserData() async {
-    LoadingState<dynamic> loadingState =
+  void setUserState(LoadingState userState) {
+    this.userState.value = userState;
+  }
+
+  Future<void> onGetUserData() async {
+    LoadingState response =
         await NetworkRepo.getDataFromUrl(url: '/v6/user/space?uid=$uid');
-
-    if (loadingState is Success) {
-      uid = (loadingState.response as Datum).uid.toString();
-      username = (loadingState.response as Datum).username;
+    if (response is Success) {
+      uid = (response.response as Datum).uid.toString();
+      username = (response.response as Datum).username;
+      onGetData();
     }
-
-    return loadingState;
+    userState.value = response;
   }
 
   @override
-  void dispose() {
-    userState = null;
-    super.dispose();
+  void onInit() {
+    super.onInit();
+    onGetUserData();
   }
 }

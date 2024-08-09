@@ -34,31 +34,32 @@ class _SearchResultContentState extends State<SearchResultContent>
   @override
   bool get wantKeepAlive => true;
 
-  String _getType() {
-    switch (widget.searchContentType) {
-      case SearchContentType.FEED:
-        return 'feed';
-      case SearchContentType.APP:
-        return 'apk';
-      case SearchContentType.GAME:
-        return 'game';
-      case SearchContentType.TOPIC:
-        return 'feedTopic';
-      case SearchContentType.PRODUCT:
-        return 'product';
-      case SearchContentType.USER:
-        return 'user';
-    }
-  }
+  late final String _type = switch (widget.searchContentType) {
+    SearchContentType.FEED => 'feed',
+    SearchContentType.APP => 'apk',
+    SearchContentType.GAME => 'game',
+    SearchContentType.TOPIC => 'feedTopic',
+    SearchContentType.PRODUCT => 'product',
+    SearchContentType.USER => 'user',
+  };
 
-  late final _searchController = SearchController(
-    type: _getType(),
-    keyword: widget.keyword,
-    pageType: widget.pageType,
-    pageParam: widget.pageParam,
+  late final _searchController = Get.put(
+    SearchController(
+      type: _type,
+      keyword: widget.keyword,
+      pageType: widget.pageType,
+      pageParam: widget.pageParam,
+    ),
+    tag: '$_type${widget.keyword}${widget.pageType}${widget.pageParam}',
   );
 
   late final SearchOrderController _searchOrderController;
+
+  @override
+  void dispose() {
+    _searchController.scrollController?.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -80,35 +81,17 @@ class _SearchResultContentState extends State<SearchResultContent>
         tag:
             '${widget.keyword}${widget.title}${widget.pageType}${widget.pageParam}');
     _searchOrderController.searchType.listen((type) {
-      switch (type) {
-        case SearchType.ALL:
-          _searchController.feedType = 'all';
-          break;
-        case SearchType.FEED:
-          _searchController.feedType = 'feed';
-          break;
-        case SearchType.ARTICLE:
-          _searchController.feedType = 'feedArticle';
-          break;
-        case SearchType.COOLPIC:
-          _searchController.feedType = 'picture';
-          break;
-        case SearchType.COMMENT:
-          _searchController.feedType = 'comment';
-          break;
-        case SearchType.RATING:
-          _searchController.feedType = 'rating';
-          break;
-        case SearchType.ANSWER:
-          _searchController.feedType = 'answer';
-          break;
-        case SearchType.QUESTION:
-          _searchController.feedType = 'question';
-          break;
-        case SearchType.VOTE:
-          _searchController.feedType = 'vote';
-          break;
-      }
+      _searchController.feedType = switch (type) {
+        SearchType.ALL => 'all',
+        SearchType.FEED => 'feed',
+        SearchType.ARTICLE => 'feedArticle',
+        SearchType.COOLPIC => 'picture',
+        SearchType.COMMENT => 'comment',
+        SearchType.RATING => 'rating',
+        SearchType.ANSWER => 'answer',
+        SearchType.QUESTION => 'question',
+        SearchType.VOTE => 'vote',
+      };
       onOrderSearch();
     });
     _searchOrderController.searchSortType.listen((type) {
@@ -121,7 +104,6 @@ class _SearchResultContentState extends State<SearchResultContent>
           _searchController.sort = 'none';
           _searchController.isStrict = 0;
           break;
-
         case SearchSortType.HOT:
           _searchController.sort = 'hot';
           _searchController.isStrict = 0;
@@ -137,65 +119,20 @@ class _SearchResultContentState extends State<SearchResultContent>
       }
       onOrderSearch();
     });
-
-    _onGetData();
   }
 
   void onOrderSearch() {
-    if (_searchController.loadingState is Success) {
+    if (_searchController.loadingState.value is Success) {
       _searchController.animateToTop();
     } else {
-      setState(() => _searchController.loadingState = LoadingState.loading());
-      _onGetData();
+      _searchController.setLoadingState(LoadingState.loading());
+      _searchController.onGetData();
     }
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _onGetData({bool isRefresh = true}) async {
-    var responseState = await _searchController.onGetData();
-    if (responseState != null) {
-      setState(() {
-        if (isRefresh) {
-          _searchController.loadingState = responseState;
-        } else if (responseState is Success &&
-            _searchController.loadingState is Success) {
-          _searchController.loadingState = LoadingState.success(
-              (_searchController.loadingState as Success).response +
-                  responseState.response);
-        } else {
-          _searchController.footerState = responseState;
-        }
-      });
-    }
-  }
-
-  Widget _buildBody() {
-    return buildBody(
-      _searchController,
-      (isRefresh) => _onGetData(isRefresh: isRefresh),
-      (state) => setState(() => _searchController.loadingState = state),
-      (state) => setState(() => _searchController.footerState = state),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return _searchController.loadingState is Success
-        ? RefreshIndicator(
-            key: _searchController.refreshKey,
-            backgroundColor: Theme.of(context).colorScheme.onSecondary,
-            onRefresh: () async {
-              _searchController.onReset();
-              await _onGetData();
-            },
-            child: _buildBody(),
-          )
-        : Center(child: _buildBody());
+    return commonBody(_searchController);
   }
 }

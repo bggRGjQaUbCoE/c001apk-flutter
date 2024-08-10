@@ -133,7 +133,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                           : 'product_phone',
                       'pageParam': _topicController.entityType == 'topic'
                           ? _topicController.title!
-                          : _id!,
+                          : _topicController.id!,
                     }),
                     icon: const Icon(Icons.search),
                   ),
@@ -144,7 +144,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                           Utils.copyText(Utils.getShareUrl(
                             _topicController.entityType == 'topic'
                                 ? _topicController.title!
-                                : _id!,
+                                : _topicController.id!,
                             _topicController.entityType == 'topic'
                                 ? ShareType.t
                                 : ShareType.product,
@@ -154,7 +154,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                           Share.share(Utils.getShareUrl(
                             _topicController.entityType == 'topic'
                                 ? _topicController.title!
-                                : _id!,
+                                : _topicController.id!,
                             _topicController.entityType == 'topic'
                                 ? ShareType.t
                                 : ShareType.product,
@@ -202,8 +202,8 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                 controller: _tabController,
                 children: _topicController.tabList!
                     .map((item) => TopicContent(
-                          tag: _tag,
-                          id: _id,
+                          tag: _topicController.tag!,
+                          id: _topicController.id!,
                           index: _topicController.tabList!.indexOf(item),
                           entityType: _topicController.entityType!,
                           url: item.url.toString(),

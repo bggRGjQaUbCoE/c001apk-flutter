@@ -59,7 +59,6 @@ class _AppListPageState extends State<AppListPage> {
     return _appListController.obx(
       (data) => RefreshIndicator(
         key: _refreshKey,
-        backgroundColor: Theme.of(context).colorScheme.onSecondary,
         onRefresh: () async {
           await _appListController.onReload(true);
         },

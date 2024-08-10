@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../components/common_body.dart';
-import '../../logic/model/feed/datum.dart';
-import '../../logic/state/loading_state.dart';
-import '../../pages/feed/reply_2_reply_controller.dart';
+import '../../../components/common_body.dart';
+import '../../../logic/model/feed/datum.dart';
+import '../../../logic/state/loading_state.dart';
+import '../../../pages/feed/reply/reply_2_reply_controller.dart';
 
 class Reply2ReplyPage extends StatelessWidget {
   const Reply2ReplyPage({

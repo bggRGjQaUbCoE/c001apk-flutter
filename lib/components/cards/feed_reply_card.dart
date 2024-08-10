@@ -8,7 +8,7 @@ import '../../components/html_text.dart';
 import '../../components/icon_text.dart';
 import '../../components/imageview.dart';
 import '../../logic/model/feed/datum.dart';
-import '../../pages/feed/reply_2_reply_page.dart';
+import '../../pages/feed/reply/reply_2_reply_page.dart';
 import '../../utils/date_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/utils.dart';
@@ -145,7 +145,7 @@ class FeedReplyCard extends StatelessWidget {
 
   Widget _username() {
     return Padding(
-      padding: const EdgeInsets.only(right: 12),
+      padding: const EdgeInsets.only(right: 15),
       child: htmlText(
         !isReply2Reply
             ? '${data.userInfo?.username}${data.uid == data.feedUid ? ' [楼主]' : ''}'

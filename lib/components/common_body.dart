@@ -28,7 +28,6 @@ Widget commonBody(
     () => commonController.loadingState.value is Success
         ? RefreshIndicator(
             key: commonController.refreshKey,
-            backgroundColor: Theme.of(Get.context!).colorScheme.onSecondary,
             onRefresh: () async {
               commonController.onReset();
               await commonController.onGetData();

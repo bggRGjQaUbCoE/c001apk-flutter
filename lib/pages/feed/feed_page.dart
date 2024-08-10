@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -10,10 +8,9 @@ import '../../components/feed_article_body.dart';
 import '../../components/footer.dart';
 import '../../components/sliver_pinned_box_adapter.dart';
 import '../../components/cards/feed_card.dart';
-import '../../logic/model/feed_article/feed_article.dart';
-import '../../logic/network/network_repo.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
+import '../../pages/feed/feed_controller.dart';
 import '../../utils/extensions.dart';
 import '../../utils/utils.dart';
 
@@ -30,32 +27,10 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
-  LoadingState? _feedState = LoadingState.loading();
-  LoadingState? _replyState = LoadingState.loading();
-  LoadingState? _footerState = LoadingState.loading();
-  String? _feedTypeName;
-  int? _feedUid;
-  String? _feedUsername;
-  int? _replyNum;
-
-  List<FeedArticle>? _articleList;
-  List<String>? _articleImgList;
-
-  String _listType = 'lastupdate_desc';
-  int _page = 1;
-  String? _firstItem;
-  String? _lastItem;
-  final int _discussMode = 1;
-  final String _feedType = 'feed';
-  final int _blockStatus = 0;
-  int _fromFeedAuthor = 0;
-
-  bool _isLoading = false;
-  bool _isEnd = false;
-
   final String _id = Get.parameters['id'].orEmpty;
-  final GlobalKey<RefreshIndicatorState> _refreshKey =
-      GlobalKey<RefreshIndicatorState>();
+  final _refreshKey = GlobalKey<RefreshIndicatorState>();
+
+  late final _feedController = Get.put(FeedController(id: _id), tag: _id);
 
   static const List<(ReplySortType, String)> _shirtSizeOptions =
       <(ReplySortType, String)>[
@@ -68,132 +43,14 @@ class _FeedPageState extends State<FeedPage> {
     ReplySortType.def
   };
 
-  @override
-  void dispose() {
-    _feedState = null;
-    _replyState = null;
-    _footerState = null;
-    _articleList = null;
-    _articleImgList = null;
-
-    super.dispose();
-  }
-
-  Future<void> _getFeedData() async {
-    LoadingState<dynamic> response =
-        await NetworkRepo.getDataFromUrl(url: '/v6/feed/detail?id=$_id');
-    if (response is Success) {
-      if (mounted) {
-        Datum data = (response.response as Datum);
-        if (data.messageRawOutput != 'null') {
-          List<dynamic> jsonList = jsonDecode(data.messageRawOutput!);
-          _articleList = jsonList
-              .map((json) => FeedArticle.fromJson(json))
-              .where(
-                  (item) => ['text', 'image', 'shareUrl'].contains(item.type))
-              .toList();
-          if (!data.title.isNullOrEmpty) {
-            _articleList!
-                .insert(0, FeedArticle(type: 'title', title: data.title));
-          }
-          if (!data.messageCover.isNullOrEmpty) {
-            _articleList!
-                .insert(0, FeedArticle(type: 'image', url: data.messageCover));
-          }
-          _articleImgList = _articleList!
-              .where((item) => item.type == 'image')
-              .map((item) => item.url.orEmpty)
-              .toList();
-        }
-        _feedUsername = data.userInfo?.username;
-        _feedUid = data.uid;
-        _feedTypeName = data.feedTypeName;
-        _replyNum = data.replynum;
-        setState(() {
-          _feedState = LoadingState.success(data);
-        });
-      }
-      _getFeedReply(true);
-    } else {
-      if (mounted) {
-        setState(() => _feedState = response);
-      }
-    }
-  }
-
-  Future<void> _getFeedReply([bool isRefresh = false]) async {
-    if (!_isLoading) {
-      _isLoading = true;
-      LoadingState<dynamic> response = await NetworkRepo.getFeedReply(
-        id: _id,
-        listType: _listType,
-        page: _page,
-        firstItem: _firstItem,
-        lastItem: _lastItem,
-        discussMode: _discussMode,
-        feedType: _feedType,
-        blockStatus: _blockStatus,
-        fromFeedAuthor: _fromFeedAuthor,
-      );
-      if (response is Success) {
-        _page++;
-        var originList = response.response as List<Datum>;
-        _firstItem = originList.firstOrNull?.id.toString();
-        _lastItem = originList.lastOrNull?.id.toString();
-        var filterList = originList.where((item) {
-          return item.entityType == 'feed_reply';
-        }).toList();
-        if (mounted) {
-          setState(() {
-            _replyState = LoadingState.success(
-                isRefresh || _replyState is! Success
-                    ? filterList
-                    : (_replyState as Success).response + filterList);
-            _footerState = LoadingState.loading();
-          });
-        }
-      } else {
-        _isEnd = true;
-        if (isRefresh) {
-          if (mounted) {
-            setState(() => _replyState = response);
-          }
-        } else {
-          if (mounted) {
-            setState(() => _footerState = response);
-          }
-        }
-      }
-      _isLoading = false;
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _getFeedData();
-  }
-
-  void _onReGetFeedData() {
-    if (mounted) {
-      setState(() => _feedState = LoadingState.loading());
-    }
-    _getFeedData();
-  }
-
-  Future<void> _onRefreshReply() async {
-    _page = 1;
-    _firstItem = null;
-    _lastItem = null;
-    _isEnd = false;
-    await _getFeedReply(true);
-  }
-
-  Widget _buildFeedContent() {
-    switch (_feedState) {
+  Widget _buildFeedContent(LoadingState feedState) {
+    switch (feedState) {
       case Empty():
         return GestureDetector(
-          onTap: _onReGetFeedData,
+          onTap: () {
+            _feedController.setFeedState(LoadingState.loading());
+            _feedController.getFeedData();
+          },
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10.0),
@@ -202,34 +59,37 @@ class _FeedPageState extends State<FeedPage> {
         );
       case Error():
         return GestureDetector(
-          onTap: _onReGetFeedData,
+          onTap: () {
+            _feedController.setFeedState(LoadingState.loading());
+            _feedController.getFeedData();
+          },
           child: Container(
             alignment: Alignment.center,
             padding: const EdgeInsets.all(10.0),
-            child: Text((_feedState as Error).errMsg),
+            child: Text(feedState.errMsg),
           ),
         );
       case Success():
-        return _articleList.isNullOrEmpty
+        return _feedController.articleList.isNullOrEmpty
             ? FeedCard(
-                data: (_feedState as Success).response!,
+                data: feedState.response!,
                 isFeedContent: true,
               )
             : SliverList.separated(
-                itemCount: _articleList!.length + 2,
+                itemCount: _feedController.articleList!.length + 2,
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return header(
                       context,
-                      (_feedState as Success).response!,
+                      feedState.response!,
                       true,
                     );
-                  } else if (index == _articleList!.length + 1) {
+                  } else if (index == _feedController.articleList!.length + 1) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: bottomInfo(
                         context,
-                        (_feedState as Success).response!,
+                        feedState.response!,
                         true,
                         null,
                         isFeedArticle: true,
@@ -239,8 +99,8 @@ class _FeedPageState extends State<FeedPage> {
                     return LayoutBuilder(builder: (_, constraints) {
                       return feedArticleBody(
                         constraints.maxWidth,
-                        _articleList![index - 1],
-                        _articleImgList!,
+                        _feedController.articleList![index - 1],
+                        _feedController.articleImgList!,
                       );
                     });
                   }
@@ -266,7 +126,7 @@ class _FeedPageState extends State<FeedPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     flex: 1,
-                    child: Text('共 $_replyNum 回复'),
+                    child: Text('共 ${_feedController.replyNum} 回复'),
                   ),
                   SegmentedButton<ReplySortType>(
                     style: TextButton.styleFrom(
@@ -291,20 +151,20 @@ class _FeedPageState extends State<FeedPage> {
                           _segmentedButtonSelection = newSelection;
                           switch (newSelection.first) {
                             case ReplySortType.def:
-                              _listType = 'lastupdate_desc';
-                              _fromFeedAuthor = 0;
+                              _feedController.listType = 'lastupdate_desc';
+                              _feedController.fromFeedAuthor = 0;
                               break;
                             case ReplySortType.dateline:
-                              _listType = 'dateline_desc';
-                              _fromFeedAuthor = 0;
+                              _feedController.listType = 'dateline_desc';
+                              _feedController.fromFeedAuthor = 0;
                               break;
                             case ReplySortType.hot:
-                              _listType = 'popular';
-                              _fromFeedAuthor = 0;
+                              _feedController.listType = 'popular';
+                              _feedController.fromFeedAuthor = 0;
                               break;
                             case ReplySortType.author:
-                              _listType = '';
-                              _fromFeedAuthor = 1;
+                              _feedController.listType = '';
+                              _feedController.fromFeedAuthor = 1;
                               break;
                           }
                           _refreshKey.currentState?.show();
@@ -323,8 +183,8 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
-  Widget _buildFeedReply() {
-    switch (_replyState) {
+  Widget _buildFeedReply(LoadingState replyState) {
+    switch (replyState) {
       case Empty():
         return SliverToBoxAdapter(
           child: Container(
@@ -338,21 +198,21 @@ class _FeedPageState extends State<FeedPage> {
         return SliverToBoxAdapter(
           child: GestureDetector(
             onTap: () {
-              if (mounted) {
-                setState(() => _replyState = LoadingState.loading());
-              }
-              _onRefreshReply();
+              _feedController
+                ..isEnd = false
+                ..setLoadingState(LoadingState.loading())
+                ..onGetData();
             },
             child: Container(
               height: 80,
               alignment: Alignment.center,
               padding: const EdgeInsets.all(10.0),
-              child: Text((_replyState as Error).errMsg),
+              child: Text(replyState.errMsg),
             ),
           ),
         );
       case Success():
-        List<Datum> dataList = (_replyState as Success).response as List<Datum>;
+        List<Datum> dataList = replyState.response;
         return SliverPadding(
           padding:
               EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
@@ -360,16 +220,16 @@ class _FeedPageState extends State<FeedPage> {
             itemCount: dataList.length + 1,
             itemBuilder: (_, index) {
               if (index == dataList.length) {
-                if (!_isEnd && !_isLoading) {
-                  _getFeedReply();
+                if (!_feedController.isEnd && !_feedController.isLoading) {
+                  _feedController.onGetData(false);
                 }
-                return footerWidget(_footerState!, () {
-                  _isEnd = false;
-                  if (mounted) {
-                    setState(() => _footerState = LoadingState.loading());
-                  }
-                  _getFeedReply();
-                });
+                return Obx(
+                    () => footerWidget(_feedController.footerState.value, () {
+                          _feedController
+                            ..isEnd = false
+                            ..setFooterState(LoadingState.loading())
+                            ..onGetData(false);
+                        }));
               } else {
                 return FeedReplyCard(
                   data: dataList[index],
@@ -392,66 +252,74 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: _feedTypeName.isNullOrEmpty ? null : Text(_feedTypeName!),
-        actions: _feedState is Success
-            ? [
-                PopupMenuButton(
-                  onSelected: (FeedMenuItem item) {
-                    switch (item) {
-                      case FeedMenuItem.Copy:
-                        Utils.copyText(Utils.getShareUrl(_id, ShareType.feed));
-                        break;
-                      case FeedMenuItem.Share:
-                        Share.share(Utils.getShareUrl(_id, ShareType.feed));
-                        break;
-                      case FeedMenuItem.Fav:
-                        SmartDialog.showToast('todo: fav');
-                        break;
-                      case FeedMenuItem.Block:
-                        SmartDialog.showToast('todo: block');
-                        break;
-                      case FeedMenuItem.Report:
-                        if (Utils.isSupportWebview()) {
-                          Utils.report(_id, ReportType.Feed);
-                        } else {
-                          SmartDialog.showToast('not supported');
-                        }
-                        break;
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => FeedMenuItem.values
-                      .map((item) => PopupMenuItem<FeedMenuItem>(
-                            value: item,
-                            child: Text(item.name),
-                          ))
-                      .toList(),
-                )
-              ]
-            : null,
-      ),
-      body: _feedState is Success
-          ? RefreshIndicator(
-              key: _refreshKey,
-              backgroundColor: Theme.of(context).colorScheme.onSecondary,
-              onRefresh: () async {
-                await _onRefreshReply();
-              },
-              child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
+    return Obx(
+      () => Scaffold(
+        appBar: AppBar(
+          title: _feedController.feedTypeName.isNullOrEmpty
+              ? null
+              : Text(_feedController.feedTypeName!),
+          actions: _feedController.feedState.value is Success
+              ? [
+                  PopupMenuButton(
+                    onSelected: (FeedMenuItem item) {
+                      switch (item) {
+                        case FeedMenuItem.Copy:
+                          Utils.copyText(
+                              Utils.getShareUrl(_id, ShareType.feed));
+                          break;
+                        case FeedMenuItem.Share:
+                          Share.share(Utils.getShareUrl(_id, ShareType.feed));
+                          break;
+                        case FeedMenuItem.Fav:
+                          SmartDialog.showToast('todo: fav');
+                          break;
+                        case FeedMenuItem.Block:
+                          SmartDialog.showToast('todo: block');
+                          break;
+                        case FeedMenuItem.Report:
+                          if (Utils.isSupportWebview()) {
+                            Utils.report(_id, ReportType.Feed);
+                          } else {
+                            SmartDialog.showToast('not supported');
+                          }
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => FeedMenuItem.values
+                        .map((item) => PopupMenuItem<FeedMenuItem>(
+                              value: item,
+                              child: Text(item.name),
+                            ))
+                        .toList(),
+                  )
+                ]
+              : null,
+        ),
+        body: _feedController.feedState.value is Success
+            ? RefreshIndicator(
+                key: _refreshKey,
+                onRefresh: () async {
+                  _feedController.onReset();
+                  await _feedController.onGetData();
+                },
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  slivers: [
+                    _feedController.articleList.isNullOrEmpty
+                        ? SliverToBoxAdapter(
+                            child: _buildFeedContent(
+                                _feedController.feedState.value))
+                        : _buildFeedContent(_feedController.feedState.value),
+                    _buildPinWidget(),
+                    _buildFeedReply(_feedController.loadingState.value),
+                  ],
                 ),
-                slivers: [
-                  _articleList.isNullOrEmpty
-                      ? SliverToBoxAdapter(child: _buildFeedContent())
-                      : _buildFeedContent(),
-                  _buildPinWidget(),
-                  _buildFeedReply(),
-                ],
-              ),
-            )
-          : Center(child: _buildFeedContent()),
+              )
+            : Center(
+                child: _buildFeedContent(_feedController.loadingState.value)),
+      ),
     );
   }
 }

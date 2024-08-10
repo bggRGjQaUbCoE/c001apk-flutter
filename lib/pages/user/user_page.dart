@@ -166,7 +166,6 @@ class _UserPageState extends State<UserPage> {
                 }
                 return true;
               },
-              backgroundColor: Theme.of(context).colorScheme.onSecondary,
               onRefresh: () async {
                 _userController.onReset();
                 await _userController.onGetData();

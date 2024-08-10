@@ -132,6 +132,9 @@ class C001APKAPP extends StatelessWidget {
           inputDecorationTheme: InputDecorationTheme(
             fillColor: lightColorScheme.surfaceVariant,
           ),
+          progressIndicatorTheme: ProgressIndicatorThemeData(
+            refreshBackgroundColor: lightColorScheme.onSecondary,
+          ),
         ),
         darkTheme: ThemeData(
           colorScheme: appConfigProvider.selectedTheme == 1
@@ -162,6 +165,9 @@ class C001APKAPP extends StatelessWidget {
           ),
           inputDecorationTheme: InputDecorationTheme(
             fillColor: darkColorScheme.surfaceVariant,
+          ),
+          progressIndicatorTheme: ProgressIndicatorThemeData(
+            refreshBackgroundColor: darkColorScheme.onSecondary,
           ),
         ),
         themeMode: appConfigProvider.getThemeMode(),

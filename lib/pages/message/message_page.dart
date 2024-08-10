@@ -189,7 +189,6 @@ class _MessagePageState extends State<MessagePage> {
           return Future.value();
         }
       },
-      backgroundColor: Theme.of(context).colorScheme.onSecondary,
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(
           parent: BouncingScrollPhysics(),

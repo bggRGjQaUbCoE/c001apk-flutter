@@ -156,7 +156,6 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
       ),
       body: _loadingState is Success
           ? RefreshIndicator(
-              backgroundColor: Theme.of(context).colorScheme.onSecondary,
               onRefresh: () async {
                 await _getData();
               },

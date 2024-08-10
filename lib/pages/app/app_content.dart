@@ -79,8 +79,6 @@ class _AppContentState extends State<AppContent>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    // controller.scrollController ??=
-    // NestedInnerScrollController.maybeOf(context);
     return commonBody(_appController);
   }
 }

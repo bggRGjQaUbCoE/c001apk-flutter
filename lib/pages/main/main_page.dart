@@ -65,7 +65,7 @@ class _MainPageState extends State<MainPage> {
       SettingsPage(),
     ];
 
-    const destinations = <NavigationDestination>[
+    const barDestinations = <NavigationDestination>[
       NavigationDestination(
         selectedIcon: Icon(Icons.home),
         icon: Icon(Icons.home_outlined),
@@ -83,27 +83,66 @@ class _MainPageState extends State<MainPage> {
       ),
     ];
 
+    const railDestinations = <NavigationRailDestination>[
+      NavigationRailDestination(
+        selectedIcon: Icon(Icons.home),
+        icon: Icon(Icons.home_outlined),
+        label: Text('Home'),
+      ),
+      NavigationRailDestination(
+        selectedIcon: Icon(Icons.message),
+        icon: Icon(Icons.message_outlined),
+        label: Text('Message'),
+      ),
+      NavigationRailDestination(
+        selectedIcon: Icon(Icons.settings),
+        icon: Icon(Icons.settings_outlined),
+        label: Text('Settings'),
+      ),
+    ];
+
     return PopScope(
         canPop: false,
         onPopInvoked: (_) async {
           onBackPressed();
         },
-        child: Scaffold(
-          body: IndexedStack(
-            index: _selectedIndex,
-            children: pages,
-          ),
-          bottomNavigationBar: NavigationBar(
-            destinations: destinations,
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: (int index) {
-              if (index == 0 && _selectedIndex == 0) {
-                _pageScrollController.setIndex(998);
-              }
-              setState(() => _selectedIndex = index);
-            },
-            labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
-          ),
-        ));
+        child: LayoutBuilder(builder: (_, constriants) {
+          bool isPortait = constriants.maxHeight > constriants.maxWidth;
+
+          return Scaffold(
+            body: Row(children: [
+              if (!isPortait)
+                NavigationRail(
+                  destinations: railDestinations,
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: (int index) {
+                    if (index == 0 && _selectedIndex == 0) {
+                      _pageScrollController.setIndex(998);
+                    }
+                    setState(() => _selectedIndex = index);
+                  },
+                ),
+              Expanded(
+                  child: IndexedStack(
+                index: _selectedIndex,
+                children: pages,
+              )),
+            ]),
+            bottomNavigationBar: isPortait
+                ? NavigationBar(
+                    destinations: barDestinations,
+                    selectedIndex: _selectedIndex,
+                    onDestinationSelected: (int index) {
+                      if (index == 0 && _selectedIndex == 0) {
+                        _pageScrollController.setIndex(998);
+                      }
+                      setState(() => _selectedIndex = index);
+                    },
+                    labelBehavior:
+                        NavigationDestinationLabelBehavior.onlyShowSelected,
+                  )
+                : null,
+          );
+        }));
   }
 }

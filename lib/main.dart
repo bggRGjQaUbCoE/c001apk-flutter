@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +13,7 @@ import 'components/custom_toast.dart';
 import 'constants/constants.dart';
 import 'providers/app_config_provider.dart';
 import 'router/app_pages.dart';
+import 'utils/storage_util.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

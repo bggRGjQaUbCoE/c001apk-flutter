@@ -202,8 +202,8 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                 controller: _tabController,
                 children: _topicController.tabList!
                     .map((item) => TopicContent(
-                          tag: _topicController.tag!,
-                          id: _topicController.id!,
+                          tag: _topicController.tag,
+                          id: _topicController.id,
                           index: _topicController.tabList!.indexOf(item),
                           entityType: _topicController.entityType!,
                           url: item.url.toString(),

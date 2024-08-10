@@ -199,7 +199,7 @@ class _MorePanel extends StatelessWidget {
           ListTile(
             onTap: () async => await menuActionHandler(PanelAction.delete),
             minLeadingWidth: 0,
-            leading: const Icon(Icons.copy, size: 19),
+            leading: const Icon(Icons.delete_outline, size: 19),
             title:
                 Text('Delete', style: Theme.of(context).textTheme.titleSmall),
           ),

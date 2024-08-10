@@ -22,6 +22,10 @@ abstract class CommonController extends GetxController {
     return null;
   }
 
+  LoadingState? handleExtraResponse() {
+    return null;
+  }
+
   Future<LoadingState> customGetData();
 
   Future<void> onGetData([bool isRefresh = true]) async {
@@ -42,6 +46,10 @@ abstract class CommonController extends GetxController {
         page++;
       } else {
         isEnd = true;
+        LoadingState? extraResponse = handleExtraResponse();
+        if (extraResponse != null) {
+          response = extraResponse;
+        }
         if (isRefresh) {
           loadingState.value = response;
         } else {

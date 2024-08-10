@@ -13,6 +13,15 @@ class Reply2ReplyController extends CommonController {
   final String id;
 
   @override
+  LoadingState? handleExtraResponse() {
+    if (page == 1) {
+      footerState.value = LoadingState.empty();
+      return LoadingState.success([originReply]);
+    }
+    return null;
+  }
+
+  @override
   List<Datum>? handleResponse(List<Datum> dataList) {
     return page == 1 ? [originReply] + dataList : null;
   }

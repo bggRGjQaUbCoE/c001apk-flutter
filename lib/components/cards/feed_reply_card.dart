@@ -21,12 +21,14 @@ class FeedReplyCard extends StatelessWidget {
     this.isReply2Reply = false,
     this.isTopReply = false,
     this.uid,
+    this.onBlock,
   });
 
   final Datum data;
   final bool isReply2Reply;
   final bool isTopReply;
   final dynamic uid;
+  final Function(dynamic uid, dynamic id)? onBlock;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +66,9 @@ class FeedReplyCard extends StatelessWidget {
                             id: data.id.toString(),
                             uid: data.uid.toString(),
                             reply: data..fetchType = 'feed_reply',
+                            onBlock: onBlock != null
+                                ? () => onBlock!(data.uid, null)
+                                : null,
                           );
                         },
                       ),
@@ -116,7 +121,8 @@ class FeedReplyCard extends StatelessWidget {
                         const SizedBox(height: 10),
                         _bottomInfo(context),
                         if (!isReply2Reply &&
-                            !data.replyRows.isNullOrEmpty) ...[
+                            (!data.replyRows.isNullOrEmpty ||
+                                (data.replyRowsMore ?? 0) != 0)) ...[
                           const SizedBox(height: 10),
                           _replyRows(context),
                         ],
@@ -283,6 +289,8 @@ class FeedReplyCard extends StatelessWidget {
               message: reply.message.toString(),
               fid: data.id.toString(),
               reply: reply,
+              onBlock:
+                  onBlock != null ? () => onBlock!(reply.uid, data.id) : null,
             );
           },
         );
@@ -369,6 +377,7 @@ class _MorePanel extends StatelessWidget {
     this.message,
     this.fid,
     this.reply,
+    this.onBlock,
   });
 
   final String id;
@@ -376,6 +385,7 @@ class _MorePanel extends StatelessWidget {
   final String? message;
   final String? fid;
   final Datum? reply;
+  final Function()? onBlock;
 
   Future<dynamic> menuActionHandler(PanelAction type,
       {BuildContext? context, String? rid, String? frid}) async {
@@ -387,6 +397,9 @@ class _MorePanel extends StatelessWidget {
       case PanelAction.block:
         Get.back();
         GStorage.onBlock(uid);
+        if (onBlock != null) {
+          onBlock!();
+        }
         break;
       case PanelAction.report:
         Get.back();

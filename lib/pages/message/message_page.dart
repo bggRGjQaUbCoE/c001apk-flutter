@@ -7,8 +7,8 @@ import '../../components/cards/message_first_card.dart';
 import '../../components/cards/message_header_card.dart';
 import '../../components/cards/message_second_card.dart';
 import '../../components/cards/message_third_card.dart';
-import '../../components/cards/notification_card.dart';
 import '../../components/footer.dart';
+import '../../components/item_card.dart';
 import '../../components/sliver_pinned_box_adapter.dart';
 import '../../logic/model/check_count/check_count.dart';
 import '../../logic/model/check_count/datum.dart' as checkcountdata;
@@ -109,6 +109,7 @@ class _MessagePageState extends State<MessagePage> {
     await _getProfile();
     await _checkCount();
     await _messageController.onGetData();
+    _isRefreshing = false;
   }
 
   Widget _buildMessage(LoadingState loadingState) {
@@ -159,8 +160,9 @@ class _MessagePageState extends State<MessagePage> {
                       _messageController.onGetData(false);
                     }));
               } else {
-                return NotificationCard(
-                  data: dataList[index],
+                return itemCard(
+                  dataList[index],
+                  onBlock: _messageController.onBlock,
                 );
               }
             },

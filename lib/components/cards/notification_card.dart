@@ -17,9 +17,11 @@ class NotificationCard extends StatelessWidget {
   const NotificationCard({
     super.key,
     required this.data,
+    this.onBlock,
   });
 
   final Datum data;
+  final Function(dynamic uid)? onBlock;
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +61,9 @@ class NotificationCard extends StatelessWidget {
                             id: data.id.toString(),
                             uid: data.uid.toString(),
                             note: data.note ?? '',
+                            onBlock: onBlock != null
+                                ? () => onBlock!(data.uid)
+                                : null,
                           );
                         },
                       ),
@@ -146,11 +151,13 @@ class _MorePanel extends StatelessWidget {
     required this.id,
     required this.uid,
     required this.note,
+    required this.onBlock,
   });
 
   final String id;
   final String uid;
   final String note;
+  final Function()? onBlock;
 
   Future<dynamic> menuActionHandler(PanelAction type,
       {BuildContext? context, String? rid, String? frid}) async {
@@ -163,6 +170,9 @@ class _MorePanel extends StatelessWidget {
       case PanelAction.block:
         Get.back();
         GStorage.onBlock(uid);
+        if (onBlock != null) {
+          onBlock!();
+        }
         break;
       case PanelAction.report:
         Get.back();

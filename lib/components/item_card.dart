@@ -67,6 +67,7 @@ Widget itemCard(
           isReply2Reply: isReply2Reply,
           isTopReply: isTopReply,
           uid: uid,
+          onBlock: onBlock != null ? (uid, id) => onBlock(uid) : null,
         );
       }
     case 'apk':
@@ -106,7 +107,10 @@ Widget itemCard(
         isHomeCard: isHomeCard,
       );
     case 'notification':
-      return NotificationCard(data: data);
+      return NotificationCard(
+        data: data,
+        onBlock: onBlock,
+      );
     case 'message':
       return MessageCard(data: data);
     case 'collection':

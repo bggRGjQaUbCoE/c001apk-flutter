@@ -243,6 +243,7 @@ class _FeedPageState extends State<FeedPage> {
               } else {
                 return FeedReplyCard(
                   data: dataList[index],
+                  onBlock: _feedController.onBlockReply,
                 );
               }
             },

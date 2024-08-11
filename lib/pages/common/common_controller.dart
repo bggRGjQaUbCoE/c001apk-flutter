@@ -65,6 +65,7 @@ abstract class CommonController extends GetxController {
     isEnd = false;
     firstItem = null;
     lastItem = null;
+    footerState.value = LoadingState.loading();
   }
 
   void setFooterState(LoadingState footerState) {

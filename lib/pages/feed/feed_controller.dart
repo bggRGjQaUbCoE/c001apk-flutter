@@ -117,4 +117,22 @@ class FeedController extends CommonController {
     super.onInit();
     getFeedData();
   }
+
+  void onBlockReply(dynamic uid, dynamic id) {
+    List<Datum> replyList = (loadingState.value as Success).response;
+    if (id != null) {
+      replyList = replyList.map((reply) {
+        if (reply.id == id) {
+          return reply
+            ..replyRows =
+                reply.replyRows!.where((reply) => reply.uid != uid).toList();
+        } else {
+          return reply;
+        }
+      }).toList();
+    } else {
+      replyList = replyList.where((reply) => reply.uid != uid).toList();
+    }
+    loadingState.value = LoadingState.success(replyList);
+  }
 }

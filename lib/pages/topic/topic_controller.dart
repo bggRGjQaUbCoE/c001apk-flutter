@@ -1,4 +1,3 @@
-import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
@@ -6,6 +5,7 @@ import '../../logic/model/feed/tab_list.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../utils/extensions.dart';
+import '../../utils/storage_util.dart';
 
 class TopicController extends GetxController {
   TopicController({required this.tag, required this.id});

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:c001apk_flutter/providers/app_config_provider.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/fav_history/fav_history.dart';

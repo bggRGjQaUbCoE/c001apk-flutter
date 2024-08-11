@@ -1,9 +1,9 @@
-import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
+import '../../utils/storage_util.dart';
 
 class AppController extends GetxController {
   AppController({required this.packageName});

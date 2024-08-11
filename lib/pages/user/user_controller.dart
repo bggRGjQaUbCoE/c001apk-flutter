@@ -1,10 +1,10 @@
-import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/common/common_controller.dart';
+import '../../utils/storage_util.dart';
 
 class UserController extends CommonController {
   UserController({

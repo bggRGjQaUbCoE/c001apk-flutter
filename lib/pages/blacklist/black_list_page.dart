@@ -1,9 +1,9 @@
-import 'package:c001apk_flutter/components/cards/search_history_card.dart';
-import 'package:c001apk_flutter/pages/blacklist/black_list_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+
+import '../../components/cards/search_history_card.dart';
+import '../../pages/blacklist/black_list_controller.dart';
 
 // ignore: constant_identifier_names
 enum BlackListType { User, Topic }
@@ -53,8 +53,8 @@ class _BlackListPageState extends State<BlackListPage> {
                 fontWeight: FontWeight.normal,
               ),
             ),
-            keyboardType:
-                _type == BlackListType.User ? TextInputType.number : null,
+            // keyboardType:
+            // _type == BlackListType.User ? TextInputType.number : null,
             inputFormatters: _type == BlackListType.User
                 ? [FilteringTextInputFormatter.digitsOnly]
                 : null,

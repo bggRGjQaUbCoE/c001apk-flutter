@@ -1,4 +1,3 @@
-import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get_connect/http/src/status/http_status.dart';
 
@@ -10,6 +9,7 @@ import '../../logic/model/feed/data_model.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../utils/extensions.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/token_util.dart';
 
 class NetworkRepo {

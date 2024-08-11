@@ -32,7 +32,7 @@ class GStorage {
   static bool checkUser(String uid) {
     List userBlackList =
         blackList.get(BlackListBoxKey.userBlackList, defaultValue: []);
-    return userBlackList.contains(uid);
+    return userBlackList.contains(_toString(uid));
   }
 
   static bool checkTopic(String topic) {
@@ -43,8 +43,12 @@ class GStorage {
         null;
   }
 
+  static String _toString(dynamic value) {
+    return value is String ? value : value.toString();
+  }
+
   static void onBlock(
-    String value, {
+    dynamic value, {
     bool isUser = true,
     bool isDelete = false,
     bool needToast = false,
@@ -53,16 +57,16 @@ class GStorage {
       isUser ? BlackListBoxKey.userBlackList : BlackListBoxKey.topicBlackList,
       defaultValue: [],
     );
-    if (!isDelete && dataList.contains(value)) {
+    if (!isDelete && dataList.contains(_toString(value))) {
       if (needToast) {
         SmartDialog.showToast('已存在');
       }
       return;
     }
     if (isDelete) {
-      dataList = dataList.where((data) => data != value).toList();
+      dataList = dataList.where((data) => data != _toString(value)).toList();
     } else {
-      dataList.insert(0, value);
+      dataList.insert(0, _toString(value));
     }
     blackList.put(
       isUser ? BlackListBoxKey.userBlackList : BlackListBoxKey.topicBlackList,

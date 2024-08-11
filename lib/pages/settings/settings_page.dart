@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../components/dialog.dart';
 import '../../constants/constants.dart';
+import '../../pages/blacklist/black_list_page.dart' show BlackListType;
 import '../../providers/app_config_provider.dart';
 import '../../utils/cache_util.dart';
 import '../../utils/utils.dart';
@@ -192,16 +193,18 @@ class _SettingsPageState extends State<SettingsPage> {
           ListTile(
             title: const Text('User Blacklist'),
             leading: const Icon(Icons.block),
-            onTap: () {
-              // todo: User Blacklist
-            },
+            onTap: () => Get.toNamed(
+              '/blacklist/',
+              arguments: {'type': BlackListType.User},
+            ),
           ),
           ListTile(
             title: const Text('Topic Blacklist'),
             leading: const Icon(Icons.block),
-            onTap: () {
-              // todo: Topic Blacklist
-            },
+            onTap: () => Get.toNamed(
+              '/blacklist/',
+              arguments: {'type': BlackListType.Topic},
+            ),
           ),
           ListTile(
             title: const Text('Font Scale'),

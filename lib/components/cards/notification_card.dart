@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -56,6 +57,7 @@ class NotificationCard extends StatelessWidget {
                         builder: (context) {
                           return _MorePanel(
                             id: data.id.toString(),
+                            uid: data.uid.toString(),
                             note: data.note ?? '',
                           );
                         },
@@ -142,10 +144,12 @@ enum PanelAction { delete, block, report }
 class _MorePanel extends StatelessWidget {
   const _MorePanel({
     required this.id,
+    required this.uid,
     required this.note,
   });
 
   final String id;
+  final String uid;
   final String note;
 
   Future<dynamic> menuActionHandler(PanelAction type,
@@ -158,8 +162,7 @@ class _MorePanel extends StatelessWidget {
         break;
       case PanelAction.block:
         Get.back();
-        // todo: block
-        SmartDialog.showToast('todo');
+        GStorage.onBlock(uid);
         break;
       case PanelAction.report:
         Get.back();

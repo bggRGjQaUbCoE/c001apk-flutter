@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -385,8 +386,7 @@ class _MorePanel extends StatelessWidget {
         break;
       case PanelAction.block:
         Get.back();
-        // todo: block
-        SmartDialog.showToast('todo');
+        GStorage.onBlock(uid);
         break;
       case PanelAction.report:
         Get.back();

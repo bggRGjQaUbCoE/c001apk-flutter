@@ -10,13 +10,17 @@ class SearchPageController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _getData();
+  }
+
+  Future<void> _getData() async {
     historyList.value = searchHistory.get('searchHistory') ?? [];
   }
 
-  void handleSearch(String text, [bool isDelete = false]) {
-    List list = historyList.where((e) => e != text).toList();
+  void handleSearch(String value, [bool isDelete = false]) {
+    List list = historyList.where((data) => data != value).toList();
     if (!isDelete) {
-      list.insert(0, text);
+      list.insert(0, value);
     }
     historyList.value = list;
     searchHistory.put('searchHistory', list);

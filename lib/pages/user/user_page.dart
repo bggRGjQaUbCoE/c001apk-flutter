@@ -15,6 +15,7 @@ import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/user/user_controller.dart';
 import '../../utils/extensions.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
@@ -97,10 +98,12 @@ class _UserPageState extends State<UserPage> {
       case Error():
         return SliverToBoxAdapter(
           child: GestureDetector(
-            onTap: () {
-              _userController.setLoadingState(LoadingState.loading());
-              _userController.onGetData();
-            },
+            onTap: _userController.isBlocked
+                ? null
+                : () {
+                    _userController.setLoadingState(LoadingState.loading());
+                    _userController.onGetData();
+                  },
             child: Container(
               height: 80,
               alignment: Alignment.center,
@@ -135,7 +138,10 @@ class _UserPageState extends State<UserPage> {
                   ),
                 );
               } else {
-                return itemCard(dataList[index]);
+                return itemCard(
+                  dataList[index],
+                  onBlock: _userController.onBlock,
+                );
               }
             },
             separatorBuilder: (_, index) => const SizedBox(height: 10),
@@ -167,8 +173,12 @@ class _UserPageState extends State<UserPage> {
                 return true;
               },
               onRefresh: () async {
-                _userController.onReset();
-                await _userController.onGetData();
+                if (!_userController.isBlocked) {
+                  _userController.onReset();
+                  await _userController.onGetData();
+                } else {
+                  return Future.value();
+                }
               },
               child: _userController.userState.value is Success
                   ? CustomScrollView(
@@ -202,32 +212,43 @@ class _UserPageState extends State<UserPage> {
                 centerTitle: Platform.isIOS,
                 actions: _userController.userState.value is Success
                     ? [
-                        IconButton(
-                          onPressed: () => Get.toNamed('/search', parameters: {
-                            'title': _userController.username!,
-                            'pageType': 'user',
-                            'pageParam': _uid,
-                          }),
-                          icon: const Icon(Icons.search),
-                          tooltip: 'Search',
-                        ),
+                        if (!_userController.isBlocked)
+                          IconButton(
+                            onPressed: () =>
+                                Get.toNamed('/search', parameters: {
+                              'title': _userController.username!,
+                              'pageType': 'user',
+                              'pageParam': _userController.uid,
+                            }),
+                            icon: const Icon(Icons.search),
+                            tooltip: 'Search',
+                          ),
                         PopupMenuButton(
                           onSelected: (UserMenuItem item) {
                             switch (item) {
                               case UserMenuItem.Copy:
-                                Utils.copyText(
-                                    Utils.getShareUrl(_uid, ShareType.u));
+                                Utils.copyText(Utils.getShareUrl(
+                                    _userController.uid, ShareType.u));
                                 break;
                               case UserMenuItem.Share:
-                                Share.share(
-                                    Utils.getShareUrl(_uid, ShareType.u));
+                                Share.share(Utils.getShareUrl(
+                                    _userController.uid, ShareType.u));
                                 break;
                               case UserMenuItem.Block:
-                                SmartDialog.showToast('todo: Block');
+                                GStorage.onBlock(
+                                  _userController.uid,
+                                  isDelete: _userController.isBlocked,
+                                );
+                                if (!_userController.isBlocked) {
+                                  _userController.setBlockedLoaidngState();
+                                }
+                                _userController.isBlocked =
+                                    !_userController.isBlocked;
                                 break;
                               case UserMenuItem.Report:
                                 if (Utils.isSupportWebview()) {
-                                  Utils.report(_uid, ReportType.User);
+                                  Utils.report(
+                                      _userController.uid, ReportType.User);
                                 } else {
                                   SmartDialog.showToast('not supported');
                                 }
@@ -265,7 +286,13 @@ class _UserPageState extends State<UserPage> {
                               UserMenuItem.values
                                   .map((item) => PopupMenuItem<UserMenuItem>(
                                         value: item,
-                                        child: Text(item.name),
+                                        child: item == UserMenuItem.Block
+                                            ? Text(
+                                                _userController.isBlocked
+                                                    ? 'UnBlock'
+                                                    : 'Block',
+                                              )
+                                            : Text(item.name),
                                       ))
                                   .toList(),
                         ),

@@ -1,5 +1,5 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -112,31 +112,35 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                bottom: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabs: _topicController.tabList!
-                      .map((item) => Tab(text: item.title.toString()))
-                      .toList(),
-                  onTap: (value) {
-                    if (!_tabController!.indexIsChanging) {
-                      _pageScrollController.setIndex(value);
-                    }
-                  },
-                ),
+                bottom: _topicController.isBlocked
+                    ? const PreferredSize(
+                        preferredSize: Size.zero, child: Divider(height: 1))
+                    : TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        tabs: _topicController.tabList!
+                            .map((item) => Tab(text: item.title.toString()))
+                            .toList(),
+                        onTap: (value) {
+                          if (!_tabController!.indexIsChanging) {
+                            _pageScrollController.setIndex(value);
+                          }
+                        },
+                      ),
                 actions: [
-                  IconButton(
-                    onPressed: () => Get.toNamed('/search', parameters: {
-                      'title': _topicController.title!,
-                      'pageType': _topicController.entityType == 'topic'
-                          ? 'tag'
-                          : 'product_phone',
-                      'pageParam': _topicController.entityType == 'topic'
-                          ? _topicController.title!
-                          : _topicController.id!,
-                    }),
-                    icon: const Icon(Icons.search),
-                  ),
+                  if (!_topicController.isBlocked)
+                    IconButton(
+                      onPressed: () => Get.toNamed('/search', parameters: {
+                        'title': _topicController.title!,
+                        'pageType': _topicController.entityType == 'topic'
+                            ? 'tag'
+                            : 'product_phone',
+                        'pageParam': _topicController.entityType == 'topic'
+                            ? _topicController.title!
+                            : _topicController.id!,
+                      }),
+                      icon: const Icon(Icons.search),
+                    ),
                   PopupMenuButton(
                     onSelected: (TopicMenuItem item) {
                       switch (item) {
@@ -164,7 +168,13 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                           _showPopupMenu();
                           break;
                         case TopicMenuItem.Block:
-                          SmartDialog.showToast('todo: block');
+                          GStorage.onBlock(
+                            _topicController.title!,
+                            isUser: false,
+                            isDelete: _topicController.isBlocked,
+                          );
+                          _topicController.isBlocked =
+                              !_topicController.isBlocked;
                           break;
                       }
                     },
@@ -192,25 +202,30 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                         ),
                       PopupMenuItem(
                         value: TopicMenuItem.Block,
-                        child: Text(TopicMenuItem.Block.name),
+                        child: Text(
+                            _topicController.isBlocked ? 'UnBlock' : 'Block'),
                       ),
                     ],
                   ),
                 ],
               ),
-              body: TabBarView(
-                controller: _tabController,
-                children: _topicController.tabList!
-                    .map((item) => TopicContent(
-                          tag: _topicController.tag,
-                          id: _topicController.id,
-                          index: _topicController.tabList!.indexOf(item),
-                          entityType: _topicController.entityType!,
-                          url: item.url.toString(),
-                          title: item.title.toString(),
-                        ))
-                    .toList(),
-              ),
+              body: _topicController.isBlocked
+                  ? Center(
+                      child: Text('${_topicController.title} is Blocked'),
+                    )
+                  : TabBarView(
+                      controller: _tabController,
+                      children: _topicController.tabList!
+                          .map((item) => TopicContent(
+                                tag: _topicController.tag,
+                                id: _topicController.id,
+                                index: _topicController.tabList!.indexOf(item),
+                                entityType: _topicController.entityType!,
+                                url: item.url.toString(),
+                                title: item.title.toString(),
+                              ))
+                          .toList(),
+                    ),
             )
           : Scaffold(
               appBar: AppBar(),

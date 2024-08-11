@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../components/cards/feed_reply_card.dart';
@@ -11,7 +12,9 @@ import '../../components/cards/feed_card.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/feed/feed_controller.dart';
+import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
@@ -27,10 +30,17 @@ class FeedPage extends StatefulWidget {
 }
 
 class _FeedPageState extends State<FeedPage> {
+  late final _config = Provider.of<AppConfigProvider>(context);
   final String _id = Get.parameters['id'].orEmpty;
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
 
-  late final _feedController = Get.put(FeedController(id: _id), tag: _id);
+  late final _feedController = Get.put(
+    FeedController(
+      id: _id,
+      recordHistory: _config.recordHistory,
+    ),
+    tag: _id,
+  );
 
   static const List<(ReplySortType, String)> _shirtSizeOptions =
       <(ReplySortType, String)>[
@@ -271,10 +281,20 @@ class _FeedPageState extends State<FeedPage> {
                           Share.share(Utils.getShareUrl(_id, ShareType.feed));
                           break;
                         case FeedMenuItem.Fav:
-                          SmartDialog.showToast('todo: fav');
+                          if (_feedController.isFav) {
+                            GStorage.onDeleteFeed(_id, isHistory: false);
+                          } else {
+                            _feedController.onFav();
+                          }
+                          _feedController.isFav = !_feedController.isFav;
                           break;
                         case FeedMenuItem.Block:
-                          SmartDialog.showToast('todo: block');
+                          GStorage.onBlock(
+                            _feedController.feedUid.toString(),
+                            isDelete: _feedController.isBlocked,
+                          );
+                          _feedController.isBlocked =
+                              !_feedController.isBlocked;
                           break;
                         case FeedMenuItem.Report:
                           if (Utils.isSupportWebview()) {
@@ -288,7 +308,17 @@ class _FeedPageState extends State<FeedPage> {
                     itemBuilder: (BuildContext context) => FeedMenuItem.values
                         .map((item) => PopupMenuItem<FeedMenuItem>(
                               value: item,
-                              child: Text(item.name),
+                              child: item == FeedMenuItem.Fav
+                                  ? Text(
+                                      _feedController.isFav ? 'UnFav' : 'Fav',
+                                    )
+                                  : item == FeedMenuItem.Block
+                                      ? Text(
+                                          _feedController.isBlocked
+                                              ? 'UnBlock'
+                                              : 'Block',
+                                        )
+                                      : Text(item.name),
                             ))
                         .toList(),
                   )

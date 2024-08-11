@@ -40,7 +40,7 @@ class Datum {
   // int? ttype;
   // int? tcat;
   // int? tid;
-  // String? ttitle;
+  String? ttitle;
   // String? tpic;
   // String? turl;
   // String? tinfo;
@@ -59,7 +59,7 @@ class Datum {
   // int? istag;
   // @JsonKey(name: 'is_html_article')
   // int? isHtmlArticle;
-  // String? tags;
+  String? tags;
   // String? label;
   // @JsonKey(name: 'user_tags')
   // String? userTags;
@@ -304,7 +304,7 @@ class Datum {
     // this.ttype,
     // this.tcat,
     // this.tid,
-    // this.ttitle,
+    this.ttitle,
     // this.tpic,
     // this.turl,
     // this.tinfo,
@@ -317,7 +317,7 @@ class Datum {
     // this.issummary,
     // this.istag,
     // this.isHtmlArticle,
-    // this.tags,
+    this.tags,
     // this.label,
     // this.userTags,
     // this.mediaType,

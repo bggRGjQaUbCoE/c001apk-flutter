@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get_connect/http/src/status/http_status.dart';
 
@@ -285,71 +286,76 @@ class NetworkRepo {
       inCluldeConfigCard: inCluldeConfigCard,
     );
   }
-}
 
-Future<LoadingState> getData(Future<Response<dynamic>> Function() get) async {
-  try {
-    var response = await get();
-    return handleDataResponse(response);
-  } catch (err) {
-    return LoadingState.error(err.toString());
-  }
-}
-
-Future<LoadingState> getListData(
-  Future<Response<dynamic>> Function() get, {
-  bool inCluldeConfigCard = false,
-}) async {
-  try {
-    var response = await get();
-    return handleListResponse(
-      response,
-      inCluldeConfigCard: inCluldeConfigCard,
-    );
-  } catch (err) {
-    return LoadingState.error(err.toString());
-  }
-}
-
-LoadingState handleDataResponse(Response<dynamic> response) {
-  if (response.statusCode == HttpStatus.ok) {
-    DataModel responseData = DataModel.fromJson(response.data);
-    if (!responseData.message.isNullOrEmpty) {
-      return LoadingState.error(response.data['message']);
-    } else {
-      if (responseData.data != null) {
-        return LoadingState.success(responseData.data);
-      } else {
-        return LoadingState.empty();
-      }
+  static Future<LoadingState> getData(
+      Future<Response<dynamic>> Function() get) async {
+    try {
+      var response = await get();
+      return handleDataResponse(response);
+    } catch (err) {
+      return LoadingState.error(err.toString());
     }
-  } else {
-    return LoadingState.error('statusCode: ${response.statusCode}');
   }
-}
 
-LoadingState handleListResponse(
-  Response<dynamic> response, {
-  bool inCluldeConfigCard = false,
-}) {
-  if (response.statusCode == HttpStatus.ok) {
-    DataListModel responseData = DataListModel.fromJson(response.data);
-    if (!responseData.message.isNullOrEmpty) {
-      return LoadingState.error(response.data['message']);
-    } else {
-      if (!responseData.data.isNullOrEmpty) {
-        List<Datum> filterList = responseData.data!.where((item) {
-          return Constants.entityTypeList.contains(item.entityType) ||
-              (Constants.entityTemplateList +
-                      (inCluldeConfigCard ? ['configCard'] : []))
-                  .contains(item.entityTemplate);
-        }).toList();
-        return LoadingState.success(filterList);
-      } else {
-        return LoadingState.empty();
-      }
+  static Future<LoadingState> getListData(
+    Future<Response<dynamic>> Function() get, {
+    bool inCluldeConfigCard = false,
+  }) async {
+    try {
+      var response = await get();
+      return await handleListResponse(
+        response,
+        inCluldeConfigCard: inCluldeConfigCard,
+      );
+    } catch (err) {
+      return LoadingState.error(err.toString());
     }
-  } else {
-    return LoadingState.error('statusCode: ${response.statusCode}');
+  }
+
+  static Future<LoadingState> handleDataResponse(
+      Response<dynamic> response) async {
+    if (response.statusCode == HttpStatus.ok) {
+      DataModel responseData = DataModel.fromJson(response.data);
+      if (!responseData.message.isNullOrEmpty) {
+        return LoadingState.error(response.data['message']);
+      } else {
+        if (responseData.data != null) {
+          return LoadingState.success(responseData.data);
+        } else {
+          return LoadingState.empty();
+        }
+      }
+    } else {
+      return LoadingState.error('statusCode: ${response.statusCode}');
+    }
+  }
+
+  static Future<LoadingState> handleListResponse(
+    Response<dynamic> response, {
+    bool inCluldeConfigCard = false,
+  }) async {
+    if (response.statusCode == HttpStatus.ok) {
+      DataListModel responseData = DataListModel.fromJson(response.data);
+      if (!responseData.message.isNullOrEmpty) {
+        return LoadingState.error(response.data['message']);
+      } else {
+        if (!responseData.data.isNullOrEmpty) {
+          List<Datum> filterList = responseData.data!.where((item) {
+            return (Constants.entityTypeList.contains(item.entityType) ||
+                    (Constants.entityTemplateList +
+                            (inCluldeConfigCard ? ['configCard'] : []))
+                        .contains(item.entityTemplate)) &&
+                !GStorage.checkUser(item.uid.toString()) &&
+                !GStorage.checkTopic(
+                    '${item.tags},${item.ttitle},${item.relationRows?.getOrNull(0)?.title}');
+          }).toList();
+          return LoadingState.success(filterList);
+        } else {
+          return LoadingState.empty();
+        }
+      }
+    } else {
+      return LoadingState.error('statusCode: ${response.statusCode}');
+    }
   }
 }

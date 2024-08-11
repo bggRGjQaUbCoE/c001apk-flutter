@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
@@ -17,6 +18,8 @@ class TopicController extends GetxController {
   List<TabList>? tabList;
   RxInt initialIndex = 0.obs;
   Rx<LoadingState> topicState = LoadingState.loading().obs;
+
+  bool isBlocked = false;
 
   Future<void> _getTopicData() async {
     LoadingState<dynamic> response = await NetworkRepo.getDataFromUrl(
@@ -40,6 +43,8 @@ class TopicController extends GetxController {
       initialIndex.value =
           tabList!.map((item) => item.pageName).toList().indexOf(selectedTab);
       topicState.value = LoadingState.success(response.response);
+
+      isBlocked = GStorage.checkTopic(title!);
     } else {
       topicState.value = response;
     }

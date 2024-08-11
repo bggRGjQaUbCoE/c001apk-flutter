@@ -1,4 +1,6 @@
+import 'package:c001apk_flutter/pages/blacklist/black_list_page.dart';
 import 'package:c001apk_flutter/pages/ffflist/ffflist_page.dart';
+import 'package:c001apk_flutter/pages/history/history_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -113,6 +115,14 @@ class AppPages {
     _getPage(
       name: '/ffflist',
       page: () => const FFFListPage(),
+    ),
+    _getPage(
+      name: '/history',
+      page: () => const HistoryPage(),
+    ),
+    _getPage(
+      name: '/blacklist',
+      page: () => const BlackListPage(),
     ),
   ];
 }

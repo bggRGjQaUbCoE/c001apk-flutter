@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../components/cards/message_first_card.dart'
     show messageFirstCardRow;
+import '../../pages/history/history_page.dart' show HistoryType;
 import '../../pages/ffflist/ffflist_page.dart' show FFFListType;
 
 Widget messageSeconfCard(bool isLogin, BuildContext context) {
@@ -22,8 +23,14 @@ Widget messageSeconfCard(bool isLogin, BuildContext context) {
             '我的常去',
           ],
           [
-            () {},
-            () {},
+            () => Get.toNamed(
+                  '/history',
+                  arguments: {'type': HistoryType.Favorite},
+                ),
+            () => Get.toNamed(
+                  '/history',
+                  arguments: {'type': HistoryType.History},
+                ),
             isLogin
                 ? () => Get.toNamed(
                       '/ffflist',

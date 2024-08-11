@@ -1,8 +1,8 @@
 import 'dart:math';
 
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:share_plus/share_plus.dart';
 
@@ -119,7 +119,7 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                 : const SizedBox(),
             actions: controller.appState.value is Success
                 ? [
-                    if (controller.commentStatus == 1)
+                    if (!controller.isBlocked && controller.commentStatus == 1)
                       IconButton(
                         onPressed: () => Get.toNamed('/search', parameters: {
                           'title': controller.appName.value,
@@ -141,14 +141,25 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                                 controller.id!, ShareType.apk));
                             break;
                           case AppMenuItem.Block:
-                            SmartDialog.showToast('todo: Block');
+                            GStorage.onBlock(
+                              controller.appName.value,
+                              isUser: false,
+                              isDelete: controller.isBlocked,
+                            );
+                            controller.isBlocked = !controller.isBlocked;
                             break;
                         }
                       },
                       itemBuilder: (BuildContext context) => AppMenuItem.values
                           .map((item) => PopupMenuItem<AppMenuItem>(
                                 value: item,
-                                child: Text(item.name),
+                                child: item == AppMenuItem.Block
+                                    ? Text(
+                                        controller.isBlocked
+                                            ? 'UnBlock'
+                                            : 'Block',
+                                      )
+                                    : Text(item.name),
                               ))
                           .toList(),
                     ),
@@ -164,7 +175,8 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                       SliverToBoxAdapter(
                         child: _buildAppInfo(controller),
                       ),
-                      if (controller.commentStatus == 1)
+                      if (!controller.isBlocked &&
+                          controller.commentStatus == 1)
                         SliverOverlapAbsorber(
                           handle: ExtendedNestedScrollView
                               .sliverOverlapAbsorberHandleFor(context),
@@ -183,13 +195,13 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                             ),
                           ),
                         ),
-                      if (controller.commentStatus != 1)
+                      if (controller.isBlocked || controller.commentStatus != 1)
                         const SliverToBoxAdapter(
                           child: Divider(height: 1),
                         ),
                     ];
                   },
-                  body: controller.commentStatus == 1
+                  body: !controller.isBlocked && controller.commentStatus == 1
                       ? LayoutBuilder(builder: (context, _) {
                           return Padding(
                             padding: EdgeInsets.only(
@@ -211,7 +223,11 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                             ),
                           );
                         })
-                      : Center(child: Text(controller.commentStatusText!)),
+                      : Center(
+                          child: Text(controller.isBlocked
+                              ? '${controller.appName.value} is Blocked'
+                              : controller.commentStatusText!),
+                        ),
                 )
               : Center(child: _buildAppInfo(controller)),
         ),

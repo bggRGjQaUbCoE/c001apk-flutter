@@ -26,6 +26,7 @@ Widget itemCard(
   bool isReply2Reply = false,
   bool isTopReply = false,
   dynamic uid,
+  Function(dynamic uid)? onBlock,
 }) {
   switch (data.entityType) {
     case 'card':
@@ -52,7 +53,11 @@ Widget itemCard(
           return TextCard(text: data.description.orEmpty, isMessage: true);
       }
     case 'feed':
-      return FeedCard(data: data, isFeedContent: isFeedContent);
+      return FeedCard(
+        data: data,
+        isFeedContent: isFeedContent,
+        onBlock: onBlock,
+      );
     case 'feed_reply':
       if (data.likeUserInfo != null) {
         return LikeCard(data: data);

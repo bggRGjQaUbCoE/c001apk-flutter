@@ -1,17 +1,21 @@
 import 'dart:convert';
 
+import 'package:c001apk_flutter/providers/app_config_provider.dart';
 import 'package:get/get.dart';
 
+import '../../logic/model/fav_history/fav_history.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/model/feed_article/feed_article.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/common/common_controller.dart';
 import '../../utils/extensions.dart';
+import '../../utils/storage_util.dart';
 
 class FeedController extends CommonController {
-  FeedController({required this.id});
+  FeedController({required this.id, required this.recordHistory});
   final String id;
+  final bool recordHistory;
 
   String listType = 'lastupdate_desc';
   final int _discussMode = 1;
@@ -28,6 +32,8 @@ class FeedController extends CommonController {
   List<String>? articleImgList;
 
   Rx<LoadingState> feedState = LoadingState.loading().obs;
+  bool isFav = false;
+  bool isBlocked = false;
 
   void setFeedState(LoadingState feedState) {
     this.feedState.value = feedState;
@@ -76,8 +82,35 @@ class FeedController extends CommonController {
       feedTypeName = data.feedTypeName;
       replyNum = data.replynum;
       onGetData();
+
+      isFav = GStorage.checkFav(id);
+      isBlocked = GStorage.checkUser(feedUid.toString());
+      // todo: check
+      if (recordHistory && !GStorage.checkHistory(id)) {
+        GStorage.historyFeed.put(id, getFeed(data));
+      }
     }
     feedState.value = response;
+  }
+
+  void onFav() {
+    Datum data = (feedState.value as Success).response;
+    GStorage.favFeed.put(id, getFeed(data));
+  }
+
+  FavHistoryItem getFeed(Datum data) {
+    return FavHistoryItem(
+      id: data.id.toString(),
+      uid: data.uid.toString(),
+      username: data.userInfo?.username,
+      userAvatar: data.userInfo?.userAvatar,
+      message: (data.message ?? '').length <= 150
+          ? data.message
+          : data.message!.substring(0, 150),
+      device: data.deviceTitle,
+      dateline: data.dateline.toString(),
+      time: DateTime.now().microsecondsSinceEpoch,
+    );
   }
 
   @override

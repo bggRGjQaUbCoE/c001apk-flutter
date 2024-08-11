@@ -110,6 +110,7 @@ Widget buildBody(
               isReply2Reply: isReply2Reply,
               isTopReply: isReply2Reply && index == 0,
               uid: uid,
+              onBlock: commonController.onBlock,
             );
           }
         },

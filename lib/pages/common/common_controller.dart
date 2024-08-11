@@ -81,4 +81,10 @@ abstract class CommonController extends GetxController {
     returnTopController?.setIndex(999);
     refreshKey?.currentState?.show();
   }
+
+  void onBlock(dynamic uid) {
+    List<Datum> dataList = (loadingState.value as Success).response;
+    loadingState.value = LoadingState.success(
+        dataList.where((item) => item.uid != uid).toList());
+  }
 }

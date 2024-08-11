@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
@@ -16,6 +17,8 @@ class AppController extends GetxController {
   Rx<LoadingState> appState = LoadingState.loading().obs;
   RxString appName = ''.obs;
 
+  bool isBlocked = false;
+
   Future<void> _getAppData() async {
     LoadingState response = await NetworkRepo.getAppInfo(id: packageName);
     if (response is Success) {
@@ -25,6 +28,7 @@ class AppController extends GetxController {
       entityType = (response.response as Datum).entityType ?? '';
       appState.value = LoadingState.success(response.response);
       appName.value = (response.response as Datum).title ?? '';
+      isBlocked = GStorage.checkTopic(appName.value);
     } else {
       appState.value = response;
     }

@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -18,10 +19,14 @@ class FeedCard extends StatelessWidget {
     super.key,
     required this.data,
     this.isFeedContent = false,
+    this.onDelete,
+    this.onBlock,
   });
 
   final Datum data;
   final bool isFeedContent;
+  final Function()? onDelete;
+  final Function(dynamic uid)? onBlock;
 
   void _onViewFeed() {
     Get.toNamed('/feed/${data.id}');
@@ -47,7 +52,11 @@ class FeedCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              header(context, data, isFeedContent),
+              header(context, data, isFeedContent, onDelete, () {
+                if (onBlock != null) {
+                  onBlock!(data.uid);
+                }
+              }),
               ..._message(),
               if (!data.picArr.isNullOrEmpty) _image(),
               if (!data.forwardSourceType.isNullOrEmpty)
@@ -319,8 +328,10 @@ class FeedCard extends StatelessWidget {
 Widget header(
   BuildContext context,
   Datum data,
-  bool isFeedContent,
-) {
+  bool isFeedContent, [
+  Function()? onDelete,
+  Function()? onBlock,
+]) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.center,
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -430,6 +441,8 @@ Widget header(
               return _MorePanel(
                 id: data.id.toString(),
                 uid: data.uid.toString(),
+                onDelete: onDelete,
+                onBlock: onBlock,
               );
             },
           ),
@@ -470,31 +483,40 @@ Widget bottomInfo(
                 ),
           ),
         ),
-        IconText(
-          icon: Icons.message_outlined,
-          text: data.replynum.toString(),
-          onTap: isFeedContent ? null : onViewFeed,
-        ),
+        if (data.replynum != null)
+          IconText(
+            icon: Icons.message_outlined,
+            text: data.replynum.toString(),
+            onTap: isFeedContent ? null : onViewFeed,
+          ),
         const SizedBox(width: 10),
-        IconText(
-          icon: Icons.thumb_up_outlined,
-          text: data.likenum.toString(),
-          onTap: () {
-            SmartDialog.showToast('todo: like');
-          },
-        ),
+        if (data.likenum != null)
+          IconText(
+            icon: Icons.thumb_up_outlined,
+            text: data.likenum.toString(),
+            onTap: () {
+              SmartDialog.showToast('todo: like');
+            },
+          ),
       ],
     ),
   );
 }
 
-enum PanelAction { copy, block, report }
+enum PanelAction { copy, block, report, delete }
 
 class _MorePanel extends StatelessWidget {
-  const _MorePanel({required this.id, required this.uid});
+  const _MorePanel({
+    required this.id,
+    required this.uid,
+    required this.onDelete,
+    required this.onBlock,
+  });
 
   final String id;
   final String uid;
+  final Function()? onDelete;
+  final Function()? onBlock;
 
   Future<dynamic> menuActionHandler(PanelAction type) async {
     switch (type) {
@@ -504,12 +526,20 @@ class _MorePanel extends StatelessWidget {
         break;
       case PanelAction.block:
         Get.back();
-        // todo: block
-        SmartDialog.showToast('todo');
+        GStorage.onBlock(uid);
+        if (onBlock != null) {
+          onBlock!();
+        }
         break;
       case PanelAction.report:
         Get.back();
         Utils.report(id, ReportType.Feed);
+        break;
+      case PanelAction.delete:
+        Get.back();
+        if (onDelete != null) {
+          onDelete!();
+        }
         break;
     }
   }
@@ -561,6 +591,14 @@ class _MorePanel extends StatelessWidget {
               leading: const Icon(Icons.error_outline, size: 19),
               title:
                   Text('Report', style: Theme.of(context).textTheme.titleSmall),
+            ),
+          if (onDelete != null)
+            ListTile(
+              onTap: () async => await menuActionHandler(PanelAction.delete),
+              minLeadingWidth: 0,
+              leading: const Icon(Icons.delete_outline, size: 19),
+              title:
+                  Text('Delete', style: Theme.of(context).textTheme.titleSmall),
             ),
         ],
       ),

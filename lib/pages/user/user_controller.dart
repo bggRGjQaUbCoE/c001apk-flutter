@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
@@ -12,6 +13,8 @@ class UserController extends CommonController {
 
   late String uid;
   String? username;
+
+  bool isBlocked = false;
 
   @override
   List<Datum>? handleResponse(List<Datum> dataList) {
@@ -44,9 +47,25 @@ class UserController extends CommonController {
     if (response is Success) {
       uid = (response.response as Datum).uid.toString();
       username = (response.response as Datum).username;
-      onGetData();
+      isBlocked = GStorage.checkUser(uid);
+      if (!isBlocked) {
+        onGetData();
+      } else {
+        setBlockedLoaidngState();
+      }
     }
     userState.value = response;
+  }
+
+  @override
+  void onBlock(uid) {
+    super.onBlock(uid);
+    isBlocked = true;
+    setBlockedLoaidngState();
+  }
+
+  void setBlockedLoaidngState() {
+    loadingState.value = LoadingState.error('$username is Blocked');
   }
 
   @override

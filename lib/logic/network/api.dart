@@ -47,4 +47,12 @@ class Api {
 
   static String checkCount =
       '${Constants.URL_API_SERVICE}/v6/notification/checkCount';
+
+  static String postReply = '${Constants.URL_API_SERVICE}/v6/feed/reply';
+
+  static String postCreateFeed =
+      '${Constants.URL_API_SERVICE}/v6/feed/createFeed';
+
+  static String postRequestValidate =
+      '${Constants.URL_API_SERVICE}/v6/account/requestValidate';
 }

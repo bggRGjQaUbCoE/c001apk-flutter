@@ -50,6 +50,7 @@ class _AppListPageState extends State<AppListPage> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(() {});
     _scrollController.dispose;
     super.dispose();
   }
@@ -67,14 +68,10 @@ class _AppListPageState extends State<AppListPage> {
               ? AnimatedSlide(
                   duration: const Duration(milliseconds: 300),
                   offset: _showFab ? Offset.zero : const Offset(0, 2),
-                  child: AnimatedOpacity(
-                    duration: const Duration(milliseconds: 300),
-                    opacity: _showFab ? 1 : 0,
-                    child: FloatingActionButton(
-                      onPressed: () => Get.toNamed('/appUpdate'),
-                      tooltip: 'Update',
-                      child: const Icon(Icons.update),
-                    ),
+                  child: FloatingActionButton(
+                    onPressed: () => Get.toNamed('/appUpdate'),
+                    tooltip: 'Update',
+                    child: const Icon(Icons.update),
                   ),
                 )
               : null,

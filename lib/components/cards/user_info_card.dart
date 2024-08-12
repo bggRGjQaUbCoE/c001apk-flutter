@@ -1,3 +1,4 @@
+import 'package:c001apk_flutter/pages/ffflist/ffflist_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -203,9 +204,13 @@ class UserInfoCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               GestureDetector(
-                onTap: () {
-                  SmartDialog.showToast('todo: follow list');
-                },
+                onTap: () => Get.toNamed(
+                  '/ffflist',
+                  arguments: {
+                    'type': FFFListType.USER_FOLLOW,
+                    'uid': data.uid.toString(),
+                  },
+                ),
                 child: Text(
                   '${data.follow.toString()}关注',
                   style: const TextStyle(fontSize: 14),
@@ -213,9 +218,13 @@ class UserInfoCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               GestureDetector(
-                onTap: () {
-                  SmartDialog.showToast('todo: fan list');
-                },
+                onTap: () => Get.toNamed(
+                  '/ffflist',
+                  arguments: {
+                    'type': FFFListType.FAN,
+                    'uid': data.uid.toString(),
+                  },
+                ),
                 child: Text(
                   '${data.fans.toString()}粉丝',
                   style: const TextStyle(fontSize: 14),

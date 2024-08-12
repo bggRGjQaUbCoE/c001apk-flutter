@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../components/cards/app_info_card.dart';
@@ -11,9 +12,11 @@ import '../../logic/state/loading_state.dart';
 import '../../pages/app/app_content.dart';
 import '../../pages/app/app_controller.dart';
 import '../../pages/home/return_top_controller.dart';
+import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
+import '../feed/reply/reply_dialog.dart';
 
 // ignore: constant_identifier_names
 enum AppMenuItem { Copy, Share, Block }
@@ -31,6 +34,8 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
   final String _packageName = Get.parameters['packageName'].orEmpty;
   String? _url;
 
+  late final _config = Provider.of<AppConfigProvider>(context, listen: false);
+
   double _scrollRatio = 0;
 
   late ReturnTopController _returnTopController;
@@ -47,14 +52,16 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
     _returnTopController = Get.put(ReturnTopController(), tag: _packageName);
 
     _scrollController.addListener(() {
-      setState(() =>
-          _scrollRatio = min(1.0, _scrollController.offset.round() / 75.0));
+      setState(() {
+        _scrollRatio = min(1.0, _scrollController.offset.round() / 75.0);
+      });
     });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.removeListener(() {});
     _scrollController.dispose();
     super.dispose();
   }
@@ -112,6 +119,27 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
       init: AppController(packageName: _packageName),
       builder: (controller) => Obx(
         () => Scaffold(
+          floatingActionButton: controller.appState.value is Success &&
+                  _config.isLogin &&
+                  !controller.isBlocked &&
+                  controller.commentStatus == 1
+              ? FloatingActionButton(
+                  onPressed: () {
+                    showModalBottomSheet<dynamic>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => ReplyDialog(
+                        title: controller.appName.value,
+                        targetType: 'apk',
+                        targetId:
+                            '${1000000000 + int.parse(controller.id ?? '4599')}',
+                      ),
+                    );
+                  },
+                  tooltip: 'Create Feed',
+                  child: const Icon(Icons.add),
+                )
+              : null,
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
             title: controller.appName.value.isNotEmpty && _scrollRatio == 1

@@ -7,6 +7,7 @@ part of 'datum.dart';
 // **************************************************************************
 
 Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
+      entityId: json['entityId'],
       entityType: json['entityType'] as String?,
       entityTemplate: json['entityTemplate'] as String?,
       title: json['title'] as String?,
@@ -142,6 +143,12 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       replyRows: (json['replyRows'] as List<dynamic>?)
           ?.map((e) => Datum.fromJson(e as Map<String, dynamic>))
           .toList(),
+      topReplyRows: (json['topReplyRows'] as List<dynamic>?)
+          ?.map((e) => Datum.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      replyMeRows: (json['replyMeRows'] as List<dynamic>?)
+          ?.map((e) => Datum.fromJson(e as Map<String, dynamic>))
+          .toList(),
       // replyRowsCount: (json['replyRowsCount'] as num?)?.toInt(),
       replyRowsMore: (json['replyRowsMore'] as num?)?.toInt(),
       userInfo: json['userInfo'] == null
@@ -220,6 +227,7 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
     );
 
 Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
+      'entityId': instance.entityId,
       'entityType': instance.entityType,
       'entityTemplate': instance.entityTemplate,
       'title': instance.title,
@@ -345,6 +353,8 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       // 'top_reply_ids': instance.topReplyIds,
       // 'is_ks_doc': instance.isKsDoc,
       'replyRows': instance.replyRows,
+      'topReplyRows': instance.topReplyRows,
+      'replyMeRows': instance.replyMeRows,
       // 'replyRowsCount': instance.replyRowsCount,
       'replyRowsMore': instance.replyRowsMore,
       'userInfo': instance.userInfo,

@@ -41,4 +41,13 @@ class Reply2ReplyController extends CommonController {
     super.onInit();
     onGetData();
   }
+
+  void updateReply(Datum data, dynamic id) {
+    List<Datum> replyList = loadingState.value is Success
+        ? (loadingState.value as Success).response
+        : [];
+    int index = replyList.indexWhere((reply) => reply.id == id);
+    replyList.insert(index + 1, data);
+    loadingState.value = LoadingState.success(replyList);
+  }
 }

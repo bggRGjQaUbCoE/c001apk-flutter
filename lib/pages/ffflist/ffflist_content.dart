@@ -24,6 +24,7 @@ class FFFListContent extends StatefulWidget {
 class _FFFListContentState extends State<FFFListContent> {
   late final _fffController = Get.put(
     FFFListController(
+      type: widget.type,
       url: switch (widget.type) {
         FFFListType.FEED => '/v6/user/feedList?showAnonymous=0&isIncludeTop=1',
         FFFListType.FOLLOW => '/v6/user/followList',

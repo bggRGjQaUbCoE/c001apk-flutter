@@ -1,14 +1,14 @@
-import 'package:c001apk_flutter/pages/blacklist/black_list_page.dart';
-import 'package:c001apk_flutter/pages/ffflist/ffflist_page.dart';
-import 'package:c001apk_flutter/pages/history/history_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../pages/app/app_page.dart';
+import '../pages/blacklist/black_list_page.dart';
 import '../pages/carousel/carousel_page.dart';
 import '../pages/coolpic/coolpic_page.dart';
 import '../pages/dyh/dyh_page.dart';
 import '../pages/feed/feed_page.dart';
+import '../pages/ffflist/ffflist_page.dart';
+import '../pages/history/history_page.dart';
 import '../pages/home/app/update/app_update_page.dart';
 import '../pages/login/login_page.dart';
 import '../pages/main/main_page.dart';

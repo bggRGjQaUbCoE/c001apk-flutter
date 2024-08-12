@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/home/return_top_controller.dart';
+import '../../utils/extensions.dart';
 
 abstract class CommonController extends GetxController {
   int page = 1;
@@ -13,13 +14,13 @@ abstract class CommonController extends GetxController {
   bool isEnd = false;
 
   Rx<LoadingState> loadingState = LoadingState.loading().obs;
-  Rx<LoadingState> footerState = LoadingState.loading().obs;
+  Rx<LoadingState> footerState = LoadingState.empty().obs;
   GlobalKey<RefreshIndicatorState>? refreshKey;
   ScrollController? scrollController;
   ReturnTopController? returnTopController;
 
   List<Datum>? handleResponse(List<Datum> dataList) {
-    return null;
+    return dataList.unique((data) => data.entityId);
   }
 
   LoadingState? handleExtraResponse() {

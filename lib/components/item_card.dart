@@ -27,6 +27,11 @@ Widget itemCard(
   bool isTopReply = false,
   dynamic uid,
   Function(dynamic uid)? onBlock,
+  Function(
+    dynamic id,
+    dynamic uname,
+    dynamic fid,
+  )? onReply,
 }) {
   switch (data.entityType) {
     case 'card':
@@ -68,6 +73,7 @@ Widget itemCard(
           isTopReply: isTopReply,
           uid: uid,
           onBlock: onBlock != null ? (uid, id) => onBlock(uid) : null,
+          onReply: onReply,
         );
       }
     case 'apk':

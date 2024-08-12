@@ -12,6 +12,7 @@ part 'datum.g.dart';
 
 @JsonSerializable()
 class Datum {
+  dynamic entityId;
   String? entityType;
   String? entityTemplate;
   String? title;
@@ -199,6 +200,8 @@ class Datum {
   @JsonKey(name: 'is_ks_doc')
   // int? isKsDoc;
   List<Datum>? replyRows;
+  List<Datum>? topReplyRows;
+  List<Datum>? replyMeRows;
   // int? replyRowsCount;
   int? replyRowsMore;
   UserInfo? userInfo;
@@ -279,6 +282,7 @@ class Datum {
   int? itemNum;
 
   Datum({
+    this.entityId,
     this.entityType,
     this.entityTemplate,
     this.title,
@@ -405,6 +409,8 @@ class Datum {
     // this.topReplyIds,
     // this.isKsDoc,
     this.replyRows,
+    this.topReplyRows,
+    this.replyMeRows,
     // this.replyRowsCount,
     this.replyRowsMore,
     this.userInfo,

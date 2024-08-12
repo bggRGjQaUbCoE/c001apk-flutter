@@ -7,10 +7,12 @@ part 'data_model.g.dart';
 @JsonSerializable()
 class DataModel {
   String? message;
+  dynamic messageStatus;
   Datum? data;
 
   DataModel({
     this.message,
+    this.messageStatus,
     this.data,
   });
 

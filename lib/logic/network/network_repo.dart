@@ -1,18 +1,59 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart' hide Response, FormData;
 import 'package:get/get_connect/http/src/status/http_status.dart';
+import 'package:hive/hive.dart';
 
 import '../../constants/constants.dart';
-import '../../logic/network/api.dart';
-import '../../logic/network/request.dart';
 import '../../logic/model/feed/data_list_model.dart';
 import '../../logic/model/feed/data_model.dart';
 import '../../logic/model/feed/datum.dart';
+import '../../logic/network/api.dart';
+import '../../logic/network/request.dart';
 import '../../logic/state/loading_state.dart';
 import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/token_util.dart';
 
 class NetworkRepo {
+  static final Box _blackList = GStorage.blackList;
+
+  static Future<Response> postRequestValidate(
+    FormData data,
+  ) async {
+    return Request().post(
+      Api.postRequestValidate,
+      data: data,
+    );
+  }
+
+  static Future<Response> getValidateCaptcha() async {
+    return Request().get(
+      '${Constants.URL_API_SERVICE}/v6/account/captchaImage?${DateTime.now().microsecondsSinceEpoch ~/ 1000}&w=270=&h=113',
+      options: Options(responseType: ResponseType.bytes),
+    );
+  }
+
+  static Future<Response> postCreateFeed(
+    FormData data,
+  ) async {
+    return Request().post(
+      Api.postCreateFeed,
+      data: data,
+    );
+  }
+
+  static Future<Response> postReply(
+    FormData data,
+    dynamic id,
+    String type,
+  ) async {
+    return Request().post(
+      Api.postReply,
+      data: data,
+      queryParameters: {'id': id, 'type': type},
+    );
+  }
+
   static Future<Response> checkCount() async {
     return Request().get(Api.checkCount);
   }
@@ -340,14 +381,20 @@ class NetworkRepo {
         return LoadingState.error(response.data['message']);
       } else {
         if (!responseData.data.isNullOrEmpty) {
+          List<String> userBlackList = _blackList
+              .get(BlackListBoxKey.userBlackList, defaultValue: <String>[]);
+          List<String> topicBlackList = _blackList
+              .get(BlackListBoxKey.topicBlackList, defaultValue: <String>[]);
           List<Datum> filterList = responseData.data!.where((item) {
             return (Constants.entityTypeList.contains(item.entityType) ||
                     (Constants.entityTemplateList +
                             (inCluldeConfigCard ? ['configCard'] : []))
                         .contains(item.entityTemplate)) &&
-                !GStorage.checkUser(item.uid.toString()) &&
-                !GStorage.checkTopic(
-                    '${item.tags},${item.ttitle},${item.relationRows?.getOrNull(0)?.title}');
+                !userBlackList.contains(item.uid.toString()) &&
+                topicBlackList.firstWhereOrNull((keyword) =>
+                        '${item.tags},${item.ttitle},${item.relationRows?.getOrNull(0)?.title}'
+                            .contains(keyword)) ==
+                    null;
           }).toList();
           return LoadingState.success(filterList);
         } else {

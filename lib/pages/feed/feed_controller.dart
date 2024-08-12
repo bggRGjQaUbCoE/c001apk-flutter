@@ -30,6 +30,9 @@ class FeedController extends CommonController {
   List<FeedArticle>? articleList;
   List<String>? articleImgList;
 
+  Datum? topReply;
+  Datum? _replyMe;
+
   Rx<LoadingState> feedState = LoadingState.loading().obs;
   bool isFav = false;
   bool isBlocked = false;
@@ -75,6 +78,12 @@ class FeedController extends CommonController {
             .where((item) => item.type == 'image')
             .map((item) => item.url.orEmpty)
             .toList();
+      }
+      if (!data.topReplyRows.isNullOrEmpty) {
+        topReply = data.topReplyRows![0];
+      }
+      if (!data.replyMeRows.isNullOrEmpty) {
+        _replyMe = data.replyMeRows![0];
       }
       feedUsername = data.userInfo?.username;
       feedUid = data.uid;
@@ -132,6 +141,38 @@ class FeedController extends CommonController {
       }).toList();
     } else {
       replyList = replyList.where((reply) => reply.uid != uid).toList();
+    }
+    loadingState.value = LoadingState.success(replyList);
+  }
+
+  @override
+  List<Datum>? handleResponse(List<Datum> dataList) {
+    if (page == 1 && listType == 'lastupdate_desc') {
+      return ([
+                if (topReply != null) topReply!,
+                if (_replyMe != null) _replyMe!,
+              ] +
+              dataList)
+          .unique((data) => data.entityId);
+    } else {
+      return dataList.unique((data) => data.entityId);
+    }
+  }
+
+  void updateReply(bool isReply, Datum data, dynamic id, dynamic fid) {
+    List<Datum> replyList = loadingState.value is Success
+        ? (loadingState.value as Success).response
+        : [];
+    if (isReply) {
+      replyList = replyList.map((reply) {
+        if (reply.id == (fid ?? id)) {
+          return reply..replyRows = (reply.replyRows ?? []) + [data];
+        } else {
+          return reply;
+        }
+      }).toList();
+    } else {
+      replyList.insert(0, data);
     }
     loadingState.value = LoadingState.success(replyList);
   }

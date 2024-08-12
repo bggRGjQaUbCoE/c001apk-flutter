@@ -1,15 +1,19 @@
+import '../../logic/model/feed/datum.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/common/common_controller.dart';
+import '../../pages/ffflist/ffflist_page.dart' show FFFListType;
 
 class FFFListController extends CommonController {
   FFFListController({
+    required this.type,
     required this.url,
     this.uid,
     this.id,
     this.showDefault,
   });
 
+  final FFFListType type;
   final String url;
   final String? uid;
   final String? id;
@@ -34,5 +38,13 @@ class FFFListController extends CommonController {
   void onInit() {
     super.onInit();
     onGetData();
+  }
+
+  @override
+  List<Datum>? handleResponse(List<Datum> dataList) {
+    return [FFFListType.FOLLOW, FFFListType.FAN, FFFListType.USER_FOLLOW]
+            .contains(type)
+        ? null
+        : super.handleResponse(dataList);
   }
 }

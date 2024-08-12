@@ -55,6 +55,11 @@ Widget buildBody(
   bool isHomeCard = false,
   bool isReply2Reply = false,
   dynamic uid,
+  Function(
+    dynamic id,
+    dynamic uname,
+    dynamic fid,
+  )? onReply,
 }) {
   switch (commonController.loadingState.value) {
     case Empty():
@@ -95,6 +100,7 @@ Widget buildBody(
         itemBuilder: (_, index) {
           if (index == dataList.length) {
             if (!commonController.isEnd && !commonController.isLoading) {
+              commonController.setFooterState(LoadingState.loading());
               commonController.onGetData(false);
             }
             return Obx(
@@ -111,6 +117,7 @@ Widget buildBody(
               isTopReply: isReply2Reply && index == 0,
               uid: uid,
               onBlock: commonController.onBlock,
+              onReply: onReply,
             );
           }
         },

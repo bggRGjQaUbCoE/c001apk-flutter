@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -7,6 +8,7 @@ import '../../../pages/home/feed/home_feed_controller.dart';
 import '../../../pages/home/home_page.dart' show TabType;
 import '../../../pages/home/return_top_controller.dart';
 import '../../../providers/app_config_provider.dart';
+import '../../feed/reply/reply_dialog.dart';
 
 class HomeFeedPage extends StatefulWidget {
   const HomeFeedPage({
@@ -26,6 +28,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
   bool get wantKeepAlive => true;
 
   late final _config = Provider.of<AppConfigProvider>(context, listen: false);
+  late bool _showFab = _config.isLogin;
 
   late final _homeFeedController = Get.put(
     HomeFeedNewController(
@@ -49,6 +52,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
 
   @override
   void dispose() {
+    _homeFeedController.scrollController?.removeListener(() {});
     _homeFeedController.scrollController?.dispose();
     super.dispose();
   }
@@ -67,11 +71,36 @@ class _HomeFeedPageState extends State<HomeFeedPage>
         _homeFeedController.animateToTop();
       }
     });
+
+    _homeFeedController.scrollController?.addListener(() {
+      setState(() => _showFab =
+          _homeFeedController.scrollController?.position.userScrollDirection ==
+              ScrollDirection.forward);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return commonBody(_homeFeedController);
+    return Scaffold(
+      floatingActionButton: _config.isLogin && widget.tabType == TabType.FEED
+          ? AnimatedSlide(
+              duration: const Duration(milliseconds: 300),
+              offset: _showFab ? Offset.zero : const Offset(0, 2),
+              child: FloatingActionButton(
+                onPressed: () {
+                  showModalBottomSheet<dynamic>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => const ReplyDialog(),
+                  );
+                },
+                tooltip: 'Create Feed',
+                child: const Icon(Icons.add),
+              ),
+            )
+          : null,
+      body: commonBody(_homeFeedController),
+    );
   }
 }

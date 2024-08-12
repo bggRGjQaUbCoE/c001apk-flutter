@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import '../../components/cards/feed_card.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/feed/feed_controller.dart';
+import '../../pages/feed/reply/reply_dialog.dart';
 import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
@@ -33,6 +35,25 @@ class _FeedPageState extends State<FeedPage> {
   late final _config = Provider.of<AppConfigProvider>(context);
   final String _id = Get.parameters['id'].orEmpty;
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
+  late bool _showFab = _config.isLogin;
+  late final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(() {
+      setState(() => _showFab =
+          _scrollController.position.userScrollDirection ==
+              ScrollDirection.forward);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(() {});
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   late final _feedController = Get.put(
     FeedController(
@@ -193,6 +214,31 @@ class _FeedPageState extends State<FeedPage> {
     );
   }
 
+  Future<void> _onReply(
+    ReplyType type,
+    dynamic id,
+    dynamic uname,
+    dynamic fid,
+  ) async {
+    dynamic result = await showModalBottomSheet<dynamic>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => ReplyDialog(
+        type: type,
+        username: uname,
+        id: id,
+      ),
+    );
+    if (result['data'] != null) {
+      _feedController.updateReply(
+        type == ReplyType.reply,
+        result['data'] as Datum,
+        id,
+        fid,
+      );
+    }
+  }
+
   Widget _buildFeedReply(LoadingState replyState) {
     switch (replyState) {
       case Empty():
@@ -243,7 +289,15 @@ class _FeedPageState extends State<FeedPage> {
               } else {
                 return FeedReplyCard(
                   data: dataList[index],
+                  isTopReply: _feedController.topReply != null &&
+                      index == 0 &&
+                      _feedController.listType == 'lastupdate_desc',
                   onBlock: _feedController.onBlockReply,
+                  onReply: (id, uname, fid) {
+                    if (_config.isLogin) {
+                      _onReply(ReplyType.reply, id, uname, fid);
+                    }
+                  },
                 );
               }
             },
@@ -265,6 +319,24 @@ class _FeedPageState extends State<FeedPage> {
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(
+        floatingActionButton: _config.isLogin
+            ? AnimatedSlide(
+                duration: const Duration(milliseconds: 300),
+                offset: _showFab ? Offset.zero : const Offset(0, 2),
+                child: FloatingActionButton(
+                  tooltip: 'Reply',
+                  onPressed: () {
+                    _onReply(
+                      ReplyType.feed,
+                      _feedController.id,
+                      _feedController.feedUsername,
+                      null,
+                    );
+                  },
+                  child: const Icon(Icons.reply),
+                ),
+              )
+            : null,
         appBar: AppBar(
           title: _feedController.feedTypeName.isNullOrEmpty
               ? null
@@ -334,6 +406,7 @@ class _FeedPageState extends State<FeedPage> {
                   await _feedController.onGetData();
                 },
                 child: CustomScrollView(
+                  controller: _scrollController,
                   physics: const AlwaysScrollableScrollPhysics(
                     parent: BouncingScrollPhysics(),
                   ),

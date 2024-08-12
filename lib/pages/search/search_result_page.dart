@@ -66,6 +66,7 @@ class _SearchResultPageState extends State<SearchResultPage>
 
   @override
   void dispose() {
+    _tabController.removeListener(() {});
     _tabController.dispose();
     super.dispose();
   }

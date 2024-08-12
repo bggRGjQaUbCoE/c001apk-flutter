@@ -9,7 +9,8 @@ import '../../components/html_text.dart';
 import '../../components/icon_text.dart';
 import '../../components/imageview.dart';
 import '../../logic/model/feed/datum.dart';
-import '../../pages/feed/reply/reply_2_reply_page.dart';
+import '../../pages/feed/reply/reply_dialog.dart' show ReplyType;
+import '../../pages/feed/reply2reply/reply_2_reply_page.dart';
 import '../../utils/date_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/utils.dart';
@@ -22,6 +23,7 @@ class FeedReplyCard extends StatelessWidget {
     this.isTopReply = false,
     this.uid,
     this.onBlock,
+    this.onReply,
   });
 
   final Datum data;
@@ -29,6 +31,11 @@ class FeedReplyCard extends StatelessWidget {
   final bool isTopReply;
   final dynamic uid;
   final Function(dynamic uid, dynamic id)? onBlock;
+  final Function(
+    dynamic id,
+    dynamic uname,
+    dynamic fid,
+  )? onReply;
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +48,12 @@ class FeedReplyCard extends StatelessWidget {
           !isFeedReply ? const BorderRadius.all(Radius.circular(12)) : null,
       child: InkWell(
         onTap: () {
-          if (isFeedReply) {
-            SmartDialog.showToast('todo: reply');
+          if (isFeedReply && onReply != null) {
+            onReply!(
+              data.id,
+              data.userInfo?.username,
+              null,
+            );
           } else {
             Utils.onOpenLink(data.url ?? '');
           }
@@ -155,7 +166,7 @@ class FeedReplyCard extends StatelessWidget {
       padding: const EdgeInsets.only(right: 15),
       child: htmlText(
         !isReply2Reply
-            ? '${data.userInfo?.username}${data.uid == data.feedUid ? ' [楼主]' : ''}'
+            ? '${data.userInfo?.username}${data.uid == data.feedUid ? ' [楼主]' : ''}${!isReply2Reply && isTopReply ? ' [置顶]' : ''}'
             : () {
                 String replyTag = data.uid == data.feedUid
                     ? ' [楼主] '
@@ -275,7 +286,13 @@ class FeedReplyCard extends StatelessWidget {
   Widget _replyRowsItem(BuildContext context, Datum reply) {
     return InkWell(
       onTap: () {
-        SmartDialog.showToast('todo: reply');
+        if (onReply != null) {
+          onReply!(
+            reply.id,
+            reply.userInfo?.username,
+            data.id,
+          );
+        }
       },
       onLongPress: () {
         showModalBottomSheet(

@@ -1,4 +1,3 @@
-import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -12,6 +11,8 @@ import '../../components/no_splash_factory.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../utils/date_util.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 class FeedCard extends StatelessWidget {
@@ -19,13 +20,15 @@ class FeedCard extends StatelessWidget {
     super.key,
     required this.data,
     this.isFeedContent = false,
+    this.isHistory = false,
     this.onDelete,
     this.onBlock,
   });
 
   final Datum data;
   final bool isFeedContent;
-  final Function()? onDelete;
+  final bool isHistory;
+  final Function(dynamic id)? onDelete;
   final Function(dynamic uid)? onBlock;
 
   void _onViewFeed() {
@@ -52,11 +55,18 @@ class FeedCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              header(context, data, isFeedContent, onDelete, () {
-                if (onBlock != null) {
-                  onBlock!(data.uid);
-                }
-              }),
+              header(
+                context,
+                data,
+                isFeedContent,
+                isHistory: isHistory,
+                onDelete: onDelete,
+                onBlock: () {
+                  if (onBlock != null) {
+                    onBlock!(data.uid);
+                  }
+                },
+              ),
               ..._message(),
               if (!data.picArr.isNullOrEmpty) _image(),
               if (!data.forwardSourceType.isNullOrEmpty)
@@ -328,10 +338,11 @@ class FeedCard extends StatelessWidget {
 Widget header(
   BuildContext context,
   Datum data,
-  bool isFeedContent, [
-  Function()? onDelete,
+  bool isFeedContent, {
+  bool isHistory = false,
+  Function(dynamic id)? onDelete,
   Function()? onBlock,
-]) {
+}) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.center,
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -439,8 +450,9 @@ Widget header(
             isScrollControlled: true,
             builder: (context) {
               return _MorePanel(
-                id: data.id.toString(),
-                uid: data.uid.toString(),
+                id: data.id,
+                uid: data.uid,
+                isHistory: isHistory,
                 onDelete: onDelete,
                 onBlock: onBlock,
               );
@@ -509,13 +521,15 @@ class _MorePanel extends StatelessWidget {
   const _MorePanel({
     required this.id,
     required this.uid,
+    required this.isHistory,
     required this.onDelete,
     required this.onBlock,
   });
 
-  final String id;
-  final String uid;
-  final Function()? onDelete;
+  final dynamic id;
+  final dynamic uid;
+  final bool isHistory;
+  final Function(dynamic id)? onDelete;
   final Function()? onBlock;
 
   Future<dynamic> menuActionHandler(PanelAction type) async {
@@ -538,7 +552,7 @@ class _MorePanel extends StatelessWidget {
       case PanelAction.delete:
         Get.back();
         if (onDelete != null) {
-          onDelete!();
+          onDelete!(id);
         }
         break;
     }
@@ -592,7 +606,7 @@ class _MorePanel extends StatelessWidget {
               title:
                   Text('Report', style: Theme.of(context).textTheme.titleSmall),
             ),
-          if (onDelete != null)
+          if (isHistory || uid.toString() == GlobalData().uid)
             ListTile(
               onTap: () async => await menuActionHandler(PanelAction.delete),
               minLeadingWidth: 0,

@@ -309,16 +309,15 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               onTap: () => _config.setCheckUpdate(!_config.checkUpdate),
             ),
-          if (false)
-            ListTile(
-              title: const Text('Check Count'),
-              leading: const Icon(Icons.notifications_outlined),
-              trailing: Switch(
-                value: _config.checkCount,
-                onChanged: (value) => _config.setCheckCount(value),
-              ),
-              onTap: () => _config.setCheckCount(!_config.checkCount),
-            ),
+          //   ListTile(
+          //     title: const Text('Check Count'),
+          //     leading: const Icon(Icons.notifications_outlined),
+          //     trailing: Switch(
+          //       value: _config.checkCount,
+          //       onChanged: (value) => _config.setCheckCount(value),
+          //     ),
+          //     onTap: () => _config.setCheckCount(!_config.checkCount),
+          //   ),
           // Others
           ListTile(
             title: Text(

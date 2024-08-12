@@ -298,6 +298,9 @@ class _FeedPageState extends State<FeedPage> {
                       _onReply(ReplyType.reply, id, uname, fid);
                     }
                   },
+                  onDelete: (id, fid) {
+                    _feedController.onDeleteFeedOrReply(false, id, fid);
+                  },
                 );
               }
             },

@@ -1,7 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart' hide Response, FormData;
 
 import '../../logic/model/feed/datum.dart';
+import '../../logic/model/login/login_response.dart';
+import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/home/return_top_controller.dart';
 import '../../utils/extensions.dart';
@@ -88,5 +92,35 @@ abstract class CommonController extends GetxController {
     List<Datum> dataList = (loadingState.value as Success).response;
     loadingState.value = LoadingState.success(
         dataList.where((item) => item.uid != uid).toList());
+  }
+
+  Future<void> onDeleteFeedOrReply(bool isFeed, dynamic id, dynamic fid) async {
+    String url = isFeed ? '/v6/feed/deleteFeed' : '/v6/feed/deleteReply';
+    try {
+      Response response = await NetworkRepo.postLikeDeleteFollow(url, id: id);
+      LoginResponse data = LoginResponse.fromJson(response.data);
+      if (!data.message.isNullOrEmpty) {
+        SmartDialog.showToast(data.message!);
+      } else if (data.data == '删除成功') {
+        List<Datum> dataList = (loadingState.value as Success).response;
+        if (fid != null) {
+          dataList = dataList.map((data) {
+            if (data.id == fid) {
+              return data
+                ..replyRows =
+                    data.replyRows!.where((data) => data.id != id).toList();
+            } else {
+              return data;
+            }
+          }).toList();
+        } else {
+          dataList = dataList.where((data) => data.id != id).toList();
+        }
+        loadingState.value = LoadingState.success(dataList);
+        SmartDialog.showToast(data.data!);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }

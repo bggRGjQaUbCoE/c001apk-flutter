@@ -69,9 +69,11 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
                 itemCount: _controller.dataList.length,
                 itemBuilder: (_, index) => FeedCard(
+                  isHistory: true,
                   data: _controller.dataList[index],
-                  onDelete: () =>
-                      _controller.onDeleteFeed(_controller.dataList[index].id),
+                  onDelete: (id) {
+                    _controller.onDeleteFeed(_controller.dataList[index].id);
+                  },
                 ),
                 separatorBuilder: (_, index) => const SizedBox(height: 10),
               )

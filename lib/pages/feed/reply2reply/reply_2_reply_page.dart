@@ -68,6 +68,9 @@ class Reply2ReplyPage extends StatelessWidget {
                         }
                       }
                     },
+                    onDelete: (id, fid) {
+                      controller.onDeleteFeedOrReply(false, id, fid);
+                    },
                   )
                 : Center(
                     child: buildBody(

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../constants/constants.dart';
 import '../../providers/app_config_provider.dart';
+import '../../utils/global_data.dart';
 import '../../utils/token_util.dart';
 
 class ApiInterceptor extends Interceptor {
@@ -47,7 +48,7 @@ class ApiInterceptor extends Interceptor {
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7';
       options.headers['X-Requested-With'] = Constants.APP_ID;
       options.headers['X-App-Id'] = Constants.APP_ID;
-      options.headers['Cookie'] = _config.SESSID;
+      options.headers['Cookie'] = GlobalData().SESSID;
     } else if (TokenUtils.isGetCaptcha) {
       options.headers.clear();
       TokenUtils.isGetCaptcha = false;
@@ -67,14 +68,14 @@ class ApiInterceptor extends Interceptor {
       options.headers['Referer'] =
           'https://account.coolapk.com/auth/loginByCoolapk';
       options.headers['Cookie'] =
-          '${_config.SESSID}; forward=https://www.coolapk.com';
+          '${GlobalData().SESSID}; forward=https://www.coolapk.com';
     } else if (TokenUtils.isOnLogin) {
       options.headers.clear();
       TokenUtils.isOnLogin = false;
 
       options.headers['User-Agent'] = _config.userAgent;
       options.headers['Cookie'] =
-          '${_config.SESSID}; forward=https://www.coolapk.com';
+          '${GlobalData().SESSID}; forward=https://www.coolapk.com';
       options.headers['X-Requested-With'] = Constants.REQUEST_WITH;
       options.headers['Content-Type'] = Constants.REQUEST_WITH;
     } else {
@@ -93,8 +94,8 @@ class ApiInterceptor extends Interceptor {
       options.headers['X-App-Mode'] = Constants.MODE;
       options.headers['X-App-Supported'] = _config.versionCode;
       options.headers['Cookie'] = _config.isLogin
-          ? 'uid=${_config.uid}; username=${_config.username}; token=${_config.token}'
-          : _config.SESSID;
+          ? 'uid=${GlobalData().uid}; username=${GlobalData().username}; token=${GlobalData().token}'
+          : GlobalData().SESSID;
     }
 
     handler.next(options);

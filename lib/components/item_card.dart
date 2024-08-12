@@ -32,6 +32,11 @@ Widget itemCard(
     dynamic uname,
     dynamic fid,
   )? onReply,
+  Function(
+    bool isFeed,
+    dynamic id,
+    dynamic fid,
+  )? onDelete,
 }) {
   switch (data.entityType) {
     case 'card':
@@ -62,6 +67,11 @@ Widget itemCard(
         data: data,
         isFeedContent: isFeedContent,
         onBlock: onBlock,
+        onDelete: (id) {
+          if (onDelete != null) {
+            onDelete(true, id, null);
+          }
+        },
       );
     case 'feed_reply':
       if (data.likeUserInfo != null) {
@@ -74,6 +84,11 @@ Widget itemCard(
           uid: uid,
           onBlock: onBlock != null ? (uid, id) => onBlock(uid) : null,
           onReply: onReply,
+          onDelete: (id, fid) {
+            if (onDelete != null) {
+              onDelete(false, id, fid);
+            }
+          },
         );
       }
     case 'apk':

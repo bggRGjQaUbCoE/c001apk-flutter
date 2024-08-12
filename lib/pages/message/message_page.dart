@@ -19,6 +19,7 @@ import '../../logic/state/loading_state.dart';
 import '../../pages/message/message_controller.dart';
 import '../../pages/noitfication/notification_page.dart';
 import '../../providers/app_config_provider.dart';
+import '../../utils/global_data.dart';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key});
@@ -70,7 +71,7 @@ class _MessagePageState extends State<MessagePage> {
 
   Future<void> _getProfile() async {
     try {
-      Response response = await NetworkRepo.getProfile(_config.uid);
+      Response response = await NetworkRepo.getProfile(GlobalData().uid);
       Datum? data = DataModel.fromJson(response.data).data;
       String username = data?.username ?? '';
       try {

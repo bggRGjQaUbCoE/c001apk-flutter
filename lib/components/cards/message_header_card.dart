@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/app_config_provider.dart';
+import '../../utils/global_data.dart';
 
 class MessageHeaderCard extends StatelessWidget {
   const MessageHeaderCard({
@@ -38,7 +39,7 @@ class MessageHeaderCard extends StatelessWidget {
               children: [
                 const SizedBox(width: 20),
                 GestureDetector(
-                  onTap: () => Get.toNamed('/u/${config.uid}'),
+                  onTap: () => Get.toNamed('/u/${GlobalData().uid}'),
                   child: CircleAvatar(
                     backgroundImage:
                         CachedNetworkImageProvider(config.userAvatar),
@@ -53,7 +54,7 @@ class MessageHeaderCard extends StatelessWidget {
                     children: [
                       Text(
                         () {
-                          String username = config.username;
+                          String username = GlobalData().username;
                           try {
                             username = Uri.decodeComponent(username);
                           } catch (e) {

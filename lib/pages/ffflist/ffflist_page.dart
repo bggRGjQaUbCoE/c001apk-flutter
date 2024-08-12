@@ -2,11 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
 import '../../pages/carousel/carousel_page.dart';
 import '../../pages/ffflist/ffflist_content.dart';
-import '../../providers/app_config_provider.dart';
+import '../../utils/global_data.dart';
 
 enum FFFListType {
   FEED,
@@ -33,13 +32,12 @@ class FFFListPage extends StatefulWidget {
 
 class _FFFListPageState extends State<FFFListPage>
     with TickerProviderStateMixin {
-  late final _config = Provider.of<AppConfigProvider>(context);
-  late final String? _uid = Get.arguments['uid'] ?? _config.uid;
+  late final String? _uid = Get.arguments['uid'] ?? GlobalData().uid;
   late final FFFListType _type = Get.arguments['type'];
   late final String? _id = Get.arguments['id'];
   late final String? _title = Get.arguments['title'];
 
-  late final bool _isMe = _config.uid == _uid;
+  late final bool _isMe = GlobalData().uid == _uid;
 
   late final _followList = ['用户', '话题', '数码', '应用'];
   late final _replyList = ['我的回复', '我收到的回复'];

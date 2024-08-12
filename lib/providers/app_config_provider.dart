@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 
+import 'package:c001apk_flutter/utils/global_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,11 +45,11 @@ class AppConfigProvider with ChangeNotifier {
   String _userAgent = '';
   String _xAppDevice = '';
 
-  String _SESSID = '';
+  // String _SESSID = '';
   bool _isLogin = false;
-  String _uid = '';
-  String _username = '';
-  String _token = '';
+  // String _uid = '';
+  // String _username = '';
+  // String _token = '';
   String _userAvatar = '';
   int _exp = 0;
   int _nextExp = 1;
@@ -113,44 +114,45 @@ class AppConfigProvider with ChangeNotifier {
   void setToken(String value) async {
     try {
       sharedPreferencesInstance.setString('token', value);
-      _token = value;
-      notifyListeners();
+      GlobalData().token = value;
+      // notifyListeners();
     } catch (e) {
       print(e.toString());
     }
   }
 
-  String get token {
-    return _token;
-  }
+  // String get token {
+  //   return _token;
+  // }
 
   void setUsername(String value) async {
     try {
       sharedPreferencesInstance.setString('username', value);
-      _username = value;
-      notifyListeners();
+      GlobalData().username = value;
+      // notifyListeners();
     } catch (e) {
       print(e.toString());
     }
   }
 
-  String get username {
-    return _username;
-  }
+  // String get username {
+  //   return _username;
+  // }
 
   void setUid(String value) async {
     try {
       sharedPreferencesInstance.setString('uid', value);
-      _uid = value;
-      notifyListeners();
+      // _uid = value;
+      GlobalData().uid = value;
+      // notifyListeners();
     } catch (e) {
       print(e.toString());
     }
   }
 
-  String get uid {
-    return _uid;
-  }
+  // String get uid {
+  //   return _uid;
+  // }
 
   void setIsLogin(bool value) async {
     try {
@@ -169,16 +171,16 @@ class AppConfigProvider with ChangeNotifier {
   void setSESSID(String value) async {
     try {
       sharedPreferencesInstance.setString('SESSID', value);
-      _SESSID = value;
-      notifyListeners();
+      GlobalData().SESSID = value;
+      // notifyListeners();
     } catch (e) {
       print(e.toString());
     }
   }
 
-  String get SESSID {
-    return _SESSID;
-  }
+  // String get SESSID {
+  //   return _SESSID;
+  // }
 
   void setInstallTime(String value) async {
     try {
@@ -656,11 +658,12 @@ class AppConfigProvider with ChangeNotifier {
     _userAgent = sharedPreferencesInstance.getString('userAgent') ?? '';
     _xAppDevice = sharedPreferencesInstance.getString('xAppDevice') ?? '';
 
-    _SESSID = sharedPreferencesInstance.getString('SESSID') ?? '';
+    GlobalData().SESSID = sharedPreferencesInstance.getString('SESSID') ?? '';
     _isLogin = sharedPreferencesInstance.getBool('isLogin') ?? false;
-    _uid = sharedPreferencesInstance.getString('uid') ?? '';
-    _username = sharedPreferencesInstance.getString('username') ?? '';
-    _token = sharedPreferencesInstance.getString('token') ?? '';
+    GlobalData().uid = sharedPreferencesInstance.getString('uid') ?? '';
+    GlobalData().username =
+        sharedPreferencesInstance.getString('username') ?? '';
+    GlobalData().token = sharedPreferencesInstance.getString('token') ?? '';
     _userAvatar = sharedPreferencesInstance.getString('userAvatar') ?? '';
     _exp = sharedPreferencesInstance.getInt('exp') ?? 0;
     _nextExp = sharedPreferencesInstance.getInt('nextExp') ?? 1;

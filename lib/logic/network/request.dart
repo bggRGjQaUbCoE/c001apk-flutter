@@ -17,14 +17,14 @@ class Request {
 
   Future<Response<dynamic>> get(
     url, {
-    Map<String, dynamic>? data,
+    Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     extra,
   }) async {
     return await dio.get(
       url,
-      queryParameters: data,
+      queryParameters: queryParameters,
       options: options,
       cancelToken: cancelToken,
     );

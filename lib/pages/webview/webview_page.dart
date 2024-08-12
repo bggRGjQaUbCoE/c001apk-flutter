@@ -8,6 +8,7 @@ import '../../constants/constants.dart';
 import '../../providers/app_config_provider.dart';
 import '../../utils/cache_util.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
 import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
@@ -52,17 +53,17 @@ class _WebviewPageState extends State<WebviewPage> {
       CookieManager().setCookie(
         url: WebUri.uri(Uri.parse('.coolapk.com')),
         name: 'uid',
-        value: _config.uid,
+        value: GlobalData().uid,
       );
       CookieManager().setCookie(
         url: WebUri.uri(Uri.parse('.coolapk.com')),
         name: 'username',
-        value: _config.username,
+        value: GlobalData().username,
       );
       CookieManager().setCookie(
         url: WebUri.uri(Uri.parse('.coolapk.com')),
         name: 'token',
-        value: _config.token,
+        value: GlobalData().token,
       );
     }
   }

@@ -17,6 +17,36 @@ import '../../utils/token_util.dart';
 class NetworkRepo {
   static final Box _blackList = GStorage.blackList;
 
+  static Future<Response> getFollow(
+    String url, {
+    String? tag,
+    String? id,
+  }) async {
+    return Request().get(
+      Api.postRequestValidate,
+      queryParameters: {
+        if (tag != null) 'tag': tag,
+        if (id != null) 'id': id,
+      },
+    );
+  }
+
+  static Future<Response> postLikeDeleteFollow(
+    String url, {
+    dynamic id,
+    dynamic uid,
+    FormData? data,
+  }) async {
+    return Request().post(
+      Api.getDataFromUrl(url),
+      queryParameters: {
+        if (id != null) 'id': id,
+        if (uid != null) 'uid': uid,
+      },
+      data: data,
+    );
+  }
+
   static Future<Response> postRequestValidate(
     FormData data,
   ) async {
@@ -59,7 +89,7 @@ class NetworkRepo {
   }
 
   static Future<Response> getProfile(String uid) async {
-    return Request().get(Api.getProfile, data: {'uid': uid});
+    return Request().get(Api.getProfile, queryParameters: {'uid': uid});
   }
 
   static Future<Response> onLogin(
@@ -92,7 +122,7 @@ class NetworkRepo {
     required String? lastItem,
   }) async {
     return getListData(
-      () => Request().get(Api.getReply2Reply, data: {
+      () => Request().get(Api.getReply2Reply, queryParameters: {
         'id': id,
         'page': page,
         'listType': '',
@@ -114,7 +144,7 @@ class NetworkRepo {
     required String? lastItem,
   }) async {
     return getListData(
-      () => Request().get(Api.getCoolPic, data: {
+      () => Request().get(Api.getCoolPic, queryParameters: {
         'tag': tag,
         'type': type,
         'page': page,
@@ -132,7 +162,7 @@ class NetworkRepo {
     required String? lastItem,
   }) async {
     return getListData(
-      () => Request().get(Api.getDyhDetail, data: {
+      () => Request().get(Api.getDyhDetail, queryParameters: {
         'dyhId': dyhId,
         'type': type,
         'page': page,
@@ -171,7 +201,7 @@ class NetworkRepo {
     required String? lastItem,
   }) async {
     return getListData(
-      () => Request().get(Api.getSearch, data: {
+      () => Request().get(Api.getSearch, queryParameters: {
         'type': type,
         'feedType': feedType,
         'sort': sort,
@@ -194,7 +224,7 @@ class NetworkRepo {
   }) async {
     return await Request().get(
       Api.getAppDownloadUrl,
-      data: {
+      queryParameters: {
         'pn': packageName,
         'aid': id,
         'vc': versionCode,
@@ -208,7 +238,7 @@ class NetworkRepo {
     required String id,
   }) async {
     return getData(
-      () => Request().get(Api.getAppInfo, data: {
+      () => Request().get(Api.getAppInfo, queryParameters: {
         'id': id,
         'installed': 1,
       }),
@@ -222,7 +252,7 @@ class NetworkRepo {
     required String? lastItem,
   }) async {
     return getListData(
-      () => Request().get(Api.getUserFeed, data: {
+      () => Request().get(Api.getUserFeed, queryParameters: {
         'uid': uid,
         'page': page,
         if (!firstItem.isNullOrEmpty) 'firstItem': firstItem,
@@ -246,7 +276,7 @@ class NetworkRepo {
     required int fromFeedAuthor,
   }) async {
     return getListData(
-      () => Request().get(Api.getFeedReply, data: {
+      () => Request().get(Api.getFeedReply, queryParameters: {
         'id': id,
         'listType': listType,
         'page': page,
@@ -265,7 +295,7 @@ class NetworkRepo {
     Map<String, dynamic>? data,
   }) async {
     return getData(
-      () => Request().get(Api.getDataFromUrl(url), data: data),
+      () => Request().get(Api.getDataFromUrl(url), queryParameters: data),
     );
   }
 
@@ -276,7 +306,7 @@ class NetworkRepo {
     return getListData(
       () => Request().get(
         Api.getDataFromUrl(url),
-        data: data,
+        queryParameters: data,
       ),
     );
   }
@@ -291,7 +321,7 @@ class NetworkRepo {
     return getListData(
       () => Request().get(
         Api.getHomeFeed,
-        data: {
+        queryParameters: {
           'page': page,
           'firstLaunch': firstLaunch,
           'installTime': installTime,
@@ -315,7 +345,7 @@ class NetworkRepo {
     return getListData(
       () => Request().get(
         Api.getDataList,
-        data: {
+        queryParameters: {
           'url': url,
           'title': title,
           'subTitle': subTitle,

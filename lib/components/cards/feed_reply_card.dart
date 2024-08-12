@@ -1,4 +1,3 @@
-import 'package:c001apk_flutter/utils/storage_util.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -9,10 +8,11 @@ import '../../components/html_text.dart';
 import '../../components/icon_text.dart';
 import '../../components/imageview.dart';
 import '../../logic/model/feed/datum.dart';
-import '../../pages/feed/reply/reply_dialog.dart' show ReplyType;
 import '../../pages/feed/reply2reply/reply_2_reply_page.dart';
 import '../../utils/date_util.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 class FeedReplyCard extends StatelessWidget {
@@ -24,6 +24,7 @@ class FeedReplyCard extends StatelessWidget {
     this.uid,
     this.onBlock,
     this.onReply,
+    this.onDelete,
   });
 
   final Datum data;
@@ -36,6 +37,10 @@ class FeedReplyCard extends StatelessWidget {
     dynamic uname,
     dynamic fid,
   )? onReply;
+  final Function(
+    dynamic id,
+    dynamic fid,
+  )? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -74,11 +79,14 @@ class FeedReplyCard extends StatelessWidget {
                         isScrollControlled: true,
                         builder: (context) {
                           return _MorePanel(
-                            id: data.id.toString(),
-                            uid: data.uid.toString(),
+                            id: data.id,
+                            uid: data.uid,
                             reply: data..fetchType = 'feed_reply',
                             onBlock: onBlock != null
                                 ? () => onBlock!(data.uid, null)
+                                : null,
+                            onDelete: onDelete != null
+                                ? () => onDelete!(data.id, null)
                                 : null,
                           );
                         },
@@ -301,13 +309,15 @@ class FeedReplyCard extends StatelessWidget {
           isScrollControlled: true,
           builder: (context) {
             return _MorePanel(
-              id: reply.id.toString(),
-              uid: reply.uid.toString(),
+              id: reply.id,
+              uid: reply.uid,
               message: reply.message.toString(),
-              fid: data.id.toString(),
+              fid: data.id,
               reply: reply,
               onBlock:
                   onBlock != null ? () => onBlock!(reply.uid, data.id) : null,
+              onDelete:
+                  onDelete != null ? () => onDelete!(reply.id, data.id) : null,
             );
           },
         );
@@ -385,7 +395,7 @@ class FeedReplyCard extends StatelessWidget {
   }
 }
 
-enum PanelAction { copy, block, report, showReply }
+enum PanelAction { copy, block, delete, report, showReply }
 
 class _MorePanel extends StatelessWidget {
   const _MorePanel({
@@ -395,17 +405,19 @@ class _MorePanel extends StatelessWidget {
     this.fid,
     this.reply,
     this.onBlock,
+    this.onDelete,
   });
 
-  final String id;
-  final String uid;
+  final dynamic id;
+  final dynamic uid;
   final String? message;
-  final String? fid;
+  final dynamic fid;
   final Datum? reply;
   final Function()? onBlock;
+  final Function()? onDelete;
 
   Future<dynamic> menuActionHandler(PanelAction type,
-      {BuildContext? context, String? rid, String? frid}) async {
+      {BuildContext? context, dynamic rid, dynamic frid}) async {
     switch (type) {
       case PanelAction.copy:
         Get.back();
@@ -418,6 +430,12 @@ class _MorePanel extends StatelessWidget {
           onBlock!();
         }
         break;
+      case PanelAction.delete:
+        Get.back();
+        if (onDelete != null) {
+          onDelete!();
+        }
+        break;
       case PanelAction.report:
         Get.back();
         Utils.report(id, ReportType.Reply);
@@ -428,7 +446,9 @@ class _MorePanel extends StatelessWidget {
           context: context!,
           builder: (context) {
             return Reply2ReplyPage(
-                id: id, replynum: reply!.replynum, originReply: reply!);
+                id: id.toString(),
+                replynum: reply!.replynum,
+                originReply: reply!);
           },
         );
         break;
@@ -477,6 +497,14 @@ class _MorePanel extends StatelessWidget {
             leading: const Icon(Icons.block, size: 19),
             title: Text('Block', style: Theme.of(context).textTheme.titleSmall),
           ),
+          if (uid.toString() == GlobalData().uid)
+            ListTile(
+              onTap: () async => await menuActionHandler(PanelAction.delete),
+              minLeadingWidth: 0,
+              leading: const Icon(Icons.delete_outline, size: 19),
+              title:
+                  Text('Delete', style: Theme.of(context).textTheme.titleSmall),
+            ),
           if (Utils.isSupportWebview())
             ListTile(
               onTap: () async => await menuActionHandler(PanelAction.report),

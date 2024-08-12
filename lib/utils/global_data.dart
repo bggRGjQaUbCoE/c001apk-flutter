@@ -7,4 +7,10 @@ class GlobalData {
 
   // 获取全局实例
   factory GlobalData() => _instance;
+
+  // ignore: non_constant_identifier_names
+  String SESSID = '';
+  String uid = '';
+  String username = '';
+  String token = '';
 }

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
-import '../../../pages/home/app/controller.dart';
+import '../../../pages/home/app/app_list_controller.dart';
 import '../../../pages/home/return_top_controller.dart';
-import '../../../providers/app_config_provider.dart';
+import '../../../utils/storage_util.dart';
 
 class AppListPage extends StatefulWidget {
   const AppListPage({super.key});
@@ -14,15 +13,16 @@ class AppListPage extends StatefulWidget {
   State<AppListPage> createState() => _AppListPageState();
 }
 
-class _AppListPageState extends State<AppListPage> {
-  final ScrollController _scrollController = ScrollController();
-  final AppListController _appListController = Get.put(AppListController());
-  final ReturnTopController _returnTopController =
-      Get.find<ReturnTopController>(tag: 'home');
-  final GlobalKey<RefreshIndicatorState> _refreshKey =
-      GlobalKey<RefreshIndicatorState>();
-  late final _config = Provider.of<AppConfigProvider>(context, listen: false);
-  late bool _showFab = _config.checkUpdate;
+class _AppListPageState extends State<AppListPage>
+    with TickerProviderStateMixin {
+  final _scrollController = ScrollController();
+  final _appListController = Get.put(AppListController());
+  final _returnTopController = Get.find<ReturnTopController>(tag: 'home');
+  final _refreshKey = GlobalKey<RefreshIndicatorState>();
+
+  late final bool _checkUpdate = GStorage.checkUpdate;
+  late AnimationController _fabAnimationCtr;
+  late bool _isFabVisible = true;
 
   @override
   void initState() {
@@ -34,11 +34,34 @@ class _AppListPageState extends State<AppListPage> {
       }
     });
 
-    _scrollController.addListener(() {
-      setState(() => _showFab =
-          _scrollController.position.userScrollDirection ==
-              ScrollDirection.forward);
-    });
+    if (_checkUpdate) {
+      _fabAnimationCtr = AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 300));
+      _fabAnimationCtr.forward();
+      _scrollController.addListener(() {
+        final ScrollDirection direction =
+            _scrollController.position.userScrollDirection;
+        if (direction == ScrollDirection.forward) {
+          _showFab();
+        } else if (direction == ScrollDirection.reverse) {
+          _hideFab();
+        }
+      });
+    }
+  }
+
+  void _showFab() {
+    if (!_isFabVisible) {
+      _isFabVisible = true;
+      _fabAnimationCtr.forward();
+    }
+  }
+
+  void _hideFab() {
+    if (_isFabVisible) {
+      _isFabVisible = false;
+      _fabAnimationCtr.reverse();
+    }
   }
 
   void _animateToTop() async {
@@ -52,6 +75,7 @@ class _AppListPageState extends State<AppListPage> {
   void dispose() {
     _scrollController.removeListener(() {});
     _scrollController.dispose;
+    _fabAnimationCtr.dispose();
     super.dispose();
   }
 
@@ -64,10 +88,15 @@ class _AppListPageState extends State<AppListPage> {
           await _appListController.onReload(true);
         },
         child: Scaffold(
-          floatingActionButton: _config.checkUpdate
-              ? AnimatedSlide(
-                  duration: const Duration(milliseconds: 300),
-                  offset: _showFab ? Offset.zero : const Offset(0, 2),
+          floatingActionButton: _checkUpdate
+              ? SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 2),
+                    end: const Offset(0, 0),
+                  ).animate(CurvedAnimation(
+                    parent: _fabAnimationCtr,
+                    curve: Curves.easeInOut,
+                  )),
                   child: FloatingActionButton(
                     onPressed: () => Get.toNamed('/appUpdate'),
                     tooltip: 'Update',

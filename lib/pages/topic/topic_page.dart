@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../logic/state/loading_state.dart';
@@ -8,11 +7,11 @@ import '../../pages/home/return_top_controller.dart';
 import '../../pages/topic/topic_content.dart';
 import '../../pages/topic/topic_controller.dart';
 import '../../pages/topic/topic_order_controller.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
-import '../feed/reply/reply_dialog.dart';
+import '../../pages/feed/reply/reply_dialog.dart';
 
 // ignore: constant_identifier_names
 enum TopicMenuItem { Copy, Share, Sort, Block }
@@ -37,7 +36,6 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
   late final ReturnTopController _pageScrollController;
   late final TopicOrderController _topicOrderController;
   late final TopicController _topicController;
-  late final _config = Provider.of<AppConfigProvider>(context, listen: false);
 
   @override
   void initState() {
@@ -111,7 +109,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
     return Obx(
       () => _topicController.topicState.value is Success
           ? Scaffold(
-              floatingActionButton: _config.isLogin &&
+              floatingActionButton: GlobalData().isLogin &&
                       !_topicController.isBlocked
                   ? FloatingActionButton(
                       onPressed: () {

@@ -1,10 +1,10 @@
-import 'package:c001apk_flutter/utils/date_util.dart';
-import 'package:c001apk_flutter/utils/utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
+import '../../utils/date_util.dart';
+import '../../utils/utils.dart';
 
 class MessageCard extends StatelessWidget {
   const MessageCard({super.key, required this.data});

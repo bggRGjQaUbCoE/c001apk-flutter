@@ -24,7 +24,7 @@ class EmotePanel extends StatelessWidget {
               child: InkWell(
                 onTap: () => onClick(emoji),
                 borderRadius: BorderRadius.circular(8),
-                child: Ink(
+                child: Padding(
                   padding: const EdgeInsets.all(8),
                   child:
                       Image.asset('assets/emojis/${EmojiUtil.emojiMap[emoji]}'),

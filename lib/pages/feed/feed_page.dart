@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../components/cards/feed_reply_card.dart';
@@ -14,8 +13,8 @@ import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/feed/feed_controller.dart';
 import '../../pages/feed/reply/reply_dialog.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
@@ -31,34 +30,59 @@ class FeedPage extends StatefulWidget {
   State<FeedPage> createState() => _FeedPageState();
 }
 
-class _FeedPageState extends State<FeedPage> {
-  late final _config = Provider.of<AppConfigProvider>(context);
+class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   final String _id = Get.parameters['id'].orEmpty;
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
-  late bool _showFab = _config.isLogin;
+  late final bool _isLogin = GlobalData().isLogin;
+  late AnimationController _fabAnimationCtr;
+  late bool _isFabVisible = true;
   late final _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(() {
-      setState(() => _showFab =
-          _scrollController.position.userScrollDirection ==
-              ScrollDirection.forward);
-    });
+    if (_isLogin) {
+      _fabAnimationCtr = AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 300));
+      _fabAnimationCtr.forward();
+      _scrollController.addListener(() {
+        final ScrollDirection direction =
+            _scrollController.position.userScrollDirection;
+        if (direction == ScrollDirection.forward) {
+          _showFab();
+        } else if (direction == ScrollDirection.reverse) {
+          _hideFab();
+        }
+      });
+    }
+  }
+
+  void _showFab() {
+    if (!_isFabVisible) {
+      _isFabVisible = true;
+      _fabAnimationCtr.forward();
+    }
+  }
+
+  void _hideFab() {
+    if (_isFabVisible) {
+      _isFabVisible = false;
+      _fabAnimationCtr.reverse();
+    }
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(() {});
     _scrollController.dispose();
+    _fabAnimationCtr.dispose();
     super.dispose();
   }
 
   late final _feedController = Get.put(
     FeedController(
       id: _id,
-      recordHistory: _config.recordHistory,
+      recordHistory: GStorage.recordHistory,
     ),
     tag: _id,
   );
@@ -70,9 +94,6 @@ class _FeedPageState extends State<FeedPage> {
     (ReplySortType.hot, '热门'),
     (ReplySortType.author, '楼主'),
   ];
-  Set<ReplySortType> _segmentedButtonSelection = <ReplySortType>{
-    ReplySortType.def
-  };
 
   Widget _buildFeedContent(LoadingState feedState) {
     switch (feedState) {
@@ -159,49 +180,50 @@ class _FeedPageState extends State<FeedPage> {
                     flex: 1,
                     child: Text('共 ${_feedController.replyNum} 回复'),
                   ),
-                  SegmentedButton<ReplySortType>(
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: const VisualDensity(
-                        horizontal: -4,
-                        vertical: -4,
+                  Obx(
+                    () => SegmentedButton<ReplySortType>(
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: const VisualDensity(
+                          horizontal: -4,
+                          vertical: -4,
+                        ),
                       ),
+                      showSelectedIcon: false,
+                      selected: <ReplySortType>{
+                        _feedController.replySelection.value
+                      },
+                      segments: _shirtSizeOptions
+                          .map<ButtonSegment<ReplySortType>>(
+                              ((ReplySortType, String) shirt) {
+                        return ButtonSegment<ReplySortType>(
+                            value: shirt.$1, label: Text(shirt.$2));
+                      }).toList(),
+                      onSelectionChanged: (Set<ReplySortType> newSelection) {
+                        _feedController.replySelection.value =
+                            newSelection.first;
+                        switch (newSelection.first) {
+                          case ReplySortType.def:
+                            _feedController.listType = 'lastupdate_desc';
+                            _feedController.fromFeedAuthor = 0;
+                            break;
+                          case ReplySortType.dateline:
+                            _feedController.listType = 'dateline_desc';
+                            _feedController.fromFeedAuthor = 0;
+                            break;
+                          case ReplySortType.hot:
+                            _feedController.listType = 'popular';
+                            _feedController.fromFeedAuthor = 0;
+                            break;
+                          case ReplySortType.author:
+                            _feedController.listType = '';
+                            _feedController.fromFeedAuthor = 1;
+                            break;
+                        }
+                        _refreshKey.currentState?.show();
+                      },
                     ),
-                    showSelectedIcon: false,
-                    selected: _segmentedButtonSelection,
-                    segments: _shirtSizeOptions
-                        .map<ButtonSegment<ReplySortType>>(
-                            ((ReplySortType, String) shirt) {
-                      return ButtonSegment<ReplySortType>(
-                          value: shirt.$1, label: Text(shirt.$2));
-                    }).toList(),
-                    onSelectionChanged: (Set<ReplySortType> newSelection) {
-                      if (mounted) {
-                        setState(() {
-                          _segmentedButtonSelection = newSelection;
-                          switch (newSelection.first) {
-                            case ReplySortType.def:
-                              _feedController.listType = 'lastupdate_desc';
-                              _feedController.fromFeedAuthor = 0;
-                              break;
-                            case ReplySortType.dateline:
-                              _feedController.listType = 'dateline_desc';
-                              _feedController.fromFeedAuthor = 0;
-                              break;
-                            case ReplySortType.hot:
-                              _feedController.listType = 'popular';
-                              _feedController.fromFeedAuthor = 0;
-                              break;
-                            case ReplySortType.author:
-                              _feedController.listType = '';
-                              _feedController.fromFeedAuthor = 1;
-                              break;
-                          }
-                          _refreshKey.currentState?.show();
-                        });
-                      }
-                    },
                   ),
                   const SizedBox(width: 16),
                 ],
@@ -277,6 +299,7 @@ class _FeedPageState extends State<FeedPage> {
             itemBuilder: (_, index) {
               if (index == dataList.length) {
                 if (!_feedController.isEnd && !_feedController.isLoading) {
+                  _feedController.setFooterState(LoadingState.loading());
                   _feedController.onGetData(false);
                 }
                 return Obx(
@@ -294,7 +317,7 @@ class _FeedPageState extends State<FeedPage> {
                       _feedController.listType == 'lastupdate_desc',
                   onBlock: _feedController.onBlockReply,
                   onReply: (id, uname, fid) {
-                    if (_config.isLogin) {
+                    if (GlobalData().isLogin) {
                       _onReply(ReplyType.reply, id, uname, fid);
                     }
                   },
@@ -320,88 +343,98 @@ class _FeedPageState extends State<FeedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Scaffold(
-        floatingActionButton: _config.isLogin
-            ? AnimatedSlide(
-                duration: const Duration(milliseconds: 300),
-                offset: _showFab ? Offset.zero : const Offset(0, 2),
-                child: FloatingActionButton(
-                  tooltip: 'Reply',
-                  onPressed: () {
-                    _onReply(
-                      ReplyType.feed,
-                      _feedController.id,
-                      _feedController.feedUsername,
-                      null,
-                    );
-                  },
-                  child: const Icon(Icons.reply),
-                ),
-              )
-            : null,
-        appBar: AppBar(
-          title: _feedController.feedTypeName.isNullOrEmpty
-              ? null
-              : Text(_feedController.feedTypeName!),
-          actions: _feedController.feedState.value is Success
-              ? [
-                  PopupMenuButton(
-                    onSelected: (FeedMenuItem item) {
-                      switch (item) {
-                        case FeedMenuItem.Copy:
-                          Utils.copyText(
-                              Utils.getShareUrl(_id, ShareType.feed));
-                          break;
-                        case FeedMenuItem.Share:
-                          Share.share(Utils.getShareUrl(_id, ShareType.feed));
-                          break;
-                        case FeedMenuItem.Fav:
-                          if (_feedController.isFav) {
-                            GStorage.onDeleteFeed(_id, isHistory: false);
-                          } else {
-                            _feedController.onFav();
-                          }
-                          _feedController.isFav = !_feedController.isFav;
-                          break;
-                        case FeedMenuItem.Block:
-                          GStorage.onBlock(
-                            _feedController.feedUid.toString(),
-                            isDelete: _feedController.isBlocked,
-                          );
-                          _feedController.isBlocked =
-                              !_feedController.isBlocked;
-                          break;
-                        case FeedMenuItem.Report:
-                          if (Utils.isSupportWebview()) {
-                            Utils.report(_id, ReportType.Feed);
-                          } else {
-                            SmartDialog.showToast('not supported');
-                          }
-                          break;
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => FeedMenuItem.values
-                        .map((item) => PopupMenuItem<FeedMenuItem>(
-                              value: item,
-                              child: item == FeedMenuItem.Fav
-                                  ? Text(
-                                      _feedController.isFav ? 'UnFav' : 'Fav',
-                                    )
-                                  : item == FeedMenuItem.Block
-                                      ? Text(
-                                          _feedController.isBlocked
-                                              ? 'UnBlock'
-                                              : 'Block',
-                                        )
-                                      : Text(item.name),
-                            ))
-                        .toList(),
-                  )
-                ]
-              : null,
+    return Scaffold(
+      floatingActionButton: _isLogin
+          ? SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 2),
+                end: const Offset(0, 0),
+              ).animate(CurvedAnimation(
+                parent: _fabAnimationCtr,
+                curve: Curves.easeInOut,
+              )),
+              child: FloatingActionButton(
+                tooltip: 'Reply',
+                onPressed: () {
+                  _onReply(
+                    ReplyType.feed,
+                    _feedController.id,
+                    _feedController.feedUsername,
+                    null,
+                  );
+                },
+                child: const Icon(Icons.reply),
+              ),
+            )
+          : null,
+      appBar: PreferredSize(
+        preferredSize: const Size(double.infinity, 56),
+        child: Obx(
+          () => AppBar(
+            title: !_feedController.feedTypeName.isNullOrEmpty
+                ? Text(_feedController.feedTypeName!)
+                : null,
+            actions: _feedController.feedState.value is Success
+                ? [
+                    PopupMenuButton(
+                      onSelected: (FeedMenuItem item) {
+                        switch (item) {
+                          case FeedMenuItem.Copy:
+                            Utils.copyText(
+                                Utils.getShareUrl(_id, ShareType.feed));
+                            break;
+                          case FeedMenuItem.Share:
+                            Share.share(Utils.getShareUrl(_id, ShareType.feed));
+                            break;
+                          case FeedMenuItem.Fav:
+                            if (_feedController.isFav) {
+                              GStorage.onDeleteFeed(_id, isHistory: false);
+                            } else {
+                              _feedController.onFav();
+                            }
+                            _feedController.isFav = !_feedController.isFav;
+                            break;
+                          case FeedMenuItem.Block:
+                            GStorage.onBlock(
+                              _feedController.feedUid.toString(),
+                              isDelete: _feedController.isBlocked,
+                            );
+                            _feedController.isBlocked =
+                                !_feedController.isBlocked;
+                            break;
+                          case FeedMenuItem.Report:
+                            if (Utils.isSupportWebview()) {
+                              Utils.report(_id, ReportType.Feed);
+                            } else {
+                              SmartDialog.showToast('not supported');
+                            }
+                            break;
+                        }
+                      },
+                      itemBuilder: (BuildContext context) => FeedMenuItem.values
+                          .map((item) => PopupMenuItem<FeedMenuItem>(
+                                value: item,
+                                child: item == FeedMenuItem.Fav
+                                    ? Text(
+                                        _feedController.isFav ? 'UnFav' : 'Fav',
+                                      )
+                                    : item == FeedMenuItem.Block
+                                        ? Text(
+                                            _feedController.isBlocked
+                                                ? 'UnBlock'
+                                                : 'Block',
+                                          )
+                                        : Text(item.name),
+                              ))
+                          .toList(),
+                    )
+                  ]
+                : null,
+          ),
         ),
-        body: _feedController.feedState.value is Success
+      ),
+      body: Obx(
+        () => _feedController.feedState.value is Success
             ? RefreshIndicator(
                 key: _refreshKey,
                 onRefresh: () async {
@@ -424,8 +457,7 @@ class _FeedPageState extends State<FeedPage> {
                   ],
                 ),
               )
-            : Center(
-                child: _buildFeedContent(_feedController.loadingState.value)),
+            : Center(child: _buildFeedContent(_feedController.feedState.value)),
       ),
     );
   }

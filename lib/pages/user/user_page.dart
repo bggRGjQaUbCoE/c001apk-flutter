@@ -36,8 +36,6 @@ class _UserPageState extends State<UserPage> {
     tag: _uid,
   );
 
-  double _scrollRatio = 0;
-
   @override
   void dispose() {
     _userController.scrollController?.dispose();
@@ -125,6 +123,7 @@ class _UserPageState extends State<UserPage> {
             itemBuilder: (_, index) {
               if (index == dataList.length) {
                 if (!_userController.isEnd && !_userController.isLoading) {
+                  _userController.setFooterState(LoadingState.loading());
                   _userController.onGetData(false);
                 }
                 return Obx(
@@ -161,14 +160,14 @@ class _UserPageState extends State<UserPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Obx(
-        () => Stack(
-          children: [
-            RefreshIndicator(
+      body: Stack(
+        children: [
+          Obx(
+            () => RefreshIndicator(
               notificationPredicate: (notification) {
                 final double offset = notification.metrics.pixels;
                 if (offset >= 0) {
-                  setState(() => _scrollRatio = min(1.0, offset / 105));
+                  _userController.scrollRatio.value = min(1.0, offset / 105);
                 }
                 return true;
               },
@@ -197,110 +196,114 @@ class _UserPageState extends State<UserPage> {
                       child: _buildUserInfo(_userController.userState.value),
                     ),
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              child: AppBar(
-                backgroundColor: Theme.of(context)
-                    .colorScheme
-                    .surface
-                    .withOpacity(_scrollRatio),
-                title: _scrollRatio == 1 && _userController.username != null
-                    ? Text(_userController.username!)
-                    : null,
-                centerTitle: Platform.isIOS,
-                actions: _userController.userState.value is Success
-                    ? [
-                        if (!_userController.isBlocked)
-                          IconButton(
-                            onPressed: () =>
-                                Get.toNamed('/search', parameters: {
-                              'title': _userController.username!,
-                              'pageType': 'user',
-                              'pageParam': _userController.uid,
-                            }),
-                            icon: const Icon(Icons.search),
-                            tooltip: 'Search',
-                          ),
-                        PopupMenuButton(
-                          onSelected: (UserMenuItem item) {
-                            switch (item) {
-                              case UserMenuItem.Copy:
-                                Utils.copyText(Utils.getShareUrl(
-                                    _userController.uid, ShareType.u));
-                                break;
-                              case UserMenuItem.Share:
-                                Share.share(Utils.getShareUrl(
-                                    _userController.uid, ShareType.u));
-                                break;
-                              case UserMenuItem.Block:
-                                GStorage.onBlock(
-                                  _userController.uid,
-                                  isDelete: _userController.isBlocked,
-                                );
-                                if (!_userController.isBlocked) {
-                                  _userController.setBlockedLoaidngState();
-                                }
-                                _userController.isBlocked =
-                                    !_userController.isBlocked;
-                                break;
-                              case UserMenuItem.Report:
-                                if (Utils.isSupportWebview()) {
-                                  Utils.report(
-                                      _userController.uid, ReportType.User);
-                                } else {
-                                  SmartDialog.showToast('not supported');
-                                }
-                                break;
-                              case UserMenuItem.UserInfo:
-                                showDialog<void>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    Datum user = (_userController
-                                            .userState.value as Success)
-                                        .response;
-                                    return AlertDialog(
-                                      title: Text(
-                                        user.username ?? '',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      content: Text(
-                                        '''
+          ),
+          _header(),
+        ],
+      ),
+    );
+  }
+
+  Widget _header() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      top: 0,
+      child: Obx(
+        () => AppBar(
+          backgroundColor: Theme.of(context)
+              .colorScheme
+              .surface
+              .withOpacity(_userController.scrollRatio.value),
+          title: _userController.scrollRatio.value == 1 &&
+                  _userController.username != null
+              ? Text(_userController.username!)
+              : null,
+          centerTitle: Platform.isIOS,
+          actions: _userController.userState.value is Success
+              ? [
+                  if (!_userController.isBlocked)
+                    IconButton(
+                      onPressed: () => Get.toNamed('/search', parameters: {
+                        'title': _userController.username!,
+                        'pageType': 'user',
+                        'pageParam': _userController.uid,
+                      }),
+                      icon: const Icon(Icons.search),
+                      tooltip: 'Search',
+                    ),
+                  PopupMenuButton(
+                    onSelected: (UserMenuItem item) {
+                      switch (item) {
+                        case UserMenuItem.Copy:
+                          Utils.copyText(Utils.getShareUrl(
+                              _userController.uid, ShareType.u));
+                          break;
+                        case UserMenuItem.Share:
+                          Share.share(Utils.getShareUrl(
+                              _userController.uid, ShareType.u));
+                          break;
+                        case UserMenuItem.Block:
+                          GStorage.onBlock(
+                            _userController.uid,
+                            isDelete: _userController.isBlocked,
+                          );
+                          if (!_userController.isBlocked) {
+                            _userController.setBlockedLoaidngState();
+                          }
+                          _userController.isBlocked =
+                              !_userController.isBlocked;
+                          break;
+                        case UserMenuItem.Report:
+                          if (Utils.isSupportWebview()) {
+                            Utils.report(_userController.uid, ReportType.User);
+                          } else {
+                            SmartDialog.showToast('not supported');
+                          }
+                          break;
+                        case UserMenuItem.UserInfo:
+                          showDialog<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              Datum user =
+                                  (_userController.userState.value as Success)
+                                      .response;
+                              return AlertDialog(
+                                title: Text(
+                                  user.username ?? '',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                content: Text(
+                                  '''
                                       |uid: ${user.uid}\n
                                       |等级: Lv.${user.level}\n
                                       |性别: ${user.gender == 1 ? '男' : user.gender == 0 ? '女' : '未知'}\n
                                       |注册时长: ${((DateTime.now().microsecondsSinceEpoch ~/ 10e5 - user.regdate!) ~/ 24 ~/ 3600)} 天\n
                                       |注册时间: ${DateFormat('yyyy年MM月dd日 HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(user.regdate * 1000))}
                                       '''
-                                            .trimMargin(),
-                                      ),
-                                    );
-                                  },
-                                );
-                                break;
-                            }
-                          },
-                          itemBuilder: (BuildContext context) =>
-                              UserMenuItem.values
-                                  .map((item) => PopupMenuItem<UserMenuItem>(
-                                        value: item,
-                                        child: item == UserMenuItem.Block
-                                            ? Text(
-                                                _userController.isBlocked
-                                                    ? 'UnBlock'
-                                                    : 'Block',
-                                              )
-                                            : Text(item.name),
-                                      ))
-                                  .toList(),
-                        ),
-                      ]
-                    : null,
-              ),
-            ),
-          ],
+                                      .trimMargin(),
+                                ),
+                              );
+                            },
+                          );
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => UserMenuItem.values
+                        .map((item) => PopupMenuItem<UserMenuItem>(
+                              value: item,
+                              child: item == UserMenuItem.Block
+                                  ? Text(
+                                      _userController.isBlocked
+                                          ? 'UnBlock'
+                                          : 'Block',
+                                    )
+                                  : Text(item.name),
+                            ))
+                        .toList(),
+                  ),
+                ]
+              : null,
         ),
       ),
     );

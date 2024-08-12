@@ -1,9 +1,9 @@
-import 'package:c001apk_flutter/pages/ffflist/ffflist_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
+import '../../pages/ffflist/ffflist_page.dart';
 
 class CollectionCard extends StatelessWidget {
   const CollectionCard({super.key, required this.data});

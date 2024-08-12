@@ -2,12 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
 import '../../logic/model/feed/datum.dart';
 import '../../pages/ffflist/ffflist_page.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/date_util.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 class UserInfoCard extends StatelessWidget {
@@ -17,8 +16,7 @@ class UserInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool darken = Provider.of<AppConfigProvider>(context).getBrightness() ==
-        Brightness.light;
+    bool darken = GStorage.getBrightness() == Brightness.light;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,

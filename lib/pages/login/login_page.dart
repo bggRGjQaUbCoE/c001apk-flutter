@@ -7,13 +7,13 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
-import 'package:provider/provider.dart';
 
 import '../../constants/constants.dart';
 import '../../logic/model/login/login_response.dart';
 import '../../logic/network/network_repo.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/token_util.dart';
 import '../../utils/utils.dart';
 
@@ -38,8 +38,6 @@ class _LoginPageState extends State<LoginPage> {
 
   String urlPreGetParam = '/auth/login?type=mobile';
   String urlGetParam = '/auth/loginByCoolApk';
-
-  late final _config = Provider.of<AppConfigProvider>(context, listen: false);
 
   @override
   void initState() {
@@ -98,11 +96,10 @@ class _LoginPageState extends State<LoginPage> {
         if (!uid.isNullOrEmpty &&
             !username.isNullOrEmpty &&
             !token.isNullOrEmpty) {
-          _config
-            ..setUid(uid!)
-            ..setUsername(username!)
-            ..setToken(token!)
-            ..setIsLogin(true);
+          GStorage.setUid(uid!);
+          GStorage.setUsername(username!);
+          GStorage.setToken(token!);
+          GStorage.setIsLogin(true);
           SmartDialog.showToast('登录成功');
           Get.back(result: true);
         }
@@ -138,7 +135,7 @@ class _LoginPageState extends State<LoginPage> {
       try {
         String? SESSID = response.headers['Set-Cookie']?[0];
         if (SESSID != null) {
-          _config.setSESSID(SESSID.substring(0, SESSID.indexOf(';')));
+          GlobalData().SESSID = SESSID.substring(0, SESSID.indexOf(';'));
         }
       } catch (e) {
         SmartDialog.showToast('无法获取SESSID: $e');

@@ -15,8 +15,9 @@ import 'package:html/dom.dart' as dom;
 
 import '../constants/constants.dart';
 import '../logic/network/network_repo.dart';
-import '../utils/extensions.dart';
 import '../pages/ffflist/ffflist_page.dart' show FFFListType;
+import '../utils/extensions.dart';
+import '../utils/storage_util.dart';
 
 // ignore: constant_identifier_names
 enum ReportType { Feed, Reply, User }
@@ -26,11 +27,32 @@ enum ShareType { feed, u, apk, t, product }
 class Utils {
   static const platform = MethodChannel('samples.flutter.dev/channel');
 
+  static String getFollowTitle(int index) {
+    return switch (index) {
+      1 => '好友关注',
+      2 => '话题关注',
+      3 => '数码关注',
+      4 => '应用关注',
+      _ => '全部关注',
+    };
+  }
+
+  static String getFollowUrl(int index) {
+    String url = '/page?url=V9_HOME_TAB_FOLLOW';
+    return switch (index) {
+      1 => '$url&type=circle',
+      2 => '$url&type=topic',
+      3 => '$url&type=product',
+      4 => '$url&type=apk',
+      _ => url,
+    };
+  }
+
   static String getShareUrl(String id, ShareType type) {
     return 'https://www.coolapk1s.com/${type.name}/$id';
   }
 
-  static void report(String id, ReportType reportType) {
+  static void report(dynamic id, ReportType reportType) {
     String c = reportType == ReportType.User ? 'user' : 'feed';
     String type = switch (reportType) {
       ReportType.Feed => '&type=feed',
@@ -221,8 +243,7 @@ class Utils {
         onOpenLink(url, title, true);
       } else {
         if (url.startsWith(Constants.PREFIX_HTTP)) {
-          if (isSupportWebview()) {
-            // todo
+          if (isSupportWebview() && !GStorage.openInBrowser) {
             Get.toNamed('/webview', parameters: {'url': url});
           } else {
             launchURL(url);

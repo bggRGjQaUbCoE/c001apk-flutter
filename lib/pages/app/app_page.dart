@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../components/cards/app_info_card.dart';
@@ -11,12 +10,12 @@ import '../../components/sticky_sliver_to_box_adapter.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/app/app_content.dart';
 import '../../pages/app/app_controller.dart';
+import '../../pages/feed/reply/reply_dialog.dart';
 import '../../pages/home/return_top_controller.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
-import '../feed/reply/reply_dialog.dart';
 
 // ignore: constant_identifier_names
 enum AppMenuItem { Copy, Share, Block }
@@ -34,10 +33,6 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
   final String _packageName = Get.parameters['packageName'].orEmpty;
   String? _url;
 
-  late final _config = Provider.of<AppConfigProvider>(context, listen: false);
-
-  double _scrollRatio = 0;
-
   late ReturnTopController _returnTopController;
 
   final ScrollController _scrollController = ScrollController();
@@ -50,12 +45,6 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _returnTopController = Get.put(ReturnTopController(), tag: _packageName);
-
-    _scrollController.addListener(() {
-      setState(() {
-        _scrollRatio = min(1.0, _scrollController.offset.round() / 75.0);
-      });
-    });
   }
 
   @override
@@ -117,84 +106,91 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
     return GetBuilder(
       tag: _packageName,
       init: AppController(packageName: _packageName),
-      builder: (controller) => Obx(
-        () => Scaffold(
-          floatingActionButton: controller.appState.value is Success &&
-                  _config.isLogin &&
-                  !controller.isBlocked &&
-                  controller.commentStatus == 1
-              ? FloatingActionButton(
-                  onPressed: () {
-                    showModalBottomSheet<dynamic>(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (context) => ReplyDialog(
-                        title: controller.appName.value,
-                        targetType: 'apk',
-                        targetId:
-                            '${1000000000 + int.parse(controller.id ?? '4599')}',
-                      ),
-                    );
-                  },
-                  tooltip: 'Create Feed',
-                  child: const Icon(Icons.add),
-                )
-              : null,
-          appBar: AppBar(
-            surfaceTintColor: Colors.transparent,
-            title: controller.appName.value.isNotEmpty && _scrollRatio == 1
-                ? Text(controller.appName.value)
-                : const SizedBox(),
-            actions: controller.appState.value is Success
-                ? [
-                    if (!controller.isBlocked && controller.commentStatus == 1)
-                      IconButton(
-                        onPressed: () => Get.toNamed('/search', parameters: {
-                          'title': controller.appName.value,
-                          'pageType': 'apk',
-                          'pageParam': controller.id!,
-                        }),
-                        icon: const Icon(Icons.search),
-                        tooltip: 'Search',
-                      ),
-                    PopupMenuButton(
-                      onSelected: (AppMenuItem item) {
-                        switch (item) {
-                          case AppMenuItem.Copy:
-                            Utils.copyText(Utils.getShareUrl(
-                                controller.id!, ShareType.apk));
-                            break;
-                          case AppMenuItem.Share:
-                            Share.share(Utils.getShareUrl(
-                                controller.id!, ShareType.apk));
-                            break;
-                          case AppMenuItem.Block:
-                            GStorage.onBlock(
-                              controller.appName.value,
-                              isUser: false,
-                              isDelete: controller.isBlocked,
-                            );
-                            controller.isBlocked = !controller.isBlocked;
-                            break;
-                        }
-                      },
-                      itemBuilder: (BuildContext context) => AppMenuItem.values
-                          .map((item) => PopupMenuItem<AppMenuItem>(
-                                value: item,
-                                child: item == AppMenuItem.Block
-                                    ? Text(
-                                        controller.isBlocked
-                                            ? 'UnBlock'
-                                            : 'Block',
-                                      )
-                                    : Text(item.name),
-                              ))
-                          .toList(),
+      initState: (state) {
+        _scrollController.addListener(() {
+          state.controller?.scrollRatio.value =
+              min(1.0, _scrollController.offset.round() / 75.0);
+        });
+      },
+      builder: (controller) => Scaffold(
+        floatingActionButton: controller.appState.value is Success &&
+                GlobalData().isLogin &&
+                !controller.isBlocked &&
+                controller.commentStatus == 1
+            ? FloatingActionButton(
+                onPressed: () {
+                  showModalBottomSheet<dynamic>(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => ReplyDialog(
+                      title: controller.appName.value,
+                      targetType: 'apk',
+                      targetId:
+                          '${1000000000 + int.parse(controller.id ?? '4599')}',
                     ),
-                  ]
-                : null,
-          ),
-          body: controller.appState.value is Success
+                  );
+                },
+                tooltip: 'Create Feed',
+                child: const Icon(Icons.add),
+              )
+            : null,
+        appBar: AppBar(
+          surfaceTintColor: Colors.transparent,
+          title: Obx(() => controller.appName.value.isNotEmpty &&
+                  controller.scrollRatio.value == 1
+              ? Text(controller.appName.value)
+              : const SizedBox()),
+          actions: controller.appState.value is Success
+              ? [
+                  if (!controller.isBlocked && controller.commentStatus == 1)
+                    IconButton(
+                      onPressed: () => Get.toNamed('/search', parameters: {
+                        'title': controller.appName.value,
+                        'pageType': 'apk',
+                        'pageParam': controller.id!,
+                      }),
+                      icon: const Icon(Icons.search),
+                      tooltip: 'Search',
+                    ),
+                  PopupMenuButton(
+                    onSelected: (AppMenuItem item) {
+                      switch (item) {
+                        case AppMenuItem.Copy:
+                          Utils.copyText(
+                              Utils.getShareUrl(controller.id!, ShareType.apk));
+                          break;
+                        case AppMenuItem.Share:
+                          Share.share(
+                              Utils.getShareUrl(controller.id!, ShareType.apk));
+                          break;
+                        case AppMenuItem.Block:
+                          GStorage.onBlock(
+                            controller.appName.value,
+                            isUser: false,
+                            isDelete: controller.isBlocked,
+                          );
+                          controller.isBlocked = !controller.isBlocked;
+                          break;
+                      }
+                    },
+                    itemBuilder: (BuildContext context) => AppMenuItem.values
+                        .map((item) => PopupMenuItem<AppMenuItem>(
+                              value: item,
+                              child: item == AppMenuItem.Block
+                                  ? Text(
+                                      controller.isBlocked
+                                          ? 'UnBlock'
+                                          : 'Block',
+                                    )
+                                  : Text(item.name),
+                            ))
+                        .toList(),
+                  ),
+                ]
+              : null,
+        ),
+        body: Obx(
+          () => controller.appState.value is Success
               ? ExtendedNestedScrollView(
                   controller: _scrollController,
                   onlyOneScrollInBody: true,

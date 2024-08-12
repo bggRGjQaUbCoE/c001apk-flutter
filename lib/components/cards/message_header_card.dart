@@ -1,10 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
-import '../../providers/app_config_provider.dart';
 import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 
 class MessageHeaderCard extends StatelessWidget {
   const MessageHeaderCard({
@@ -18,14 +17,12 @@ class MessageHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    late final config = Provider.of<AppConfigProvider>(context);
-
     return Container(
       color: Theme.of(context).colorScheme.surface,
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: [
-          if (!config.isLogin)
+          if (!GlobalData().isLogin)
             FilledButton.tonal(
               onPressed: onLogin,
               child: const Text('点击登录'),
@@ -34,7 +31,7 @@ class MessageHeaderCard extends StatelessWidget {
             maintainSize: true,
             maintainAnimation: true,
             maintainState: true,
-            visible: config.isLogin,
+            visible: GlobalData().isLogin,
             child: Row(
               children: [
                 const SizedBox(width: 20),
@@ -42,7 +39,7 @@ class MessageHeaderCard extends StatelessWidget {
                   onTap: () => Get.toNamed('/u/${GlobalData().uid}'),
                   child: CircleAvatar(
                     backgroundImage:
-                        CachedNetworkImageProvider(config.userAvatar),
+                        CachedNetworkImageProvider(GStorage.userAvatar),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -74,19 +71,19 @@ class MessageHeaderCard extends StatelessWidget {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              'Lv.${config.level}',
+                              'Lv.${GStorage.level}',
                               style: const TextStyle(fontSize: 13),
                             ),
                           ),
                           Text(
-                            '${config.exp}/${config.nextExp}',
+                            '${GStorage.exp}/${GStorage.nextExp}',
                             style: const TextStyle(fontSize: 13),
                           ),
                         ],
                       ),
                       const SizedBox(height: 5),
                       LinearProgressIndicator(
-                        value: config.exp / config.nextExp,
+                        value: GStorage.exp / GStorage.nextExp,
                         borderRadius: const BorderRadius.all(
                           Radius.circular(10),
                         ),

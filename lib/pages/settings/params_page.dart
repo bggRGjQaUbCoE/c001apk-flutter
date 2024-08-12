@@ -1,14 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../components/dialog.dart';
-import '../../providers/app_config_provider.dart';
+import '../../components/settings/edittext_item.dart';
+import '../../utils/storage_util.dart';
+import '../../utils/utils.dart';
 
-class ParamsPage extends StatelessWidget {
+class ParamsPage extends StatefulWidget {
   const ParamsPage({super.key});
+
+  @override
+  State<ParamsPage> createState() => _ParamsPageState();
+}
+
+class _ParamsPageState extends State<ParamsPage> {
+  void onChanged() {
+    setState(() {});
+  }
+
+  final manufacturerKey =
+      GlobalKey<EdittextItemState>(debugLabel: 'manufacturer');
+  final brandKey = GlobalKey<EdittextItemState>(debugLabel: 'brand');
+  final modelKey = GlobalKey<EdittextItemState>(debugLabel: 'model');
+  final buildKey = GlobalKey<EdittextItemState>(debugLabel: 'build');
+  final sdkKey = GlobalKey<EdittextItemState>(debugLabel: 'sdk');
+  final androidKey = GlobalKey<EdittextItemState>(debugLabel: 'android');
+
   @override
   Widget build(BuildContext context) {
-    final appConfigProvider = Provider.of<AppConfigProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Params'),
@@ -19,133 +36,87 @@ class ParamsPage extends StatelessWidget {
           parent: BouncingScrollPhysics(),
         ),
         children: [
-          ListTile(
-            title: const Text('Version Name'),
-            subtitle: Text(appConfigProvider.versionName),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'Version Name',
-                defaultText: appConfigProvider.versionName,
-                setData: (newValue) =>
-                    appConfigProvider.setVersionName(newValue),
-              ),
-            ),
+          EdittextItem(
+            title: 'Version Name',
+            boxKey: SettingsBoxKey.versionName,
+            needUpdateUserAgent: true,
+            onChanged: onChanged,
           ),
-          ListTile(
-            title: const Text('Api Version'),
-            subtitle: Text(appConfigProvider.apiVersion),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'Api Version',
-                defaultText: appConfigProvider.apiVersion,
-                setData: (newValue) =>
-                    appConfigProvider.setApiVersion(newValue),
-              ),
-            ),
+          const EdittextItem(
+            title: 'Api Version',
+            boxKey: SettingsBoxKey.apiVersion,
           ),
-          ListTile(
-            title: const Text('Version Code'),
-            subtitle: Text(appConfigProvider.versionCode),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'Version Code',
-                defaultText: appConfigProvider.versionCode,
-                setData: (newValue) =>
-                    appConfigProvider.setVersionCode(newValue),
-              ),
-            ),
+          EdittextItem(
+            title: 'Version Code',
+            boxKey: SettingsBoxKey.versionCode,
+            needUpdateUserAgent: true,
+            onChanged: onChanged,
           ),
-          ListTile(
-            title: const Text('Manufacturer'),
-            subtitle: Text(appConfigProvider.manufacturer),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'Manufacturer',
-                defaultText: appConfigProvider.manufacturer,
-                setData: (newValue) =>
-                    appConfigProvider.setManufacturer(newValue),
-              ),
-            ),
+          EdittextItem(
+            key: manufacturerKey,
+            title: 'Manufacturer',
+            boxKey: SettingsBoxKey.manufacturer,
+            needUpdateXAppDevice: true,
+            onChanged: onChanged,
           ),
-          ListTile(
-            title: const Text('Brand'),
-            subtitle: Text(appConfigProvider.brand),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'Brand',
-                defaultText: appConfigProvider.brand,
-                setData: (newValue) => appConfigProvider.setBrand(newValue),
-              ),
-            ),
+          EdittextItem(
+            key: brandKey,
+            title: 'Brand',
+            boxKey: SettingsBoxKey.brand,
+            needUpdateUserAgent: true,
+            needUpdateXAppDevice: true,
+            onChanged: onChanged,
           ),
-          ListTile(
-            title: const Text('Model'),
-            subtitle: Text(appConfigProvider.model),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'Model',
-                defaultText: appConfigProvider.model,
-                setData: (newValue) => appConfigProvider.setModel(newValue),
-              ),
-            ),
+          EdittextItem(
+            key: modelKey,
+            title: 'Model',
+            boxKey: SettingsBoxKey.model,
+            needUpdateUserAgent: true,
+            needUpdateXAppDevice: true,
+            onChanged: onChanged,
           ),
-          ListTile(
-            title: const Text('BuildNumber'),
-            subtitle: Text(appConfigProvider.buildNumber),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'BuildNumber',
-                defaultText: appConfigProvider.buildNumber,
-                setData: (newValue) =>
-                    appConfigProvider.setBuildNumber(newValue),
-              ),
-            ),
+          EdittextItem(
+            key: buildKey,
+            title: 'BuildNumber',
+            boxKey: SettingsBoxKey.buildNumber,
+            needUpdateUserAgent: true,
+            needUpdateXAppDevice: true,
+            onChanged: onChanged,
           ),
-          ListTile(
-            title: const Text('SDK INT'),
-            subtitle: Text(appConfigProvider.sdkInt),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'SDK INT',
-                defaultText: appConfigProvider.sdkInt,
-                setData: (newValue) => appConfigProvider.setSdkInt(newValue),
-              ),
-            ),
+          EdittextItem(
+            key: sdkKey,
+            title: 'SDK INT',
+            boxKey: SettingsBoxKey.sdkInt,
           ),
-          ListTile(
-            title: const Text('Android Version'),
-            subtitle: Text(appConfigProvider.androidVersion),
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (context) => EditTextDialog(
-                title: 'Android Version',
-                defaultText: appConfigProvider.androidVersion,
-                setData: (newValue) =>
-                    appConfigProvider.setAndroidVersion(newValue),
-              ),
-            ),
+          EdittextItem(
+            key: androidKey,
+            title: 'Android Version',
+            boxKey: SettingsBoxKey.androidVersion,
+            needUpdateUserAgent: true,
+            onChanged: onChanged,
           ),
           ListTile(
             title: const Text('User Angent'),
-            subtitle: Text(appConfigProvider.userAgent),
-            onTap: () {},
+            subtitle: Text(GStorage.userAgent),
+            onTap: () => Utils.copyText(GStorage.userAgent),
           ),
           ListTile(
             title: const Text('X-App-Device'),
-            subtitle: Text(appConfigProvider.xAppDevice),
-            onTap: () {},
+            subtitle: Text(GStorage.xAppDevice),
+            onTap: () => Utils.copyText(GStorage.xAppDevice),
           ),
           ListTile(
             title: const Text('Regenerate Params'),
-            onTap: () => appConfigProvider.regenerateParams(),
+            onTap: () async {
+              await GStorage.regenerateParams();
+              setState(() {});
+              manufacturerKey.currentState?.updateValue();
+              brandKey.currentState?.updateValue();
+              modelKey.currentState?.updateValue();
+              buildKey.currentState?.updateValue();
+              sdkKey.currentState?.updateValue();
+              androidKey.currentState?.updateValue();
+            },
           ),
         ],
       ),

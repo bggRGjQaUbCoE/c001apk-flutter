@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import '../../../constants/constants.dart';
+import '../constants/constants.dart';
 
 class DeviceUtil {
   static bool isPreGetLoginParam = false;

@@ -303,9 +303,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                     decoration: InputDecoration(
                         hintText: widget.username != null
                             ? '回复: ${widget.username}'
-                            : widget.targetType == 'tag'
-                                ? null
-                                : '发布${widget.title != null ? '于 ${widget.title}' : '动态'}',
+                            : '发布${widget.title != null ? '于 ${widget.title}' : '动态'}',
                         border: InputBorder.none,
                         hintStyle: const TextStyle(
                           fontSize: 14,
@@ -353,50 +351,43 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                 TextButton(
                   onPressed: () =>
                       setState(() => _checkBoxValue = !_checkBoxValue),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 10),
+                  style: FilledButton.styleFrom(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
                     visualDensity: const VisualDensity(
                       horizontal: -2,
                       vertical: -2,
                     ),
                   ),
-                  child: TextButton(
-                    onPressed: () =>
-                        setState(() => _checkBoxValue = !_checkBoxValue),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.all(10),
-                      visualDensity: const VisualDensity(
-                        horizontal: -2,
-                        vertical: -2,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Checkbox(
+                        side: BorderSide(
+                            width: 2,
+                            color: Theme.of(context).colorScheme.outline),
+                        fillColor: WidgetStateProperty.resolveWith((states) {
+                          if (states.contains(WidgetState.selected)) {
+                            return Theme.of(context).colorScheme.primary;
+                          }
+                          return null;
+                        }),
+                        value: _checkBoxValue,
+                        onChanged: null,
+                        visualDensity:
+                            const VisualDensity(horizontal: -4, vertical: -4),
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Checkbox(
-                          side: BorderSide(
-                              width: 2,
-                              color: Theme.of(context).colorScheme.outline),
-                          fillColor: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.selected)) {
-                              return Theme.of(context).colorScheme.primary;
-                            }
-                            return null;
-                          }),
-                          value: _checkBoxValue,
-                          onChanged: null,
-                          visualDensity:
-                              const VisualDensity(horizontal: -4, vertical: -4),
+                      Text(
+                        widget.type == null ? '仅自己可见' : '回复并转发',
+                        style: TextStyle(
+                          height: 1,
+                          color: _checkBoxValue
+                              ? Theme.of(context).colorScheme.onSurface
+                              : Theme.of(context).colorScheme.outline,
                         ),
-                        Text(
-                          widget.type == null ? '仅自己可见' : '回复并转发',
-                          style: TextStyle(
-                              color: Theme.of(context).colorScheme.outline),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
+                        strutStyle: const StrutStyle(height: 1, leading: 0),
+                      ),
+                    ],
                   ),
                 ),
                 const Spacer(),

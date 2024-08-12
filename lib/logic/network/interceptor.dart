@@ -1,22 +1,47 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
 import '../../constants/constants.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/token_util.dart';
 
 class ApiInterceptor extends Interceptor {
-  final _config = Provider.of<AppConfigProvider>(Get.context!, listen: false);
+  String? _token;
+  String? _xAppDevice;
+  String? _userAgent;
+  String? _sdkInt;
+  String? _versionName;
+  String? _versionCode;
+  String? _apiVersion;
 
-  String? token;
+  String get apiVersion {
+    return _apiVersion ??= GStorage.apiVersion;
+  }
 
-  String getToken() {
-    token ??= TokenUtils.getTokenV2(_config.xAppDevice);
-    return token ?? '';
+  String get versionCode {
+    return _versionCode ??= GStorage.versionCode;
+  }
+
+  String get versionName {
+    return _versionName ??= GStorage.versionName;
+  }
+
+  String get sdkInt {
+    return _sdkInt ??= GStorage.sdkInt;
+  }
+
+  String get xAppDevice {
+    return _xAppDevice ??= GStorage.xAppDevice;
+  }
+
+  String get userAgent {
+    return _userAgent ??= GStorage.userAgent;
+  }
+
+  String get token {
+    return _token ??= TokenUtils.getTokenV2(xAppDevice);
   }
 
   @override
@@ -30,7 +55,7 @@ class ApiInterceptor extends Interceptor {
       options.headers['sec-ch-ua-mobile'] = '?1';
       options.headers['sec-ch-ua-platform'] = 'Android';
       options.headers['Upgrade-Insecure-Requests'] = '1';
-      options.headers['User-Agent'] = _config.userAgent;
+      options.headers['User-Agent'] = userAgent;
       options.headers['Accept'] =
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7';
       options.headers['X-Requested-With'] = Constants.APP_ID;
@@ -43,7 +68,7 @@ class ApiInterceptor extends Interceptor {
       options.headers['sec-ch-ua-mobile'] = '?1';
       options.headers['sec-ch-ua-platform'] = 'Android';
       options.headers['Upgrade-Insecure-Requests'] = '1';
-      options.headers['User-Agent'] = _config.userAgent;
+      options.headers['User-Agent'] = userAgent;
       options.headers['Accept'] =
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7';
       options.headers['X-Requested-With'] = Constants.APP_ID;
@@ -53,7 +78,7 @@ class ApiInterceptor extends Interceptor {
       options.headers.clear();
       TokenUtils.isGetCaptcha = false;
 
-      options.headers['User-Agent'] = _config.userAgent;
+      options.headers['User-Agent'] = userAgent;
       options.headers['sec-ch-ua'] =
           'Android WebView";v="117", "Not;A=Brand";v="8", "Chromium";v="117';
       options.headers['sec-ch-ua-mobile'] = '?1';
@@ -73,27 +98,27 @@ class ApiInterceptor extends Interceptor {
       options.headers.clear();
       TokenUtils.isOnLogin = false;
 
-      options.headers['User-Agent'] = _config.userAgent;
+      options.headers['User-Agent'] = userAgent;
       options.headers['Cookie'] =
           '${GlobalData().SESSID}; forward=https://www.coolapk.com';
       options.headers['X-Requested-With'] = Constants.REQUEST_WITH;
       options.headers['Content-Type'] = Constants.REQUEST_WITH;
     } else {
-      options.headers['User-Agent'] = _config.userAgent;
+      options.headers['User-Agent'] = userAgent;
       options.headers['X-Requested-With'] = Constants.REQUEST_WITH;
-      options.headers['X-Sdk-Int'] = _config.sdkInt;
+      options.headers['X-Sdk-Int'] = sdkInt;
       options.headers['X-Sdk-Locale'] = Constants.LOCALE;
       options.headers['X-App-Id'] = Constants.APP_ID;
-      options.headers['X-App-Token'] = getToken();
-      options.headers['X-App-Version'] = _config.versionName;
-      options.headers['X-App-Code'] = _config.versionCode;
-      options.headers['X-Api-Version'] = _config.apiVersion;
-      options.headers['X-App-Device'] = _config.xAppDevice;
+      options.headers['X-App-Token'] = token;
+      options.headers['X-App-Version'] = versionName;
+      options.headers['X-App-Code'] = versionCode;
+      options.headers['X-Api-Version'] = apiVersion;
+      options.headers['X-App-Device'] = xAppDevice;
       options.headers['X-Dark-Mode'] = '0';
       options.headers['X-App-Channel'] = Constants.CHANNEL;
       options.headers['X-App-Mode'] = Constants.MODE;
-      options.headers['X-App-Supported'] = _config.versionCode;
-      options.headers['Cookie'] = _config.isLogin
+      options.headers['X-App-Supported'] = versionCode;
+      options.headers['Cookie'] = GlobalData().isLogin
           ? 'uid=${GlobalData().uid}; username=${GlobalData().username}; token=${GlobalData().token}'
           : GlobalData().SESSID;
     }

@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
 import '../../constants/constants.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/cache_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
@@ -28,17 +27,16 @@ class _WebviewPageState extends State<WebviewPage> {
   double _progress = 0;
 
   late final InAppWebViewController _webViewController;
-  late final _config = Provider.of<AppConfigProvider>(context, listen: false);
 
   @override
   void initState() {
     super.initState();
     CookieManager().deleteAllCookies();
-    if (_config.isLogin) {
+    if (GlobalData().isLogin) {
       CookieManager().setCookie(
         url: WebUri.uri(Uri.parse('.coolapk.com')),
         name: 'DID',
-        value: _config.szlmId,
+        value: GStorage.szlmId,
       );
       CookieManager().setCookie(
         url: WebUri.uri(Uri.parse('.coolapk.com')),
@@ -150,7 +148,7 @@ class _WebviewPageState extends State<WebviewPage> {
           useShouldOverrideUrlLoading: true,
           useOnDownloadStart: true,
           clearCache: true,
-          userAgent: _config.userAgent,
+          userAgent: GStorage.userAgent,
           forceDark: ForceDark.AUTO,
           algorithmicDarkeningAllowed: true,
         ),
@@ -203,10 +201,10 @@ class _WebviewPageState extends State<WebviewPage> {
             if (!uid.isNullOrEmpty &&
                 !username.isNullOrEmpty &&
                 !token.isNullOrEmpty) {
-              _config.setUid(uid);
-              _config.setUsername(username);
-              _config.setToken(token);
-              _config.setIsLogin(true);
+              GStorage.setUid(uid);
+              GStorage.setUsername(username);
+              GStorage.setToken(token);
+              GStorage.setIsLogin(true);
               Get.back(result: true);
             } else {
               Get.back(result: false);

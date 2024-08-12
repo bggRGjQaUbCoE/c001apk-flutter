@@ -8,6 +8,7 @@ import '../../logic/model/feed_article/feed_article.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/common/common_controller.dart';
+import '../../pages/feed/feed_page.dart' show ReplySortType;
 import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 
@@ -36,6 +37,8 @@ class FeedController extends CommonController {
   Rx<LoadingState> feedState = LoadingState.loading().obs;
   bool isFav = false;
   bool isBlocked = false;
+
+  Rx<ReplySortType> replySelection = ReplySortType.def.obs;
 
   void setFeedState(LoadingState feedState) {
     this.feedState.value = feedState;

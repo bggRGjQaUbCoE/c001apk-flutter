@@ -14,6 +14,8 @@ class UserController extends CommonController {
   late String uid;
   String? username;
 
+  RxDouble scrollRatio = 0.0.obs;
+
   bool isBlocked = false;
 
   @override

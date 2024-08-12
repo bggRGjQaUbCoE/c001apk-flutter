@@ -6,10 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
-import '../../logic/network/request.dart';
 import '../../pages/home/return_top_controller.dart';
 import '../../pages/home/home_page.dart';
-import '../../pages/main/controller.dart';
+import 'main_controller.dart';
 import '../../pages/message/message_page.dart';
 import '../../pages/settings/settings_page.dart';
 import '../../utils/storage_util.dart';
@@ -30,7 +29,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    Request();
     _mainController.checkLoginInfo();
   }
 

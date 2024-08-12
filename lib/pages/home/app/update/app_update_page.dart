@@ -10,7 +10,7 @@ import '../../../../logic/network/network_repo.dart';
 import '../../../../logic/model/check_update/check_update.dart';
 import '../../../../logic/model/check_update/datum.dart';
 import '../../../../logic/state/loading_state.dart';
-import '../../../../pages/home/app/controller.dart';
+import '../../../../pages/home/app/app_list_controller.dart';
 import '../../../../utils/extensions.dart';
 import '../../../../utils/token_util.dart';
 

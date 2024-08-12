@@ -17,6 +17,8 @@ class AppController extends GetxController {
   Rx<LoadingState> appState = LoadingState.loading().obs;
   RxString appName = ''.obs;
 
+  RxDouble scrollRatio = 0.0.obs;
+
   bool isBlocked = false;
 
   Future<void> _getAppData() async {

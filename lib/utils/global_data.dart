@@ -10,6 +10,7 @@ class GlobalData {
 
   // ignore: non_constant_identifier_names
   String SESSID = '';
+  bool isLogin = false;
   String uid = '';
   String username = '';
   String token = '';

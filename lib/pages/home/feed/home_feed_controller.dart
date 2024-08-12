@@ -2,6 +2,8 @@ import '../../../logic/network/network_repo.dart';
 import '../../../logic/state/loading_state.dart';
 import '../../../pages/common/common_controller.dart';
 import '../../../pages/home/home_page.dart' show TabType;
+import '../../../utils/storage_util.dart';
+import '../../../utils/utils.dart';
 
 class HomeFeedNewController extends CommonController {
   HomeFeedNewController({
@@ -9,13 +11,28 @@ class HomeFeedNewController extends CommonController {
     required this.installTime,
     this.url,
     this.title,
+    this.followType,
   });
 
   final TabType tabType;
   final String installTime;
   int firstLaunch = 1;
-  final String? url;
-  final String? title;
+  String? url;
+  String? title;
+  int? followType;
+
+  @override
+  void onReset() {
+    super.onReset();
+    if (tabType == TabType.FOLLOW) {
+      int followType = GStorage.followType;
+      if (this.followType != followType) {
+        this.followType = followType;
+        url = Utils.getFollowUrl(followType);
+        title = Utils.getFollowTitle(followType);
+      }
+    }
+  }
 
   @override
   Future<LoadingState> customGetData() {

@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:provider/provider.dart';
 
 import '../../components/cards/message_first_card.dart';
 import '../../components/cards/message_header_card.dart';
@@ -18,8 +17,8 @@ import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/message/message_controller.dart';
 import '../../pages/noitfication/notification_page.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 
 class MessagePage extends StatefulWidget {
   const MessagePage({super.key});
@@ -29,7 +28,6 @@ class MessagePage extends StatefulWidget {
 }
 
 class _MessagePageState extends State<MessagePage> {
-  late final _config = Provider.of<AppConfigProvider>(context, listen: false);
   final _backgroundList = [
     0xFF2196f3,
     0xFF00bcd4,
@@ -79,12 +77,11 @@ class _MessagePageState extends State<MessagePage> {
       } catch (e) {
         print(e.toString());
       }
-      _config
-        ..setUserAvatar(data?.userAvatar ?? '')
-        ..setUsername(username)
-        ..setLevel(data?.level ?? 0)
-        ..setExp(data?.experience ?? 0)
-        ..setNextExp(data?.nextLevelExperience ?? 1);
+      GStorage.setUserAvatar(data?.userAvatar ?? '');
+      GStorage.setUsername(username);
+      GStorage.setLevel(data?.level ?? 0);
+      GStorage.setExp(data?.experience ?? 0);
+      GStorage.setNextExp(data?.nextLevelExperience ?? 1);
       setState(() => _firstList = [data?.feed, data?.follow, data?.fans]);
     } catch (e) {
       print(e.toString());
@@ -100,7 +97,7 @@ class _MessagePageState extends State<MessagePage> {
   @override
   void initState() {
     super.initState();
-    if (_config.isLogin) {
+    if (GlobalData().isLogin) {
       _onRefresh();
     }
   }
@@ -185,7 +182,7 @@ class _MessagePageState extends State<MessagePage> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
-        if (_config.isLogin) {
+        if (GlobalData().isLogin) {
           _isRefreshing = true;
           await _onRefresh();
         } else {
@@ -227,15 +224,14 @@ class _MessagePageState extends State<MessagePage> {
                                       _firstList = null;
                                       _thirdList = null;
 
-                                      _config
-                                        ..setUid('')
-                                        ..setUsername('')
-                                        ..setToken('')
-                                        ..setUserAvatar('')
-                                        ..setLevel(0)
-                                        ..setExp(0)
-                                        ..setNextExp(1)
-                                        ..setIsLogin(false);
+                                      GStorage.setUid('');
+                                      GStorage.setUsername('');
+                                      GStorage.setToken('');
+                                      GStorage.setUserAvatar('');
+                                      GStorage.setLevel(0);
+                                      GStorage.setExp(0);
+                                      GStorage.setNextExp(1);
+                                      GStorage.setIsLogin(false);
                                       _messageController.setLoadingState(
                                           LoadingState.loading());
                                       _messageController.setFooterState(
@@ -262,9 +258,10 @@ class _MessagePageState extends State<MessagePage> {
               itemCount: 7,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  return messageFirstCard(_config.isLogin, context, _firstList);
+                  return messageFirstCard(
+                      GlobalData().isLogin, context, _firstList);
                 } else if (index == 1) {
-                  return messageSeconfCard(_config.isLogin, context);
+                  return messageSeconfCard(GlobalData().isLogin, context);
                 } else if (index >= 2 && index <= 6) {
                   return messageThirdCard(
                     context,
@@ -273,7 +270,7 @@ class _MessagePageState extends State<MessagePage> {
                     _titleList[index - 2],
                     _thirdList?[index - 2],
                     () {
-                      if (_config.isLogin) {
+                      if (GlobalData().isLogin) {
                         Get.toNamed('/notification', arguments: {
                           'type': NotificationType.values[index - 2]
                         });
@@ -287,7 +284,7 @@ class _MessagePageState extends State<MessagePage> {
               separatorBuilder: (_, index) => const SizedBox(height: 10),
             ),
           ),
-          if (_config.isLogin)
+          if (GlobalData().isLogin)
             Obx(() => _buildMessage(_messageController.loadingState.value)),
         ],
       ),

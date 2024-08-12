@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../utils/emoji_util.dart';
 import '../utils/extensions.dart';
+import '../utils/storage_util.dart';
 import '../utils/utils.dart';
 
 Widget htmlText(
@@ -16,22 +17,25 @@ Widget htmlText(
   Function? onShowTotalReply,
   Function? onViewFan,
 }) {
-  RegExp regExp = RegExp('\\[[^\\]]+\\]');
-  String htmlConvert = html.replaceAll('\n', '<br/>').replaceAllMapped(
-    regExp,
-    (match) {
-      String matchedString = match.group(0) ?? '';
-      String? src = EmojiUtil.emojiMap[matchedString];
-      if (!src.isNullOrEmpty) {
-        return '<img src="$src">';
-      } else {
-        return matchedString;
-      }
-    },
-  );
+  String? htmlConvert;
+  if (GStorage.showEmoji) {
+    RegExp regExp = RegExp('\\[[^\\]]+\\]');
+    htmlConvert = html.replaceAll('\n', '<br/>').replaceAllMapped(
+      regExp,
+      (match) {
+        String matchedString = match.group(0) ?? '';
+        String? src = EmojiUtil.emojiMap[matchedString];
+        if (!src.isNullOrEmpty) {
+          return '<img src="$src">';
+        } else {
+          return matchedString;
+        }
+      },
+    );
+  }
 
   return HtmlWidget(
-    htmlConvert,
+    htmlConvert ?? html,
     onTapUrl: (url) {
       if (url.isEmpty) {
         if (onClick != null) {

@@ -5,13 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'components/custom_toast.dart';
 import 'constants/constants.dart';
-import 'providers/app_config_provider.dart';
+import 'logic/network/request.dart';
 import 'router/app_pages.dart';
 import 'utils/storage_util.dart';
 
@@ -39,10 +37,7 @@ void main() async {
     });
   }
 
-  final sharedPreferences = await SharedPreferences.getInstance();
-  final AppConfigProvider appConfigProvider =
-      AppConfigProvider(sharedPreferencesInstance: sharedPreferences);
-  appConfigProvider.saveFromSharedPreferences();
+  await GStorage.init();
 
   if (Platform.isAndroid || Platform.isIOS) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -52,18 +47,13 @@ void main() async {
       systemNavigationBarDividerColor: Colors.transparent,
       systemNavigationBarContrastEnforced: false,
       systemStatusBarContrastEnforced: false,
-      statusBarBrightness: appConfigProvider.getBrightness(),
-      systemNavigationBarIconBrightness: appConfigProvider.getBrightness(),
+      statusBarBrightness: GStorage.getBrightness(),
+      systemNavigationBarIconBrightness: GStorage.getBrightness(),
     ));
   }
 
-  await GStorage.init();
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (context) => appConfigProvider),
-    ],
-    child: const C001APKAPP(),
-  ));
+  Request();
+  runApp(const C001APKAPP());
 }
 
 class C001APKAPP extends StatelessWidget {
@@ -71,24 +61,27 @@ class C001APKAPP extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appConfigProvider = Provider.of<AppConfigProvider>(context);
+    bool useMaterial =
+        GStorage.settings.get(SettingsBoxKey.useMaterial, defaultValue: true);
+    int staticColor =
+        GStorage.settings.get(SettingsBoxKey.staticColor, defaultValue: 0);
+    int selectedTheme =
+        GStorage.settings.get(SettingsBoxKey.selectedTheme, defaultValue: 0);
+    double fontScale =
+        GStorage.settings.get(SettingsBoxKey.fontScale, defaultValue: 1.0);
     return DynamicColorBuilder(builder: (lightDynamic, darkDynamic) {
-      appConfigProvider
-          .setSupportsDynamicTheme(lightDynamic != null && darkDynamic != null);
       ColorScheme? lightColorScheme;
       ColorScheme? darkColorScheme;
-      if (lightDynamic != null &&
-          darkDynamic != null &&
-          appConfigProvider.useDynamicColor) {
+      if (lightDynamic != null && darkDynamic != null && useMaterial) {
         lightColorScheme = lightDynamic.harmonized();
         darkColorScheme = darkDynamic.harmonized();
       } else {
         lightColorScheme = ColorScheme.fromSeed(
-          seedColor: Constants.seedColors[appConfigProvider.staticColor],
+          seedColor: Constants.seedColors[staticColor],
           brightness: Brightness.light,
         );
         darkColorScheme = ColorScheme.fromSeed(
-          seedColor: Constants.seedColors[appConfigProvider.staticColor],
+          seedColor: Constants.seedColors[staticColor],
           brightness: Brightness.dark,
         );
       }
@@ -96,15 +89,12 @@ class C001APKAPP extends StatelessWidget {
       return GetMaterialApp(
         title: 'c001apk',
         theme: ThemeData(
-          colorScheme: appConfigProvider.selectedTheme == 2
-              ? darkColorScheme
-              : lightColorScheme,
+          colorScheme: selectedTheme == 2 ? darkColorScheme : lightColorScheme,
           useMaterial3: true,
           navigationBarTheme: NavigationBarThemeData(
-              surfaceTintColor:
-                  (lightDynamic != null && appConfigProvider.useDynamicColor)
-                      ? lightColorScheme.surfaceTint
-                      : lightColorScheme.surfaceContainer),
+              surfaceTintColor: (lightDynamic != null && useMaterial)
+                  ? lightColorScheme.surfaceTint
+                  : lightColorScheme.surfaceContainer),
           snackBarTheme: SnackBarThemeData(
             actionTextColor: lightColorScheme.primary,
             backgroundColor: lightColorScheme.secondaryContainer,
@@ -137,15 +127,12 @@ class C001APKAPP extends StatelessWidget {
           ),
         ),
         darkTheme: ThemeData(
-          colorScheme: appConfigProvider.selectedTheme == 1
-              ? lightColorScheme
-              : darkColorScheme,
+          colorScheme: selectedTheme == 1 ? lightColorScheme : darkColorScheme,
           useMaterial3: true,
           navigationBarTheme: NavigationBarThemeData(
-              surfaceTintColor:
-                  (lightDynamic != null && appConfigProvider.useDynamicColor)
-                      ? darkColorScheme.surfaceTint
-                      : darkColorScheme.surfaceContainer),
+              surfaceTintColor: (lightDynamic != null && useMaterial)
+                  ? darkColorScheme.surfaceTint
+                  : darkColorScheme.surfaceContainer),
           snackBarTheme: SnackBarThemeData(
             actionTextColor: darkColorScheme.primary,
             backgroundColor: darkColorScheme.secondaryContainer,
@@ -170,15 +157,15 @@ class C001APKAPP extends StatelessWidget {
             refreshBackgroundColor: darkColorScheme.onSecondary,
           ),
         ),
-        themeMode: appConfigProvider.getThemeMode(),
+        themeMode: GStorage.getThemeMode(),
         getPages: AppPages.getPages,
         initialRoute: '/',
         builder: (BuildContext context, Widget? child) {
           return FlutterSmartDialog(
             toastBuilder: (String msg) => CustomToast(msg: msg),
             child: MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                  textScaler: TextScaler.linear(appConfigProvider.fontScale)),
+              data: MediaQuery.of(context)
+                  .copyWith(textScaler: TextScaler.linear(fontScale)),
               child: child!,
             ),
           );

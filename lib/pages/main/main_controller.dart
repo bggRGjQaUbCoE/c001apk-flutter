@@ -4,16 +4,14 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response;
-import 'package:provider/provider.dart';
 
 import '../../logic/network/network_repo.dart';
 import '../../logic/model/check_info/check.dart';
-import '../../providers/app_config_provider.dart';
 import '../../utils/extensions.dart';
+import '../../utils/global_data.dart';
+import '../../utils/storage_util.dart';
 
 class MainController extends GetxController {
-  final _config = Provider.of<AppConfigProvider>(Get.context!, listen: false);
-
   Future<void> checkLoginInfo() async {
     Response response = await NetworkRepo.checkLoginInfo();
     try {
@@ -22,18 +20,18 @@ class MainController extends GetxController {
         if (!responseData.message.isNullOrEmpty) {
           print(response.data['message']);
           if (response.data['message'] == '登录信息有误') {
-            _config.setUid('');
-            _config.setUsername('');
-            _config.setToken('');
-            _config.setIsLogin(false);
+            GStorage.setUid('');
+            GStorage.setUsername('');
+            GStorage.setToken('');
+            GStorage.setIsLogin(false);
           }
         } else {
           if (responseData.data != null) {
-            _config.setUid(responseData.data!.uid.orEmpty);
-            _config.setUsername(
+            GStorage.setUid(responseData.data!.uid.orEmpty);
+            GStorage.setUsername(
                 Uri.encodeComponent(responseData.data!.username.orEmpty));
-            _config.setToken(responseData.data!.token.orEmpty);
-            _config.setIsLogin(true);
+            GStorage.setToken(responseData.data!.token.orEmpty);
+            GStorage.setIsLogin(true);
           } else {
             print('null');
           }
@@ -48,7 +46,7 @@ class MainController extends GetxController {
     try {
       String? SESSID = response.headers['Set-Cookie']?[0];
       if (SESSID != null) {
-        _config.setSESSID(SESSID.substring(0, SESSID.indexOf(';')));
+        GlobalData().SESSID = SESSID.substring(0, SESSID.indexOf(';'));
       }
     } catch (e) {
       print('failed to get SESSID: ${e.toString()}');

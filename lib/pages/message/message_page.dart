@@ -276,6 +276,7 @@ class _MessagePageState extends State<MessagePage> {
                         Get.toNamed('/notification', arguments: {
                           'type': NotificationType.values[index - 2]
                         });
+                        setState(() => _thirdList?[index - 2] = null);
                       }
                     },
                   );

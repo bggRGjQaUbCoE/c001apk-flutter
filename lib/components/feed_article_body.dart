@@ -49,7 +49,8 @@ Widget feedArticleBody(
               isFeedArticle: true,
               articleImg: data.url.orEmpty,
             ),
-            if (!data.description.isNullOrEmpty)
+            if (!data.description.isNullOrEmpty) ...[
+              const SizedBox(height: 4),
               Text(
                 data.description!,
                 style: TextStyle(
@@ -57,7 +58,8 @@ Widget feedArticleBody(
                   color: Theme.of(Get.context!).colorScheme.outline,
                 ),
                 textAlign: TextAlign.center,
-              )
+              ),
+            ]
           ],
         ),
       );

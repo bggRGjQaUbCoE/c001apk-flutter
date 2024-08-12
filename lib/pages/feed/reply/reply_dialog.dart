@@ -214,18 +214,17 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
     }
   }
 
-  // void onChooseEmote(PackageItem package, Emote emote) {
-  //   final int cursorPosition = _replyContentController.selection.baseOffset;
-  //   final String currentText = _replyContentController.text;
-  //   final String newText = currentText.substring(0, cursorPosition) +
-  //       emote.text! +
-  //       currentText.substring(cursorPosition);
-  //   _replyContentController.value = TextEditingValue(
-  //     text: newText,
-  //     selection:
-  //         TextSelection.collapsed(offset: cursorPosition + emote.text!.length),
-  //   );
-  // }
+  void _onChooseEmote(String emoji) {
+    final int cursorPosition = _replyContentController.selection.baseOffset;
+    final String currentText = _replyContentController.text;
+    final String newText = currentText.substring(0, cursorPosition) +
+        emoji +
+        currentText.substring(cursorPosition);
+    _replyContentController.value = TextEditingValue(
+      text: newText,
+      selection: TextSelection.collapsed(offset: cursorPosition + emoji.length),
+    );
+  }
 
   @override
   void didChangeMetrics() {
@@ -429,7 +428,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
               child: EmotePanel(
                 index: 1,
                 onClick: (emoji) {
-                  _replyContentController.text += emoji;
+                  _onChooseEmote(emoji);
                   if (!_enablePublish) {
                     setState(() => _enablePublish = true);
                   }

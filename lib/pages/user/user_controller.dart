@@ -4,7 +4,6 @@ import '../../logic/model/feed/datum.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/common/common_controller.dart';
-import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 
 class UserController extends CommonController {
@@ -23,7 +22,7 @@ class UserController extends CommonController {
       isEnd = true;
       footerState.value = LoadingState.empty();
     }
-    return dataList.unique((data) => data.entityId);
+    return super.handleResponse(dataList);
   }
 
   @override

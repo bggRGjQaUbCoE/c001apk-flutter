@@ -15,7 +15,7 @@ class AppController extends GetxController {
   late final String? entityType;
 
   Rx<LoadingState> appState = LoadingState.loading().obs;
-  RxString appName = ''.obs;
+  String? appName;
 
   RxDouble scrollRatio = 0.0.obs;
 
@@ -29,8 +29,8 @@ class AppController extends GetxController {
       commentStatusText = (response.response as Datum).commentStatusText;
       entityType = (response.response as Datum).entityType ?? '';
       appState.value = LoadingState.success(response.response);
-      appName.value = (response.response as Datum).title ?? '';
-      isBlocked = GStorage.checkTopic(appName.value);
+      appName = (response.response as Datum).title;
+      isBlocked = GStorage.checkTopic(appName!);
     } else {
       appState.value = response;
     }

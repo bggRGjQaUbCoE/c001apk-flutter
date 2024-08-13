@@ -83,11 +83,11 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                   if (!_url.isNullOrEmpty) {
                     Utils.onDownloadFile(
                       _url!,
-                      '${controller.appName.value}-$versionName-$versionCode.apk',
+                      '${controller.appName}-$versionName-$versionCode.apk',
                     );
                   } else {
                     _url = await Utils.onGetDownloadUrl(
-                      controller.appName.value,
+                      controller.appName!,
                       _packageName,
                       id,
                       versionName,
@@ -113,81 +113,90 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
         });
       },
       builder: (controller) => Scaffold(
-        floatingActionButton: controller.appState.value is Success &&
-                GlobalData().isLogin &&
-                !controller.isBlocked &&
-                controller.commentStatus == 1
-            ? FloatingActionButton(
-                onPressed: () {
-                  showModalBottomSheet<dynamic>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (context) => ReplyDialog(
-                      title: controller.appName.value,
-                      targetType: 'apk',
-                      targetId:
-                          '${1000000000 + int.parse(controller.id ?? '4599')}',
-                    ),
-                  );
-                },
-                tooltip: 'Create Feed',
-                child: const Icon(Icons.add),
-              )
-            : null,
-        appBar: AppBar(
-          surfaceTintColor: Colors.transparent,
-          title: Obx(() => controller.appName.value.isNotEmpty &&
-                  controller.scrollRatio.value == 1
-              ? Text(controller.appName.value)
-              : const SizedBox()),
-          actions: controller.appState.value is Success
-              ? [
-                  if (!controller.isBlocked && controller.commentStatus == 1)
-                    IconButton(
-                      onPressed: () => Get.toNamed('/search', parameters: {
-                        'title': controller.appName.value,
-                        'pageType': 'apk',
-                        'pageParam': controller.id!,
-                      }),
-                      icon: const Icon(Icons.search),
-                      tooltip: 'Search',
-                    ),
-                  PopupMenuButton(
-                    onSelected: (AppMenuItem item) {
-                      switch (item) {
-                        case AppMenuItem.Copy:
-                          Utils.copyText(
-                              Utils.getShareUrl(controller.id!, ShareType.apk));
-                          break;
-                        case AppMenuItem.Share:
-                          Share.share(
-                              Utils.getShareUrl(controller.id!, ShareType.apk));
-                          break;
-                        case AppMenuItem.Block:
-                          GStorage.onBlock(
-                            controller.appName.value,
-                            isUser: false,
-                            isDelete: controller.isBlocked,
-                          );
-                          controller.isBlocked = !controller.isBlocked;
-                          break;
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => AppMenuItem.values
-                        .map((item) => PopupMenuItem<AppMenuItem>(
-                              value: item,
-                              child: item == AppMenuItem.Block
-                                  ? Text(
-                                      controller.isBlocked
-                                          ? 'UnBlock'
-                                          : 'Block',
-                                    )
-                                  : Text(item.name),
-                            ))
-                        .toList(),
-                  ),
-                ]
-              : null,
+        floatingActionButton: Obx(
+          () => controller.appState.value is Success &&
+                  GlobalData().isLogin &&
+                  !controller.isBlocked &&
+                  controller.commentStatus == 1
+              ? FloatingActionButton(
+                  onPressed: () {
+                    showModalBottomSheet<dynamic>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (context) => ReplyDialog(
+                        title: controller.appName,
+                        targetType: 'apk',
+                        targetId:
+                            '${1000000000 + int.parse(controller.id ?? '4599')}',
+                      ),
+                    );
+                  },
+                  tooltip: 'Create Feed',
+                  child: const Icon(Icons.add),
+                )
+              : const SizedBox(),
+        ),
+        appBar: PreferredSize(
+          preferredSize: const Size(double.infinity, 56),
+          child: Obx(
+            () => AppBar(
+              surfaceTintColor: Colors.transparent,
+              title: !controller.appName.isNullOrEmpty &&
+                      controller.scrollRatio.value == 1
+                  ? Text(controller.appName!)
+                  : null,
+              actions: controller.appState.value is Success
+                  ? [
+                      if (!controller.isBlocked &&
+                          controller.commentStatus == 1)
+                        IconButton(
+                          onPressed: () => Get.toNamed('/search', parameters: {
+                            'title': controller.appName!,
+                            'pageType': 'apk',
+                            'pageParam': controller.id!,
+                          }),
+                          icon: const Icon(Icons.search),
+                          tooltip: 'Search',
+                        ),
+                      PopupMenuButton(
+                        onSelected: (AppMenuItem item) {
+                          switch (item) {
+                            case AppMenuItem.Copy:
+                              Utils.copyText(Utils.getShareUrl(
+                                  controller.id!, ShareType.apk));
+                              break;
+                            case AppMenuItem.Share:
+                              Share.share(Utils.getShareUrl(
+                                  controller.id!, ShareType.apk));
+                              break;
+                            case AppMenuItem.Block:
+                              GStorage.onBlock(
+                                controller.appName,
+                                isUser: false,
+                                isDelete: controller.isBlocked,
+                              );
+                              controller.isBlocked = !controller.isBlocked;
+                              break;
+                          }
+                        },
+                        itemBuilder: (BuildContext context) =>
+                            AppMenuItem.values
+                                .map((item) => PopupMenuItem<AppMenuItem>(
+                                      value: item,
+                                      child: item == AppMenuItem.Block
+                                          ? Text(
+                                              controller.isBlocked
+                                                  ? 'UnBlock'
+                                                  : 'Block',
+                                            )
+                                          : Text(item.name),
+                                    ))
+                                .toList(),
+                      ),
+                    ]
+                  : null,
+            ),
+          ),
         ),
         body: Obx(
           () => controller.appState.value is Success
@@ -249,7 +258,7 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                         })
                       : Center(
                           child: Text(controller.isBlocked
-                              ? '${controller.appName.value} is Blocked'
+                              ? '${controller.appName} is Blocked'
                               : controller.commentStatusText!),
                         ),
                 )

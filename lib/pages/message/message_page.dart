@@ -234,9 +234,10 @@ class _MessagePageState extends State<MessagePage> {
                                       GStorage.setIsLogin(false);
                                       _messageController.setLoadingState(
                                           LoadingState.loading());
-                                      _messageController.setFooterState(
-                                          LoadingState.loading());
+                                      _messageController
+                                          .setFooterState(LoadingState.empty());
                                       Get.back();
+                                      Get.forceAppUpdate();
                                     },
                                     child: const Text('确定'),
                                   ),

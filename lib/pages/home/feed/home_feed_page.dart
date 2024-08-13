@@ -29,7 +29,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
   bool get wantKeepAlive => true;
 
   late final bool isLogin = GlobalData().isLogin;
-  late AnimationController _fabAnimationCtr;
+  AnimationController? _fabAnimationCtr;
   late bool _isFabVisible = true;
 
   late final followType = GStorage.followType;
@@ -59,7 +59,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
   void dispose() {
     _homeFeedController.scrollController?.removeListener(() {});
     _homeFeedController.scrollController?.dispose();
-    _fabAnimationCtr.dispose();
+    _fabAnimationCtr?.dispose();
     super.dispose();
   }
 
@@ -81,7 +81,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
     if (isLogin) {
       _fabAnimationCtr = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 300));
-      _fabAnimationCtr.forward();
+      _fabAnimationCtr?.forward();
       _homeFeedController.scrollController?.addListener(() {
         final ScrollDirection? direction =
             _homeFeedController.scrollController?.position.userScrollDirection;
@@ -97,14 +97,14 @@ class _HomeFeedPageState extends State<HomeFeedPage>
   void _showFab() {
     if (!_isFabVisible) {
       _isFabVisible = true;
-      _fabAnimationCtr.forward();
+      _fabAnimationCtr?.forward();
     }
   }
 
   void _hideFab() {
     if (_isFabVisible) {
       _isFabVisible = false;
-      _fabAnimationCtr.reverse();
+      _fabAnimationCtr?.reverse();
     }
   }
 
@@ -119,7 +119,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
                     begin: const Offset(0, 2),
                     end: const Offset(0, 0),
                   ).animate(CurvedAnimation(
-                    parent: _fabAnimationCtr,
+                    parent: _fabAnimationCtr!,
                     curve: Curves.easeInOut,
                   )),
                   child: FloatingActionButton(

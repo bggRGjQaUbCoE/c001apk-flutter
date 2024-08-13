@@ -21,7 +21,7 @@ class _AppListPageState extends State<AppListPage>
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
 
   late final bool _checkUpdate = GStorage.checkUpdate;
-  late AnimationController _fabAnimationCtr;
+  AnimationController? _fabAnimationCtr;
   late bool _isFabVisible = true;
 
   @override
@@ -37,7 +37,7 @@ class _AppListPageState extends State<AppListPage>
     if (_checkUpdate) {
       _fabAnimationCtr = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 300));
-      _fabAnimationCtr.forward();
+      _fabAnimationCtr?.forward();
       _scrollController.addListener(() {
         final ScrollDirection direction =
             _scrollController.position.userScrollDirection;
@@ -53,14 +53,14 @@ class _AppListPageState extends State<AppListPage>
   void _showFab() {
     if (!_isFabVisible) {
       _isFabVisible = true;
-      _fabAnimationCtr.forward();
+      _fabAnimationCtr?.forward();
     }
   }
 
   void _hideFab() {
     if (_isFabVisible) {
       _isFabVisible = false;
-      _fabAnimationCtr.reverse();
+      _fabAnimationCtr?.reverse();
     }
   }
 
@@ -75,7 +75,7 @@ class _AppListPageState extends State<AppListPage>
   void dispose() {
     _scrollController.removeListener(() {});
     _scrollController.dispose;
-    _fabAnimationCtr.dispose();
+    _fabAnimationCtr?.dispose();
     super.dispose();
   }
 
@@ -94,7 +94,7 @@ class _AppListPageState extends State<AppListPage>
                     begin: const Offset(0, 2),
                     end: const Offset(0, 0),
                   ).animate(CurvedAnimation(
-                    parent: _fabAnimationCtr,
+                    parent: _fabAnimationCtr!,
                     curve: Curves.easeInOut,
                   )),
                   child: FloatingActionButton(

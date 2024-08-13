@@ -175,7 +175,7 @@ class FeedController extends CommonController {
         }
       }).toList();
     } else {
-      replyList.insert(0, data);
+      replyList.insert(topReply == null ? 0 : 1, data);
     }
     loadingState.value = LoadingState.success(replyList);
   }

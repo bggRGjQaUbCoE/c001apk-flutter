@@ -34,7 +34,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   final String _id = Get.parameters['id'].orEmpty;
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
   late final bool _isLogin = GlobalData().isLogin;
-  late AnimationController _fabAnimationCtr;
+  AnimationController? _fabAnimationCtr;
   late bool _isFabVisible = true;
   late final _scrollController = ScrollController();
 
@@ -44,7 +44,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
     if (_isLogin) {
       _fabAnimationCtr = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 300));
-      _fabAnimationCtr.forward();
+      _fabAnimationCtr?.forward();
       _scrollController.addListener(() {
         final ScrollDirection direction =
             _scrollController.position.userScrollDirection;
@@ -60,14 +60,14 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   void _showFab() {
     if (!_isFabVisible) {
       _isFabVisible = true;
-      _fabAnimationCtr.forward();
+      _fabAnimationCtr?.forward();
     }
   }
 
   void _hideFab() {
     if (_isFabVisible) {
       _isFabVisible = false;
-      _fabAnimationCtr.reverse();
+      _fabAnimationCtr?.reverse();
     }
   }
 
@@ -75,7 +75,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   void dispose() {
     _scrollController.removeListener(() {});
     _scrollController.dispose();
-    _fabAnimationCtr.dispose();
+    _fabAnimationCtr?.dispose();
     super.dispose();
   }
 
@@ -344,29 +344,31 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: _isLogin
-          ? SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 2),
-                end: const Offset(0, 0),
-              ).animate(CurvedAnimation(
-                parent: _fabAnimationCtr,
-                curve: Curves.easeInOut,
-              )),
-              child: FloatingActionButton(
-                tooltip: 'Reply',
-                onPressed: () {
-                  _onReply(
-                    ReplyType.feed,
-                    _feedController.id,
-                    _feedController.feedUsername,
-                    null,
-                  );
-                },
-                child: const Icon(Icons.reply),
-              ),
-            )
-          : null,
+      floatingActionButton: Obx(
+        () => _feedController.feedState.value is Success && _isLogin
+            ? SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 2),
+                  end: const Offset(0, 0),
+                ).animate(CurvedAnimation(
+                  parent: _fabAnimationCtr!,
+                  curve: Curves.easeInOut,
+                )),
+                child: FloatingActionButton(
+                  tooltip: 'Reply',
+                  onPressed: () {
+                    _onReply(
+                      ReplyType.feed,
+                      _feedController.id,
+                      _feedController.feedUsername,
+                      null,
+                    );
+                  },
+                  child: const Icon(Icons.reply),
+                ),
+              )
+            : const SizedBox(),
+      ),
       appBar: PreferredSize(
         preferredSize: const Size(double.infinity, 56),
         child: Obx(

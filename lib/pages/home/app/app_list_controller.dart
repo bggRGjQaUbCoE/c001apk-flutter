@@ -30,8 +30,9 @@ class AppListController extends GetxController with StateMixin<List<AppInfo>> {
   }
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
+    await Future.delayed(const Duration(milliseconds: 500));
     _getInstalledApps();
   }
 }

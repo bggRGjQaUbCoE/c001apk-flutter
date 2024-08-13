@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 
 import '../../pages/home/return_top_controller.dart';
 import '../../pages/home/home_page.dart';
-import 'main_controller.dart';
+import '../../pages/main/main_controller.dart';
 import '../../pages/message/message_page.dart';
 import '../../pages/settings/settings_page.dart';
 import '../../utils/storage_util.dart';

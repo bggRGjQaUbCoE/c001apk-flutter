@@ -4,10 +4,11 @@ import '../../logic/model/feed/datum.dart';
 import '../../logic/model/feed/tab_list.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
+import '../../pages/common/common_controller.dart';
 import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 
-class TopicController extends GetxController {
+class TopicController extends CommonController {
   TopicController({required this.tag, required this.id});
 
   final String? tag;
@@ -20,6 +21,7 @@ class TopicController extends GetxController {
   Rx<LoadingState> topicState = LoadingState.loading().obs;
 
   bool isBlocked = false;
+  bool isFollow = false;
 
   Future<void> _getTopicData() async {
     LoadingState<dynamic> response = await NetworkRepo.getDataFromUrl(
@@ -42,9 +44,11 @@ class TopicController extends GetxController {
       String selectedTab = data.selectedTab!;
       initialIndex.value =
           tabList!.map((item) => item.pageName).toList().indexOf(selectedTab);
-      topicState.value = LoadingState.success(response.response);
 
       isBlocked = GStorage.checkTopic(title!);
+      isFollow = data.userAction?.follow == 1;
+
+      topicState.value = LoadingState.success(response.response);
     } else {
       topicState.value = response;
     }
@@ -59,5 +63,16 @@ class TopicController extends GetxController {
   void onInit() {
     super.onInit();
     _getTopicData();
+  }
+
+  @override
+  void handleGetFollow() {
+    isFollow = !isFollow;
+  }
+
+  @override
+  Future<LoadingState> customGetData() {
+    // TODO: implement customGetData
+    throw UnimplementedError();
   }
 }

@@ -224,6 +224,7 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       description: json['description'] as String?,
       isOpenTitle: json['is_open_title'] as String?,
       itemNum: (json['item_num'] as num?)?.toInt(),
+      isFollow: json['isFollow'],
     );
 
 Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
@@ -414,4 +415,5 @@ Map<String, dynamic> _$DatumToJson(Datum instance) => <String, dynamic>{
       'description': instance.description,
       'is_open_title': instance.isOpenTitle,
       'item_num': instance.itemNum,
+      'isFollow': instance.isFollow,
     };

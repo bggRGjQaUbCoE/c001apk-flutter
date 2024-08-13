@@ -1,12 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../components/html_text.dart';
-import '../../components/icon_text.dart';
 import '../../components/imageview.dart';
+import '../../components/like_button.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../pages/feed/reply2reply/reply_2_reply_page.dart';
 import '../../utils/date_util.dart';
@@ -25,6 +24,7 @@ class FeedReplyCard extends StatelessWidget {
     this.onBlock,
     this.onReply,
     this.onDelete,
+    this.onLike,
   });
 
   final Datum data;
@@ -32,15 +32,9 @@ class FeedReplyCard extends StatelessWidget {
   final bool isTopReply;
   final dynamic uid;
   final Function(dynamic uid, dynamic id)? onBlock;
-  final Function(
-    dynamic id,
-    dynamic uname,
-    dynamic fid,
-  )? onReply;
-  final Function(
-    dynamic id,
-    dynamic fid,
-  )? onDelete;
+  final Function(dynamic id, dynamic uname, dynamic fid)? onReply;
+  final Function(dynamic id, dynamic fid)? onDelete;
+  final Function(dynamic id, dynamic like)? onLike;
 
   @override
   Widget build(BuildContext context) {
@@ -377,17 +371,17 @@ class FeedReplyCard extends StatelessWidget {
                 ),
           ),
         ),
-        IconText(
+        LikeButton(
+          value: data.replynum,
           icon: Icons.message_outlined,
-          text: data.replynum.toString(),
-          onTap: null,
         ),
-        const SizedBox(width: 10),
-        IconText(
-          icon: Icons.thumb_up_outlined,
-          text: data.likenum.toString(),
-          onTap: () {
-            SmartDialog.showToast('todo: like');
+        LikeButton(
+          value: data.likenum,
+          like: data.userAction?.like,
+          onClick: () {
+            if (GlobalData().isLogin && onLike != null) {
+              onLike!(data.id, data.userAction?.like);
+            }
           },
         ),
       ],

@@ -10,10 +10,7 @@ class EmotePanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView.count(
-      padding: EdgeInsets.only(
-          left: 10,
-          right: 10,
-          bottom: 10 + MediaQuery.of(context).padding.bottom),
+      padding: const EdgeInsets.only(left: 10, right: 10),
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
       crossAxisCount: 7,
@@ -21,6 +18,7 @@ class EmotePanel extends StatelessWidget {
       children: (EmojiUtil.emojiMap.keys.toList()..removeRange(0, 4))
           .map(
             (emoji) => Material(
+              color: Colors.transparent,
               child: InkWell(
                 onTap: () => onClick(emoji),
                 borderRadius: BorderRadius.circular(8),

@@ -1,12 +1,18 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../components/cards/search_history_card.dart';
 import '../../pages/blacklist/black_list_controller.dart';
+import '../../utils/date_util.dart';
 
-// ignore: constant_identifier_names
-enum BlackListType { User, Topic }
+enum BlackListType { user, topic }
 
 class BlackListPage extends StatefulWidget {
   const BlackListPage({super.key});
@@ -47,7 +53,7 @@ class _BlackListPageState extends State<BlackListPage> {
                 setState(() => _shouldShowClearBtn = value.isNotEmpty),
             decoration: InputDecoration(
               border: InputBorder.none,
-              hintText: _type == BlackListType.User ? 'uid' : 'topic',
+              hintText: _type == BlackListType.user ? 'uid' : 'topic',
               hintStyle: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.normal,
@@ -55,7 +61,7 @@ class _BlackListPageState extends State<BlackListPage> {
             ),
             // keyboardType:
             // _type == BlackListType.User ? TextInputType.number : null,
-            inputFormatters: _type == BlackListType.User
+            inputFormatters: _type == BlackListType.user
                 ? [FilteringTextInputFormatter.digitsOnly]
                 : null,
             textInputAction: TextInputAction.done,
@@ -72,19 +78,21 @@ class _BlackListPageState extends State<BlackListPage> {
           actions: [
             if (_shouldShowClearBtn)
               IconButton(
-                  onPressed: () {
-                    _textController.clear();
-                    _focusNode.requestFocus();
-                    setState(() => _shouldShowClearBtn = false);
-                  },
-                  icon: const Icon(Icons.clear)),
+                onPressed: () {
+                  _textController.clear();
+                  _focusNode.requestFocus();
+                  setState(() => _shouldShowClearBtn = false);
+                },
+                icon: const Icon(Icons.clear),
+                tooltip: 'Clear',
+              ),
             if (_controller.dataList.isNotEmpty)
               IconButton(
                 onPressed: () => showDialog(
                   context: context,
                   builder: (context) => AlertDialog(
                     title: Text(
-                        '确定清除全部${_type == BlackListType.User ? '用户' : '话题'}黑名单？'),
+                        '确定清除全部${_type == BlackListType.user ? '用户' : '话题'}黑名单？'),
                     actions: [
                       TextButton(
                         onPressed: () => Get.back(),
@@ -102,7 +110,50 @@ class _BlackListPageState extends State<BlackListPage> {
                 ),
                 icon: const Icon(Icons.clear_all),
                 tooltip: 'Clear All',
-              )
+              ),
+            IconButton(
+              onPressed: () {
+                if (_controller.dataList.isNotEmpty) {
+                  try {
+                    Share.shareXFiles([
+                      XFile.fromData(
+                          utf8.encode(_controller.dataList.toString()),
+                          mimeType: 'text/plain')
+                    ], fileNameOverrides: [
+                      '${_type.name}-blacklist_${DateUtil.format(DateTime.now().microsecondsSinceEpoch ~/ 1000)}.json'
+                    ]);
+                  } catch (e) {
+                    SmartDialog.showToast('导出失败');
+                    print(e.toString());
+                  }
+                }
+              },
+              icon: const Icon(Icons.file_upload_outlined),
+              tooltip: 'Export',
+            ),
+            IconButton(
+              onPressed: () async {
+                try {
+                  FilePickerResult? result =
+                      await FilePicker.platform.pickFiles();
+                  if (result != null) {
+                    File file = File(result.files.single.path ?? '');
+                    String dataString = await file.readAsString();
+                    List<String> dataList =
+                        (jsonDecode(dataString) as List<dynamic>)
+                            .map((data) => data.toString())
+                            .toList();
+                    await _controller.onImport(dataList);
+                    SmartDialog.showToast('导入成功');
+                  }
+                } catch (e) {
+                  SmartDialog.showToast('导入失败');
+                  print(e.toString());
+                }
+              },
+              icon: const Icon(Icons.file_download_outlined),
+              tooltip: 'Import',
+            ),
           ],
           bottom: const PreferredSize(
               preferredSize: Size.zero, child: Divider(height: 1)),
@@ -128,11 +179,11 @@ class _BlackListPageState extends State<BlackListPage> {
                           onTap: () {
                             try {
                               Get.toNamed(
-                                  '/${_type == BlackListType.User ? 'u' : 't'}/$text');
+                                  '/${_type == BlackListType.user ? 'u' : 't'}/$text');
                             } catch (e) {
                               try {
                                 Get.toNamed(
-                                    '/${_type == BlackListType.User ? 'u' : 't'}/${Uri.encodeComponent(text)}');
+                                    '/${_type == BlackListType.user ? 'u' : 't'}/${Uri.encodeComponent(text)}');
                               } catch (e) {
                                 print('failed to view $text');
                               }

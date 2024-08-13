@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../logic/model/fav_history/fav_history.dart';
 import '../../logic/model/feed/datum.dart';
+import '../../logic/model/feed/user_action.dart';
 import '../../logic/model/feed_article/feed_article.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
@@ -178,5 +179,14 @@ class FeedController extends CommonController {
       replyList.insert(topReply == null ? 0 : 1, data);
     }
     loadingState.value = LoadingState.success(replyList);
+  }
+
+  @override
+  bool handleLike(dynamic like, dynamic likenum) {
+    Datum data = (feedState.value as Success).response;
+    feedState.value = LoadingState.success(data
+      ..likenum = likenum
+      ..userAction = UserAction(like: like == 1 ? 0 : 1));
+    return true;
   }
 }

@@ -12,6 +12,7 @@ import '../../pages/search/search_result_page.dart'
 class SearchResultContent extends StatefulWidget {
   const SearchResultContent({
     super.key,
+    required this.random,
     required this.searchContentType,
     required this.keyword,
     this.title,
@@ -19,6 +20,7 @@ class SearchResultContent extends StatefulWidget {
     this.pageParam,
   });
 
+  final String random;
   final SearchContentType searchContentType;
   final String keyword;
   final String? title;
@@ -50,7 +52,8 @@ class _SearchResultContentState extends State<SearchResultContent>
       pageType: widget.pageType,
       pageParam: widget.pageParam,
     ),
-    tag: '$_type${widget.keyword}${widget.pageType}${widget.pageParam}',
+    tag:
+        '$_type${widget.keyword}${widget.pageType}${widget.pageParam}${widget.random}',
   );
 
   late final SearchOrderController _searchOrderController;
@@ -69,7 +72,7 @@ class _SearchResultContentState extends State<SearchResultContent>
     _searchController.scrollController = ScrollController();
     _searchController.returnTopController = Get.find<ReturnTopController>(
         tag:
-            '${widget.keyword}${widget.title}${widget.pageType}${widget.pageParam}');
+            '${widget.keyword}${widget.title}${widget.pageType}${widget.pageParam}${widget.random}');
 
     _searchController.returnTopController?.index.listen((index) {
       if (index == SearchContentType.values.indexOf(widget.searchContentType)) {
@@ -79,7 +82,7 @@ class _SearchResultContentState extends State<SearchResultContent>
 
     _searchOrderController = Get.find<SearchOrderController>(
         tag:
-            '${widget.keyword}${widget.title}${widget.pageType}${widget.pageParam}');
+            '${widget.keyword}${widget.title}${widget.pageType}${widget.pageParam}${widget.random}');
     _searchOrderController.searchType.listen((type) {
       _searchController.feedType = switch (type) {
         SearchType.ALL => 'all',

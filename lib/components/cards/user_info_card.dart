@@ -1,18 +1,25 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 
 import '../../logic/model/feed/datum.dart';
 import '../../pages/ffflist/ffflist_page.dart';
 import '../../utils/date_util.dart';
+import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 class UserInfoCard extends StatelessWidget {
-  const UserInfoCard({super.key, required this.data});
+  const UserInfoCard({
+    super.key,
+    required this.data,
+    required this.onFollow,
+  });
 
   final Datum data;
+  final Function(dynamic uid, dynamic isFollow) onFollow;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +99,16 @@ class UserInfoCard extends StatelessWidget {
                 children: [
                   IconButton.outlined(
                     onPressed: () {
-                      SmartDialog.showToast('todo: pm');
+                      if (GlobalData().isLogin) {
+                        int uid = data.uid;
+                        int mUid = int.parse(GlobalData().uid);
+                        String ukey = '${min(uid, mUid)}_${max(uid, mUid)}';
+                        Get.toNamed('/chat', parameters: {
+                          'ukey': ukey,
+                          'uid': data.uid.toString(),
+                          'username': data.username ?? '',
+                        });
+                      }
                     },
                     icon: const Icon(Icons.mail_outline, size: 21),
                     style: IconButton.styleFrom(
@@ -114,7 +130,9 @@ class UserInfoCard extends StatelessWidget {
                   const SizedBox(width: 10),
                   FilledButton.tonal(
                     onPressed: () {
-                      SmartDialog.showToast('todo: 关注');
+                      if (GlobalData().isLogin) {
+                        onFollow(data.uid, data.isFollow);
+                      }
                     },
                     style: FilledButton.styleFrom(
                       visualDensity: const VisualDensity(
@@ -122,7 +140,7 @@ class UserInfoCard extends StatelessWidget {
                         vertical: -2,
                       ),
                     ),
-                    child: const Text('关注'),
+                    child: Text(data.isFollow == 1 ? '取消关注' : '关注'),
                   ),
                 ],
               ),

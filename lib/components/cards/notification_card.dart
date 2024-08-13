@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart';
@@ -18,10 +17,12 @@ class NotificationCard extends StatelessWidget {
     super.key,
     required this.data,
     this.onBlock,
+    this.onDelete,
   });
 
   final Datum data;
   final Function(dynamic uid)? onBlock;
+  final Function(dynamic id)? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +65,11 @@ class NotificationCard extends StatelessWidget {
                             onBlock: onBlock != null
                                 ? () => onBlock!(data.uid)
                                 : null,
+                            onDelete: () {
+                              if (onDelete != null) {
+                                onDelete!(data.id);
+                              }
+                            },
                           );
                         },
                       ),
@@ -152,20 +158,23 @@ class _MorePanel extends StatelessWidget {
     required this.uid,
     required this.note,
     required this.onBlock,
+    required this.onDelete,
   });
 
   final String id;
   final String uid;
   final String note;
   final Function()? onBlock;
+  final Function()? onDelete;
 
   Future<dynamic> menuActionHandler(PanelAction type,
       {BuildContext? context, String? rid, String? frid}) async {
     switch (type) {
       case PanelAction.delete:
         Get.back();
-        // todo: delete
-        SmartDialog.showToast('delete');
+        if (onDelete != null) {
+          onDelete!();
+        }
         break;
       case PanelAction.block:
         Get.back();

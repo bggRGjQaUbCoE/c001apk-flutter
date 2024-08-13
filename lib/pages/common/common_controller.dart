@@ -4,6 +4,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide Response, FormData;
 
 import '../../logic/model/feed/datum.dart';
+import '../../logic/model/feed/user_action.dart';
 import '../../logic/model/login/login_response.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
@@ -81,7 +82,7 @@ abstract class CommonController extends GetxController {
     this.loadingState.value = loadingState;
   }
 
-  void animateToTop() async {
+  Future<void> animateToTop() async {
     await scrollController?.animateTo(0,
         duration: const Duration(milliseconds: 500), curve: Curves.ease);
     returnTopController?.setIndex(999);
@@ -94,14 +95,37 @@ abstract class CommonController extends GetxController {
         dataList.where((item) => item.uid != uid).toList());
   }
 
-  Future<void> onDeleteFeedOrReply(bool isFeed, dynamic id, dynamic fid) async {
-    String url = isFeed ? '/v6/feed/deleteFeed' : '/v6/feed/deleteReply';
+  Future<void> postLikeDeleteFollow(
+    dynamic id,
+    dynamic fid, {
+    bool isFollow = false,
+    bool isFeed = false,
+    bool isReply = false,
+    bool isNoti = false,
+    bool isProduct = false,
+  }) async {
+    String url = isFeed
+        ? '/v6/feed/deleteFeed'
+        : isReply
+            ? '/v6/feed/deleteReply'
+            : isNoti
+                ? '/v6/notification/delete'
+                : '/v6/product/changeFollowStatus';
     try {
-      Response response = await NetworkRepo.postLikeDeleteFollow(url, id: id);
+      Response response = await NetworkRepo.postLikeDeleteFollow(
+        url,
+        id: isProduct ? null : id,
+        data: isProduct
+            ? FormData.fromMap({'id': id, 'status': isFollow ? 0 : 1})
+            : null,
+      );
       LoginResponse data = LoginResponse.fromJson(response.data);
       if (!data.message.isNullOrEmpty) {
         SmartDialog.showToast(data.message!);
-      } else if (data.data == '删除成功') {
+        if (isProduct) {
+          handleGetFollow();
+        }
+      } else if (data.data != null) {
         List<Datum> dataList = (loadingState.value as Success).response;
         if (fid != null) {
           dataList = dataList.map((data) {
@@ -122,5 +146,82 @@ abstract class CommonController extends GetxController {
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  bool handleLike(dynamic like, dynamic likenum) {
+    return false;
+  }
+
+  Future<void> onLike(
+    dynamic id,
+    dynamic like, {
+    bool isFeed = false,
+    bool isReply = false,
+  }) async {
+    try {
+      String isLike = isFeed
+          ? (like == 1 ? 'unlike' : 'like')
+          : (like == 1 ? 'unLikeReply' : 'likeReply');
+      Response response =
+          await NetworkRepo.postLikeDeleteFollow('/v6/feed/$isLike', id: id);
+      LoginResponse datum = LoginResponse.fromJson(response.data);
+      if (!datum.message.isNullOrEmpty) {
+        SmartDialog.showToast(datum.message!);
+      } else {
+        if (isFeed && handleLike(like, datum.data['count'])) {
+          return;
+        }
+        List<Datum> dataList = (loadingState.value as Success).response;
+        dataList = dataList.map((data) {
+          if (data.id == id) {
+            return data
+              ..likenum = isFeed ? datum.data['count'] : datum.data
+              ..userAction = UserAction(like: like == 1 ? 0 : 1);
+          } else {
+            return data;
+          }
+        }).toList();
+        loadingState.value = LoadingState.success(dataList);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void handleGetFollow() {}
+
+  Future<void> onGetFollow(
+    bool isFollow,
+    String url, {
+    dynamic tag,
+    dynamic id,
+  }) async {
+    try {
+      Response response = await NetworkRepo.getFollow(url, tag: tag, id: id);
+      LoginResponse data = LoginResponse.fromJson(response.data);
+      if (!data.message.isNullOrEmpty) {
+        SmartDialog.showToast(data.message!);
+        if (tag != null) {
+          handleGetFollow();
+        }
+      } else if (data.data != null) {
+        SmartDialog.showToast(isFollow ? '取消关注成功' : '关注成功');
+        handleGetFollow();
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void onPM(dynamic id) {
+    List<Datum> dataList = (loadingState.value as Success).response;
+    dataList = dataList.map((data) {
+      if (data.id == id) {
+        return data..unreadNum = null;
+      } else {
+        return data;
+      }
+    }).toList();
+    loadingState.value = LoadingState.success(dataList);
   }
 }

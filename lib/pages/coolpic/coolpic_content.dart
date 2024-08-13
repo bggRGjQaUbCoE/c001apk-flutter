@@ -8,10 +8,12 @@ import '../../pages/home/return_top_controller.dart';
 class CoolpicContent extends StatefulWidget {
   const CoolpicContent({
     super.key,
+    required this.random,
     required this.type,
     required this.title,
   });
 
+  final String random;
   final String type;
   final String title;
 
@@ -26,7 +28,7 @@ class _CoolpicContentState extends State<CoolpicContent>
 
   late final _coolpicController = Get.put(
     CoolpicController(type: widget.type, title: widget.title),
-    tag: widget.type + widget.title,
+    tag: widget.type + widget.title + widget.random,
   );
 
   @override
@@ -36,7 +38,7 @@ class _CoolpicContentState extends State<CoolpicContent>
     _coolpicController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _coolpicController.scrollController = ScrollController();
     _coolpicController.returnTopController =
-        Get.find<ReturnTopController>(tag: widget.title);
+        Get.find<ReturnTopController>(tag: widget.title + widget.random);
 
     _coolpicController.returnTopController?.index.listen((index) {
       if ((index == 0 && widget.type == 'recommend') ||

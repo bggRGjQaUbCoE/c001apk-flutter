@@ -1,9 +1,13 @@
-import 'package:get/get.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
+import 'package:get/get.dart' hide Response;
 
 import '../../logic/model/feed/datum.dart';
+import '../../logic/model/login/login_response.dart';
 import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/common/common_controller.dart';
+import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 
 class UserController extends CommonController {
@@ -74,5 +78,22 @@ class UserController extends CommonController {
   void onInit() {
     super.onInit();
     onGetUserData();
+  }
+
+  Future<void> onFollow(dynamic uid, dynamic isFollow) async {
+    try {
+      String url = isFollow == 1 ? '/v6/user/unfollow' : '/v6/user/follow';
+      Response response = await NetworkRepo.postLikeDeleteFollow(url, uid: uid);
+      LoginResponse datum = LoginResponse.fromJson(response.data);
+      if (!datum.message.isNullOrEmpty) {
+        SmartDialog.showToast(datum.message!);
+      } else if (datum.data != null) {
+        Datum data = (userState.value as Success).response;
+        userState.value = LoadingState.success(data..isFollow = datum.data);
+        SmartDialog.showToast(isFollow == 1 ? '取消关注成功' : '关注成功');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }

@@ -280,6 +280,7 @@ class Datum {
   String? isOpenTitle;
   @JsonKey(name: 'item_num')
   int? itemNum;
+  dynamic isFollow;
 
   Datum({
     this.entityId,
@@ -470,6 +471,7 @@ class Datum {
     this.description,
     this.isOpenTitle,
     this.itemNum,
+    this.isFollow,
   });
 
   factory Datum.fromJson(Map<String, dynamic> json) => _$DatumFromJson(json);

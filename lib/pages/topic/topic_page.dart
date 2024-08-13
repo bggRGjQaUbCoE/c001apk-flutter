@@ -7,6 +7,7 @@ import '../../pages/home/return_top_controller.dart';
 import '../../pages/topic/topic_content.dart';
 import '../../pages/topic/topic_controller.dart';
 import '../../pages/topic/topic_order_controller.dart';
+import '../../utils/device_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
@@ -14,7 +15,7 @@ import '../../utils/utils.dart';
 import '../../pages/feed/reply/reply_dialog.dart';
 
 // ignore: constant_identifier_names
-enum TopicMenuItem { Copy, Share, Sort, Block }
+enum TopicMenuItem { Copy, Share, Sort, Follow, Block }
 
 // ignore: constant_identifier_names
 enum TopicSortType { DEFAULT, DATELINE, HOT }
@@ -37,6 +38,8 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
   late final TopicOrderController _topicOrderController;
   late final TopicController _topicController;
 
+  late final String _random = DeviceUtil.randHexString(8);
+
   @override
   void initState() {
     super.initState();
@@ -49,12 +52,12 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
       }
     }
 
-    _pageScrollController = Get.put(ReturnTopController(), tag: _tag ?? _id);
-    _topicOrderController = Get.put(TopicOrderController(), tag: _tag ?? _id);
-    _topicController = Get.put(
-      TopicController(tag: _tag, id: _id),
-      tag: '$_tag$_id',
-    );
+    _pageScrollController =
+        Get.put(ReturnTopController(), tag: (_tag ?? _id!) + _random);
+    _topicOrderController =
+        Get.put(TopicOrderController(), tag: (_tag ?? _id!) + _random);
+    _topicController =
+        Get.put(TopicController(tag: _tag, id: _id), tag: '$_tag$_id$_random');
     _topicController.initialIndex.listen((initialIndex) {
       _tabController = TabController(
         vsync: this,
@@ -163,6 +166,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                             : _topicController.id!,
                       }),
                       icon: const Icon(Icons.search),
+                      tooltip: 'Search',
                     ),
                   PopupMenuButton(
                     onSelected: (TopicMenuItem item) {
@@ -189,6 +193,26 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                           break;
                         case TopicMenuItem.Sort:
                           _showPopupMenu();
+                          break;
+                        case TopicMenuItem.Follow:
+                          if (GlobalData().isLogin) {
+                            if (_topicController.entityType == 'topic') {
+                              _topicController.onGetFollow(
+                                _topicController.isFollow,
+                                _topicController.isFollow
+                                    ? "/v6/feed/unFollowTag"
+                                    : "/v6/feed/followTag",
+                                tag: _topicController.title,
+                              );
+                            } else {
+                              _topicController.postLikeDeleteFollow(
+                                _topicController.id,
+                                null,
+                                isProduct: true,
+                                isFollow: _topicController.isFollow,
+                              );
+                            }
+                          }
                           break;
                         case TopicMenuItem.Block:
                           GStorage.onBlock(
@@ -224,6 +248,11 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                           ),
                         ),
                       PopupMenuItem(
+                        value: TopicMenuItem.Follow,
+                        child: Text(
+                            _topicController.isFollow ? 'UnFollow' : 'Follow'),
+                      ),
+                      PopupMenuItem(
                         value: TopicMenuItem.Block,
                         child: Text(
                             _topicController.isBlocked ? 'UnBlock' : 'Block'),
@@ -240,6 +269,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                       controller: _tabController,
                       children: _topicController.tabList!
                           .map((item) => TopicContent(
+                                random: _random,
                                 tag: _topicController.tag,
                                 id: _topicController.id,
                                 index: _topicController.tabList!.indexOf(item),

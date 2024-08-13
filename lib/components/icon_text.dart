@@ -15,7 +15,7 @@ class IconText extends StatelessWidget {
       children: [
         Icon(
           icon,
-          size: 14,
+          size: MediaQuery.textScalerOf(context).scale(14),
           color: Theme.of(context).colorScheme.outline,
         ),
         Flexible(

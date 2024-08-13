@@ -8,11 +8,13 @@ import '../../pages/home/return_top_controller.dart';
 class DyhContent extends StatefulWidget {
   const DyhContent({
     super.key,
+    required this.random,
     required this.type,
     required this.id,
     required this.title,
   });
 
+  final String random;
   final String type;
   final String id;
   final String title;
@@ -28,7 +30,7 @@ class _DyhContentState extends State<DyhContent>
 
   late final _dyhController = Get.put(
     DyhController(type: widget.type, id: widget.id),
-    tag: widget.type + widget.id,
+    tag: widget.type + widget.id + widget.random,
   );
 
   @override
@@ -37,8 +39,8 @@ class _DyhContentState extends State<DyhContent>
 
     _dyhController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _dyhController.scrollController = ScrollController();
-    _dyhController.returnTopController =
-        Get.find<ReturnTopController>(tag: widget.id + widget.title);
+    _dyhController.returnTopController = Get.find<ReturnTopController>(
+        tag: widget.id + widget.title + widget.random);
 
     _dyhController.returnTopController?.index.listen((index) {
       if ((index == 0 && widget.type == 'all') ||

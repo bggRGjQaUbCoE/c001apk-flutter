@@ -1,12 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 
 import '../../components/cards/icon_mini_scroll_card.dart' show miniCardItem;
 import '../../components/html_text.dart';
 import '../../components/icon_text.dart';
 import '../../components/imageview.dart';
+import '../../components/like_button.dart';
 import '../../components/no_splash_factory.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../utils/date_util.dart';
@@ -23,6 +23,7 @@ class FeedCard extends StatelessWidget {
     this.isHistory = false,
     this.onDelete,
     this.onBlock,
+    this.onLike,
   });
 
   final Datum data;
@@ -30,6 +31,7 @@ class FeedCard extends StatelessWidget {
   final bool isHistory;
   final Function(dynamic id)? onDelete;
   final Function(dynamic uid)? onBlock;
+  final Function(dynamic id, dynamic like)? onLike;
 
   void _onViewFeed() {
     Get.toNamed('/feed/${data.id}');
@@ -73,7 +75,11 @@ class FeedCard extends StatelessWidget {
                 _forwardSourceFeed(context),
               if (!data.extraUrl.isNullOrEmpty) _extraUrl(context),
               if (!data.replyRows.isNullOrEmpty) _hotReply(context),
-              bottomInfo(context, data, isFeedContent, _onViewFeed),
+              bottomInfo(context, data, isFeedContent, _onViewFeed, () {
+                if (onLike != null) {
+                  onLike!(data.id, data.userAction?.like);
+                }
+              }),
               if (data.targetRow != null || !data.relationRows.isNullOrEmpty)
                 _rows(context),
             ],
@@ -389,12 +395,10 @@ Widget header(
                                 : Utils.parseHtmlString(data.infoHtml.orEmpty),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodyMedium!
-                                .copyWith(
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
                           ),
                           const SizedBox(width: 10),
                         ],
@@ -469,7 +473,8 @@ Widget bottomInfo(
   BuildContext context,
   Datum data,
   bool isFeedContent,
-  Function()? onViewFeed, {
+  Function()? onViewFeed,
+  Function()? onLike, {
   bool isFeedArticle = false,
 }) {
   return Padding(
@@ -496,18 +501,22 @@ Widget bottomInfo(
           ),
         ),
         if (data.replynum != null)
-          IconText(
+          LikeButton(
+            value: data.replynum,
             icon: Icons.message_outlined,
-            text: data.replynum.toString(),
-            onTap: isFeedContent ? null : onViewFeed,
+            // onClick: () {
+            //   // todo
+            //   SmartDialog.showToast('${data.replynum}');
+            // },
           ),
-        const SizedBox(width: 10),
         if (data.likenum != null)
-          IconText(
-            icon: Icons.thumb_up_outlined,
-            text: data.likenum.toString(),
-            onTap: () {
-              SmartDialog.showToast('todo: like');
+          LikeButton(
+            value: data.likenum,
+            like: data.userAction?.like,
+            onClick: () {
+              if (GlobalData().isLogin && onLike != null) {
+                onLike();
+              }
             },
           ),
       ],

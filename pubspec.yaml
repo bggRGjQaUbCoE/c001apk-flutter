@@ -45,6 +45,7 @@ dependencies:
   dynamic_color: ^1.7.0
   expandable_page_view: ^1.0.17
   extended_nested_scroll_view: ^6.2.1
+  file_picker: ^8.1.1
   flutter_inappwebview: ^6.0.0
   flutter_smart_dialog: ^4.9.7+9
   flutter_widget_from_html_core: ^0.15.1

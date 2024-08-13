@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../pages/app/app_page.dart';
 import '../pages/blacklist/black_list_page.dart';
 import '../pages/carousel/carousel_page.dart';
+import '../pages/chat/chat_page.dart';
 import '../pages/coolpic/coolpic_page.dart';
 import '../pages/dyh/dyh_page.dart';
 import '../pages/feed/feed_page.dart';
@@ -123,6 +124,10 @@ class AppPages {
     _getPage(
       name: '/blacklist',
       page: () => const BlackListPage(),
+    ),
+    _getPage(
+      name: '/chat',
+      page: () => const ChatPage(),
     ),
   ];
 }

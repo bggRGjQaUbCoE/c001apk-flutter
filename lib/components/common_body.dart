@@ -60,10 +60,6 @@ Widget buildBody(
     dynamic uname,
     dynamic fid,
   )? onReply,
-  Function(
-    dynamic id,
-    dynamic fid,
-  )? onDelete,
 }) {
   switch (commonController.loadingState.value) {
     case Empty():
@@ -122,7 +118,9 @@ Widget buildBody(
               uid: uid,
               onBlock: commonController.onBlock,
               onReply: onReply,
-              onDelete: commonController.onDeleteFeedOrReply,
+              onDelete: commonController.postLikeDeleteFollow,
+              onLike: commonController.onLike,
+              onPM: commonController.onPM,
             );
           }
         },

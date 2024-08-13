@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../pages/coolpic/coolpic_content.dart';
 import '../../pages/home/return_top_controller.dart';
+import '../../utils/device_util.dart';
 
 class CoolpicPage extends StatefulWidget {
   const CoolpicPage({super.key});
@@ -19,6 +20,8 @@ class _CoolpicPageState extends State<CoolpicPage>
       TabController(vsync: this, length: 3);
   late final ReturnTopController _returnTopController;
 
+  late final String _random = DeviceUtil.randHexString(8);
+
   @override
   void initState() {
     super.initState();
@@ -27,7 +30,8 @@ class _CoolpicPageState extends State<CoolpicPage>
     } catch (e) {
       print(e.toString());
     }
-    _returnTopController = Get.put(ReturnTopController(), tag: _title);
+    _returnTopController =
+        Get.put(ReturnTopController(), tag: _title + _random);
   }
 
   @override
@@ -55,6 +59,7 @@ class _CoolpicPageState extends State<CoolpicPage>
         controller: _tabController,
         children: ['recommend', 'hot', 'newest']
             .map((type) => CoolpicContent(
+                  random: _random,
                   type: type,
                   title: _title,
                 ))

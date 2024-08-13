@@ -33,7 +33,6 @@ class FeedPage extends StatefulWidget {
 class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   final String _id = Get.parameters['id'].orEmpty;
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
-  late final bool _isLogin = GlobalData().isLogin;
   AnimationController? _fabAnimationCtr;
   late bool _isFabVisible = true;
   late final _scrollController = ScrollController();
@@ -41,7 +40,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    if (_isLogin) {
+    if (GlobalData().isLogin) {
       _fabAnimationCtr = AnimationController(
           vsync: this, duration: const Duration(milliseconds: 300));
       _fabAnimationCtr?.forward();
@@ -126,6 +125,15 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
             ? FeedCard(
                 data: feedState.response!,
                 isFeedContent: true,
+                onLike: (id, like) {
+                  if (GlobalData().isLogin) {
+                    _feedController.onLike(
+                      id,
+                      like,
+                      isFeed: true,
+                    );
+                  }
+                },
               )
             : SliverList.separated(
                 itemCount: _feedController.articleList!.length + 2,
@@ -145,6 +153,16 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                         true,
                         null,
                         isFeedArticle: true,
+                        () {
+                          if (GlobalData().isLogin) {
+                            Datum data = feedState.response;
+                            _feedController.onLike(
+                              data.id,
+                              data.userAction?.like,
+                              isFeed: true,
+                            );
+                          }
+                        },
                       ),
                     );
                   } else {
@@ -322,7 +340,11 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                     }
                   },
                   onDelete: (id, fid) {
-                    _feedController.onDeleteFeedOrReply(false, id, fid);
+                    _feedController.postLikeDeleteFollow(id, fid,
+                        isReply: true);
+                  },
+                  onLike: (id, like) {
+                    _feedController.onLike(id, like, isReply: true);
                   },
                 );
               }
@@ -345,7 +367,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Obx(
-        () => _feedController.feedState.value is Success && _isLogin
+        () => _feedController.feedState.value is Success && GlobalData().isLogin
             ? SlideTransition(
                 position: Tween<Offset>(
                   begin: const Offset(0, 2),

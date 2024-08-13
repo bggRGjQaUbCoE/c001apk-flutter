@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response, FormData;
 import 'package:get/get_connect/http/src/status/http_status.dart';
-import 'package:hive/hive.dart';
 
 import '../../constants/constants.dart';
 import '../../logic/model/feed/data_list_model.dart';
@@ -15,7 +14,67 @@ import '../../utils/storage_util.dart';
 import '../../utils/token_util.dart';
 
 class NetworkRepo {
-  static final Box _blackList = GStorage.blackList;
+  static Future<Response> sendMessage({
+    required dynamic uid,
+    required FormData data,
+  }) async {
+    return Request().post(
+      Api.getDataFromUrl('/v6/message/send'),
+      queryParameters: {
+        'uid': uid,
+      },
+      data: data,
+    );
+  }
+
+  static Future<Response> getImageUrl({
+    required dynamic id,
+  }) async {
+    return Request().get(
+      Api.getDataFromUrl('/v6/message/showImage'),
+      queryParameters: {
+        'id': id,
+        'type': 's',
+      },
+      options: Options(followRedirects: false),
+    );
+  }
+
+  static Future<Response> deleteMsg(
+    String url, {
+    dynamic ukey,
+    dynamic id,
+  }) async {
+    return Request().get(
+      Api.getDataFromUrl(url),
+      queryParameters: {
+        if (ukey != null) 'ukey': ukey,
+        if (id != null) 'id': id,
+      },
+    );
+  }
+
+  static Future<LoadingState> messageOperation(
+    String url, {
+    String? ukey,
+    String? uid,
+    int? page,
+    dynamic firstItem,
+    dynamic lastItem,
+  }) async {
+    return getListData(
+      () => Request().get(
+        Api.getDataFromUrl(url),
+        queryParameters: {
+          if (ukey != null) 'ukey': ukey,
+          if (uid != null) 'uid': uid,
+          if (page != null) 'page': page,
+          if (firstItem != null) 'firstItem': firstItem,
+          if (lastItem != null) 'lastItem': lastItem,
+        },
+      ),
+    );
+  }
 
   static Future<Response> getFollow(
     String url, {
@@ -23,7 +82,7 @@ class NetworkRepo {
     String? id,
   }) async {
     return Request().get(
-      Api.postRequestValidate,
+      Api.getDataFromUrl(url),
       queryParameters: {
         if (tag != null) 'tag': tag,
         if (id != null) 'id': id,
@@ -222,7 +281,7 @@ class NetworkRepo {
     required int id,
     required int versionCode,
   }) async {
-    return await Request().get(
+    return Request().get(
       Api.getAppDownloadUrl,
       queryParameters: {
         'pn': packageName,
@@ -411,9 +470,9 @@ class NetworkRepo {
         return LoadingState.error(response.data['message']);
       } else {
         if (!responseData.data.isNullOrEmpty) {
-          List<String> userBlackList = _blackList
+          List<String> userBlackList = GStorage.blackList
               .get(BlackListBoxKey.userBlackList, defaultValue: <String>[]);
-          List<String> topicBlackList = _blackList
+          List<String> topicBlackList = GStorage.blackList
               .get(BlackListBoxKey.topicBlackList, defaultValue: <String>[]);
           List<Datum> filterList = responseData.data!.where((item) {
             return (Constants.entityTypeList.contains(item.entityType) ||

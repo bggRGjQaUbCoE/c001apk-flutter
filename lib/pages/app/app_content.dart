@@ -10,11 +10,13 @@ import '../../pages/home/return_top_controller.dart';
 class AppContent extends StatefulWidget {
   const AppContent({
     super.key,
+    required this.random,
     required this.packageName,
     required this.appType,
     required this.id,
   });
 
+  final String random;
   final String packageName;
   final AppType appType;
   final String id;
@@ -38,7 +40,7 @@ class _AppContentState extends State<AppContent>
       url: _url,
       title: _title,
     ),
-    tag: widget.id + widget.appType.name,
+    tag: widget.id + widget.appType.name + widget.random,
   );
 
   @override
@@ -62,7 +64,7 @@ class _AppContentState extends State<AppContent>
     _appController.scrollController = NestedInnerScrollController();
     _appController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _appController.returnTopController =
-        Get.find<ReturnTopController>(tag: widget.packageName);
+        Get.find<ReturnTopController>(tag: widget.packageName + widget.random);
     _appController.returnTopController?.index.listen((index) {
       if (index == AppType.values.indexOf(widget.appType)) {
         _appController.animateToTop();

@@ -27,16 +27,12 @@ Widget itemCard(
   bool isTopReply = false,
   dynamic uid,
   Function(dynamic uid)? onBlock,
-  Function(
-    dynamic id,
-    dynamic uname,
-    dynamic fid,
-  )? onReply,
-  Function(
-    bool isFeed,
-    dynamic id,
-    dynamic fid,
-  )? onDelete,
+  Function(dynamic id, dynamic uname, dynamic fid)? onReply,
+  Function(dynamic id, dynamic fid, {bool isFeed, bool isReply, bool isNoti})?
+      onDelete,
+  Function(dynamic id)? onDeleteNoti,
+  Function(dynamic id, dynamic like, {bool isFeed, bool isReply})? onLike,
+  Function(dynamic id)? onPM,
 }) {
   switch (data.entityType) {
     case 'card':
@@ -69,7 +65,12 @@ Widget itemCard(
         onBlock: onBlock,
         onDelete: (id) {
           if (onDelete != null) {
-            onDelete(true, id, null);
+            onDelete(id, null, isFeed: true);
+          }
+        },
+        onLike: (id, like) {
+          if (onLike != null) {
+            onLike(id, like, isFeed: true);
           }
         },
       );
@@ -86,7 +87,12 @@ Widget itemCard(
           onReply: onReply,
           onDelete: (id, fid) {
             if (onDelete != null) {
-              onDelete(false, id, fid);
+              onDelete(id, fid, isReply: true);
+            }
+          },
+          onLike: (id, like) {
+            if (onLike != null) {
+              onLike(id, like, isReply: true);
             }
           },
         );
@@ -129,11 +135,9 @@ Widget itemCard(
       );
     case 'notification':
       return NotificationCard(
-        data: data,
-        onBlock: onBlock,
-      );
+          data: data, onBlock: onBlock, onDelete: onDeleteNoti);
     case 'message':
-      return MessageCard(data: data);
+      return MessageCard(data: data, onPM: onPM);
     case 'collection':
       return CollectionCard(data: data);
   }

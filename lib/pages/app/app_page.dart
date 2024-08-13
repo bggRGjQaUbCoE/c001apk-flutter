@@ -12,13 +12,14 @@ import '../../pages/app/app_content.dart';
 import '../../pages/app/app_controller.dart';
 import '../../pages/feed/reply/reply_dialog.dart';
 import '../../pages/home/return_top_controller.dart';
+import '../../utils/device_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
 // ignore: constant_identifier_names
-enum AppMenuItem { Copy, Share, Block }
+enum AppMenuItem { Copy, Share, Follow, Block }
 
 enum AppType { reply, dateline, hot }
 
@@ -41,10 +42,13 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
   final _tabs =
       ['最近回复', '最新发布', '热度排序'].map((title) => Tab(text: title)).toList();
 
+  late final String _random = DeviceUtil.randHexString(8);
+
   @override
   void initState() {
     super.initState();
-    _returnTopController = Get.put(ReturnTopController(), tag: _packageName);
+    _returnTopController =
+        Get.put(ReturnTopController(), tag: _packageName + _random);
   }
 
   @override
@@ -104,7 +108,7 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      tag: _packageName,
+      tag: _packageName + _random,
       init: AppController(packageName: _packageName),
       initState: (state) {
         _scrollController.addListener(() {
@@ -169,6 +173,17 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                               Share.share(Utils.getShareUrl(
                                   controller.id!, ShareType.apk));
                               break;
+                            case AppMenuItem.Follow:
+                              if (GlobalData().isLogin) {
+                                controller.onGetFollow(
+                                  controller.isFollow,
+                                  controller.isFollow
+                                      ? '/v6/apk/unFollow'
+                                      : '/v6/apk/follow',
+                                  id: controller.id,
+                                );
+                              }
+                              break;
                             case AppMenuItem.Block:
                               GStorage.onBlock(
                                 controller.appName,
@@ -183,13 +198,17 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                             AppMenuItem.values
                                 .map((item) => PopupMenuItem<AppMenuItem>(
                                       value: item,
-                                      child: item == AppMenuItem.Block
-                                          ? Text(
-                                              controller.isBlocked
-                                                  ? 'UnBlock'
-                                                  : 'Block',
-                                            )
-                                          : Text(item.name),
+                                      child: Text(
+                                        item == AppMenuItem.Block
+                                            ? (controller.isBlocked
+                                                ? 'UnBlock'
+                                                : 'Block')
+                                            : item == AppMenuItem.Follow
+                                                ? (controller.isFollow
+                                                    ? 'UnFollow'
+                                                    : 'Follow')
+                                                : item.name,
+                                      ),
                                     ))
                                 .toList(),
                       ),
@@ -248,6 +267,7 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                               controller: _tabController,
                               children: AppType.values
                                   .map((item) => AppContent(
+                                        random: _random,
                                         packageName: _packageName,
                                         appType: item,
                                         id: controller.id!,

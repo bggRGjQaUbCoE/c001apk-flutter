@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import '../../pages/home/return_top_controller.dart';
 import '../../pages/search/search_order_controller.dart';
 import '../../pages/search/search_result_content.dart';
+import '../../utils/device_util.dart';
 import '../../utils/extensions.dart';
 
 enum SearchContentType { FEED, APP, GAME, TOPIC, PRODUCT, USER }
@@ -46,14 +47,16 @@ class _SearchResultPageState extends State<SearchResultPage>
   late ReturnTopController _pageScrollController;
   late SearchOrderController _searchOrderController;
 
+  late final String _random = DeviceUtil.randHexString(8);
+
   @override
   void initState() {
     super.initState();
 
     _pageScrollController = Get.put(ReturnTopController(),
-        tag: '$_keyword$_title$_pageType$_pageParam');
+        tag: '$_keyword$_title$_pageType$_pageParam$_random');
     _searchOrderController = Get.put(SearchOrderController(),
-        tag: '$_keyword$_title$_pageType$_pageParam');
+        tag: '$_keyword$_title$_pageType$_pageParam$_random');
 
     _tabController = TabController(
       vsync: this,
@@ -150,6 +153,7 @@ class _SearchResultPageState extends State<SearchResultPage>
         children: _title.isNullOrEmpty
             ? SearchContentType.values
                 .map((type) => SearchResultContent(
+                      random: _random,
                       searchContentType: type,
                       keyword: _keyword,
                       title: _title,
@@ -159,6 +163,7 @@ class _SearchResultPageState extends State<SearchResultPage>
                 .toList()
             : [
                 SearchResultContent(
+                  random: _random,
                   searchContentType: SearchContentType.FEED,
                   keyword: _keyword,
                   title: _title,

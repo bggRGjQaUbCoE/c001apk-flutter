@@ -161,6 +161,13 @@ class _MessagePageState extends State<MessagePage> {
                 return itemCard(
                   dataList[index],
                   onBlock: _messageController.onBlock,
+                  onDeleteNoti: (id) {
+                    _messageController.postLikeDeleteFollow(
+                      id,
+                      null,
+                      isNoti: true,
+                    );
+                  },
                 );
               }
             },

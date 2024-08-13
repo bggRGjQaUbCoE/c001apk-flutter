@@ -71,6 +71,7 @@ class _UserPageState extends State<UserPage> {
       case Success():
         return UserInfoCard(
           data: userState.response!,
+          onFollow: _userController.onFollow,
         );
     }
     return const CircularProgressIndicator();

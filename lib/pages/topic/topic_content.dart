@@ -11,6 +11,7 @@ import '../../pages/topic/topic_page.dart' show TopicSortType;
 class TopicContent extends StatefulWidget {
   const TopicContent({
     super.key,
+    required this.random,
     required this.tag,
     required this.id,
     required this.index,
@@ -19,6 +20,7 @@ class TopicContent extends StatefulWidget {
     required this.title,
   });
 
+  final String random;
   final String? tag;
   final String? id;
   final int index;
@@ -40,7 +42,7 @@ class _TopicContentState extends State<TopicContent>
       url: widget.url,
       title: widget.title,
     ),
-    tag: widget.url + widget.title,
+    tag: widget.url + widget.title + widget.random,
   );
 
   late final TopicOrderController? _topicOrderController;
@@ -57,8 +59,8 @@ class _TopicContentState extends State<TopicContent>
 
     _topicController.refreshKey = GlobalKey<RefreshIndicatorState>();
     _topicController.scrollController = ScrollController();
-    _topicController.returnTopController =
-        Get.find<ReturnTopController>(tag: widget.tag ?? widget.id);
+    _topicController.returnTopController = Get.find<ReturnTopController>(
+        tag: (widget.tag ?? widget.id!) + widget.random);
 
     _topicController.returnTopController?.index.listen((index) {
       if (index == widget.index) {
@@ -67,8 +69,8 @@ class _TopicContentState extends State<TopicContent>
     });
 
     if (widget.entityType == 'product' && widget.title == '讨论') {
-      _topicOrderController =
-          Get.find<TopicOrderController>(tag: widget.tag ?? widget.id);
+      _topicOrderController = Get.find<TopicOrderController>(
+          tag: (widget.tag ?? widget.id!) + widget.random);
       _topicOrderController?.topicSortType.listen((type) {
         _topicController.url =
             '/page?url=/product/feedList?type=feed&id=${widget.id}&';

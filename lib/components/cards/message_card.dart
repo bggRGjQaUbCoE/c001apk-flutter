@@ -7,16 +7,28 @@ import '../../utils/date_util.dart';
 import '../../utils/utils.dart';
 
 class MessageCard extends StatelessWidget {
-  const MessageCard({super.key, required this.data});
+  const MessageCard({
+    super.key,
+    required this.data,
+    required this.onPM,
+  });
 
   final Datum data;
+  final Function(dynamic id)? onPM;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(12),
       onTap: () {
-        // todo: pm
+        Get.toNamed('/chat', parameters: {
+          'ukey': data.ukey ?? '',
+          'uid': data.messageUid.toString(),
+          'username': data.messageUsername ?? '',
+        });
+        if (onPM != null) {
+          onPM!(data.id);
+        }
       },
       child: Ink(
         decoration: BoxDecoration(

@@ -409,13 +409,15 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
           AnimatedSize(
             curve: Curves.easeInOut,
             duration: const Duration(milliseconds: 300),
-            child: SizedBox(
+            child: Container(
               width: double.infinity,
               height: _toolbarType == 'input'
                   ? (keyboardHeight > _keyboardHeight
                       ? keyboardHeight
                       : _keyboardHeight)
                   : _emoteHeight,
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom),
               child: EmotePanel(
                 index: 1,
                 onClick: (emoji) {

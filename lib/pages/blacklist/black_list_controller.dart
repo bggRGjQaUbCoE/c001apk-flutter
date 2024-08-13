@@ -3,13 +3,14 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '../../pages/blacklist/black_list_page.dart' show BlackListType;
+import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 
 class BlackListController extends GetxController {
   BlackListController({required this.type});
   final BlackListType type;
 
-  late final String key = type == BlackListType.User
+  late final String key = type == BlackListType.user
       ? BlackListBoxKey.userBlackList
       : BlackListBoxKey.topicBlackList;
   late final Box blackList = GStorage.blackList;
@@ -41,5 +42,11 @@ class BlackListController extends GetxController {
   void clearAll() {
     dataList.value = <String>[];
     blackList.put(key, <String>[]);
+  }
+
+  Future<void> onImport(List<String> dataList) async {
+    List<String> filterList = (dataList + this.dataList).unique();
+    this.dataList.value = filterList;
+    await blackList.put(key, filterList);
   }
 }

@@ -37,9 +37,15 @@ class DateUtil {
     } else {
       final date = DateTime.fromMillisecondsSinceEpoch(time * 1000);
       final DateFormat sdf = date.year == DateTime.now().year
-          ? DateFormat('M月d日')
-          : DateFormat('yyyy年M月d日');
+          ? DateFormat('MM月dd日')
+          : DateFormat('yyyy年MM月dd日');
       return sdf.format(date);
     }
+  }
+
+  static String format(int time, {String pattern = 'yyyy-MM-dd_HH.mm.ss'}) {
+    final date = DateTime.fromMillisecondsSinceEpoch(time);
+    final DateFormat sdf = DateFormat(pattern);
+    return sdf.format(date);
   }
 }

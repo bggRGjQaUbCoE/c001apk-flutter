@@ -4,14 +4,14 @@ class LikeButton extends StatelessWidget {
   const LikeButton({
     super.key,
     required this.value,
-    this.icon,
-    this.like,
+    required this.icon,
+    this.isLike = false,
     this.onClick,
   });
 
   final dynamic value;
-  final dynamic like;
-  final IconData? icon;
+  final IconData icon;
+  final bool isLike;
   final Function()? onClick;
 
   @override
@@ -31,12 +31,8 @@ class LikeButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            like == 1
-                ? Icons.thumb_up
-                : like == 0
-                    ? Icons.thumb_up_outlined
-                    : icon,
-            color: like == 1
+            icon,
+            color: isLike
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.outline,
             size: MediaQuery.textScalerOf(context).scale(14),
@@ -47,7 +43,7 @@ class LikeButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.normal,
-              color: like == 1
+              color: isLike
                   ? Theme.of(context).colorScheme.primary
                   : Theme.of(context).colorScheme.outline,
             ),

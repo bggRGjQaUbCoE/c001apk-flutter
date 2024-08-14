@@ -66,14 +66,17 @@ Widget image(
                 imageUrl: isFeedArticle
                     ? '$articleImg${Constants.SUFFIX_THUMBNAIL}'
                     : '${picArr[index]}${Constants.SUFFIX_THUMBNAIL}',
-                fit: picArr.length == 1 ? BoxFit.fill : BoxFit.cover,
+                fit: isFeedArticle || picArr.length == 1
+                    ? BoxFit.fill
+                    : BoxFit.cover,
                 placeholder: (context, url) => _placeHolder(context),
                 errorWidget: (context, url, error) => _placeHolder(context),
               ),
-              if (picArr[index].endsWith(Constants.SUFFIX_GIF))
+              if ((articleImg ?? picArr[index]).endsWith(Constants.SUFFIX_GIF))
                 _badge(context, 'GIF'),
-              if (!picArr[index].endsWith(Constants.SUFFIX_GIF) &&
-                  _isLongImage(picArr[index]))
+              if (!(articleImg ?? picArr[index])
+                      .endsWith(Constants.SUFFIX_GIF) &&
+                  _isLongImage(articleImg ?? picArr[index]))
                 _badge(context, '长图'),
             ],
           ),

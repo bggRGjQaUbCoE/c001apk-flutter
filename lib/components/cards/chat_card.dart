@@ -16,7 +16,6 @@ class ChatCard extends StatelessWidget {
     required this.onGetImageUrl,
     required this.onLongPress,
     required this.onViewImage,
-    required this.onClearFocus,
   });
 
   final Datum data;
@@ -24,7 +23,6 @@ class ChatCard extends StatelessWidget {
   final Function() onGetImageUrl;
   final Function() onLongPress;
   final Function() onViewImage;
-  final Function() onClearFocus;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +46,6 @@ class ChatCard extends StatelessWidget {
                   height: 40,
                   child: GestureDetector(
                     onTap: () {
-                      onClearFocus();
                       Get.toNamed('/u/${data.messageUid}');
                     },
                     child: CircleAvatar(
@@ -92,7 +89,6 @@ class ChatCard extends StatelessWidget {
                   height: 40,
                   child: GestureDetector(
                     onTap: () {
-                      onClearFocus();
                       Get.toNamed('/u/${data.fromuid}');
                     },
                     child: CircleAvatar(

@@ -92,11 +92,9 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
             setState(() => _loadingState = LoadingState.loading());
             _getData();
           },
-          child: Container(
-            height: 80,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(10.0),
-            child: const Text('EMPTY'),
+          child: const Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Text('EMPTY'),
           ),
         );
       case Error():
@@ -105,9 +103,7 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
             setState(() => _loadingState = LoadingState.loading());
             _getData();
           },
-          child: Container(
-            height: 80,
-            alignment: Alignment.center,
+          child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text((_loadingState as Error).errMsg),
           ),
@@ -136,12 +132,7 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
           separatorBuilder: (_, index) => const SizedBox(height: 10),
         );
     }
-    return Container(
-      height: 80,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(10.0),
-      child: const CircularProgressIndicator(),
-    );
+    return const CircularProgressIndicator();
   }
 
   @override

@@ -36,6 +36,7 @@ class _BlackListPageState extends State<BlackListPage> {
   @override
   void dispose() {
     _focusNode.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -59,8 +60,10 @@ class _BlackListPageState extends State<BlackListPage> {
                 fontWeight: FontWeight.normal,
               ),
             ),
-            // keyboardType:
-            // _type == BlackListType.User ? TextInputType.number : null,
+            keyboardType: _type == BlackListType.user
+                ? const TextInputType.numberWithOptions(
+                    signed: true, decimal: true)
+                : null,
             inputFormatters: _type == BlackListType.user
                 ? [FilteringTextInputFormatter.digitsOnly]
                 : null,

@@ -512,7 +512,10 @@ Widget bottomInfo(
         if (data.likenum != null)
           LikeButton(
             value: data.likenum,
-            like: data.userAction?.like ?? 0,
+            icon: data.userAction?.like == 1
+                ? Icons.thumb_up
+                : Icons.thumb_up_alt_outlined,
+            isLike: data.userAction?.like == 1,
             onClick: () {
               if (GlobalData().isLogin && onLike != null) {
                 onLike();

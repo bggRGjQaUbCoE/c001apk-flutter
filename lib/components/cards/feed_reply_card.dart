@@ -377,7 +377,7 @@ class FeedReplyCard extends StatelessWidget {
         ),
         LikeButton(
           value: data.likenum,
-          like: data.userAction?.like,
+          like: data.userAction?.like ?? 0,
           onClick: () {
             if (GlobalData().isLogin && onLike != null) {
               onLike!(data.id, data.userAction?.like);

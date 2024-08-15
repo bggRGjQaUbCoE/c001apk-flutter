@@ -48,7 +48,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
       try {
         _tag = Uri.decodeComponent(_tag!);
       } catch (e) {
-        print('topic: failed to decode tag: $_tag');
+        debugPrint('topic: failed to decode tag: $_tag');
       }
     }
 

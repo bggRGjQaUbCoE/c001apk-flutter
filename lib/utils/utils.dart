@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import "package:flutter/foundation.dart";
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -99,7 +100,7 @@ class Utils {
         imgWidth = double.parse(url.substring(at + 1, x));
         imgHeight = double.parse(url.substring(x + 1, dot));
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
     }
     return [imgWidth, imgHeight];
@@ -181,7 +182,7 @@ class Utils {
       try {
         uid = Uri.encodeComponent(uid);
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
       Get.toNamed('/u/$uid');
     } else if (path.startsWith(Constants.PREFIX_APP)) {
@@ -195,7 +196,7 @@ class Utils {
       try {
         tag = Uri.encodeComponent(tag);
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
       if (path.contains('type=8')) {
         Get.toNamed('/coolpic', parameters: {'title': tag});
@@ -379,7 +380,7 @@ class Utils {
           toInt: false,
           formatType: formatType);
     }
-    print('distance: $distance');
+    debugPrint('distance: $distance');
     if (distance <= 60) {
       return '刚刚';
     } else if (distance <= 3600) {

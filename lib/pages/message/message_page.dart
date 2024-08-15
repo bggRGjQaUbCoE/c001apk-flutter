@@ -63,7 +63,7 @@ class _MessagePageState extends State<MessagePage> {
             data?.message,
           ]);
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -75,7 +75,7 @@ class _MessagePageState extends State<MessagePage> {
       try {
         username = Uri.encodeComponent(username);
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
       GStorage.setUserAvatar(data?.userAvatar ?? '');
       GStorage.setUsername(username);
@@ -84,7 +84,7 @@ class _MessagePageState extends State<MessagePage> {
       GStorage.setNextExp(data?.nextLevelExperience ?? 1);
       setState(() => _firstList = [data?.feed, data?.follow, data?.fans]);
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 

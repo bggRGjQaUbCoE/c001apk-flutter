@@ -127,7 +127,7 @@ class _BlackListPageState extends State<BlackListPage> {
                     ]);
                   } catch (e) {
                     SmartDialog.showToast('导出失败');
-                    print(e.toString());
+                    debugPrint(e.toString());
                   }
                 }
               },
@@ -151,7 +151,7 @@ class _BlackListPageState extends State<BlackListPage> {
                   }
                 } catch (e) {
                   SmartDialog.showToast('导入失败');
-                  print(e.toString());
+                  debugPrint(e.toString());
                 }
               },
               icon: const Icon(Icons.file_download_outlined),
@@ -188,7 +188,7 @@ class _BlackListPageState extends State<BlackListPage> {
                                 Get.toNamed(
                                     '/${_type == BlackListType.user ? 'u' : 't'}/${Uri.encodeComponent(text)}');
                               } catch (e) {
-                                print('failed to view $text');
+                                debugPrint('failed to view $text');
                               }
                             }
                           },

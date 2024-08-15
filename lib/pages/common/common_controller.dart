@@ -144,7 +144,7 @@ abstract class CommonController extends GetxController {
         SmartDialog.showToast(data.data!);
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -184,7 +184,7 @@ abstract class CommonController extends GetxController {
         loadingState.value = LoadingState.success(dataList);
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -209,7 +209,7 @@ abstract class CommonController extends GetxController {
         handleGetFollow();
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 

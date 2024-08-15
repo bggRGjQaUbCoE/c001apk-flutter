@@ -66,7 +66,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() => _captchaImg = response.data);
     } catch (e) {
       SmartDialog.showToast('无法获取验证码: $e');
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -114,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       SmartDialog.showToast('登陆失败: $e');
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
               .attributes['data-request-hash']);
         } catch (e) {
           SmartDialog.showToast('无法获取requestHash: $e');
-          print('failed to get requestHash: ${e.toString()}');
+          debugPrint('failed to get requestHash: ${e.toString()}');
         }
       }
       try {
@@ -139,7 +139,7 @@ class _LoginPageState extends State<LoginPage> {
         }
       } catch (e) {
         SmartDialog.showToast('无法获取SESSID: $e');
-        print('failed to get SESSID: ${e.toString()}');
+        debugPrint('failed to get SESSID: ${e.toString()}');
       }
       if (url == urlPreGetParam) {
         TokenUtils.isGetLoginParam = true;
@@ -147,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
       }
     } catch (e) {
       SmartDialog.showToast('无法获取参数: $e');
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 

@@ -28,7 +28,7 @@ class _DyhPageState extends State<DyhPage> with TickerProviderStateMixin {
     try {
       _title = Uri.decodeComponent(_title);
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
     _returnTopController =
         Get.put(ReturnTopController(), tag: _id + _title + _random);

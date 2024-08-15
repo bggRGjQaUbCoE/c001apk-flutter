@@ -28,7 +28,7 @@ class _CoolpicPageState extends State<CoolpicPage>
     try {
       _title = Uri.decodeComponent(_title);
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
     _returnTopController =
         Get.put(ReturnTopController(), tag: _title + _random);

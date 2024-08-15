@@ -120,7 +120,7 @@ class C001APKAPP extends StatelessWidget {
             surfaceTintColor: lightColorScheme.surfaceTint,
           ),
           inputDecorationTheme: InputDecorationTheme(
-            fillColor: lightColorScheme.surfaceVariant,
+            fillColor: lightColorScheme.surfaceContainerHighest,
           ),
           progressIndicatorTheme: ProgressIndicatorThemeData(
             refreshBackgroundColor: lightColorScheme.onSecondary,
@@ -151,7 +151,7 @@ class C001APKAPP extends StatelessWidget {
             surfaceTintColor: darkColorScheme.surfaceTint,
           ),
           inputDecorationTheme: InputDecorationTheme(
-            fillColor: darkColorScheme.surfaceVariant,
+            fillColor: darkColorScheme.surfaceContainerHighest,
           ),
           progressIndicatorTheme: ProgressIndicatorThemeData(
             refreshBackgroundColor: darkColorScheme.onSecondary,

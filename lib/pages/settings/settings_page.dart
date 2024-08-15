@@ -200,38 +200,39 @@ class _SettingsPageState extends State<SettingsPage> {
                     ))
                 .toList(),
           ),
-          if (false)
-            DropDownMenuItem(
-              icon: Icons.image_outlined,
-              title: 'Image Quality',
-              boxKey: SettingsBoxKey.imageQuality,
-              items: ImageQuality.values
-                  .map((type) => DropdownMenuItem<int>(
-                        value: ImageQuality.values.indexOf(type),
-                        child: Text(type.name),
-                      ))
-                  .toList(),
-            ),
-          if (false)
-            const SwitchItem(
-              icon: Icons.image_outlined,
-              title: 'Image Dim',
-              boxKey: SettingsBoxKey.imageDim,
-              defaultValue: true,
-            ),
+          /*
+          DropDownMenuItem(
+            icon: Icons.image_outlined,
+            title: 'Image Quality',
+            boxKey: SettingsBoxKey.imageQuality,
+            items: ImageQuality.values
+                .map((type) => DropdownMenuItem<int>(
+                      value: ImageQuality.values.indexOf(type),
+                      child: Text(type.name),
+                    ))
+                .toList(),
+          ),
+          const SwitchItem(
+            icon: Icons.image_outlined,
+            title: 'Image Dim',
+            boxKey: SettingsBoxKey.imageDim,
+            defaultValue: true,
+          ),
+          */
           const SwitchItem(
             icon: Icons.travel_explore,
             title: 'Open In Browser',
             boxKey: SettingsBoxKey.openInBrowser,
             defaultValue: false,
           ),
-          if (false)
-            const SwitchItem(
-              icon: Icons.feed_outlined,
-              title: 'Show Square',
-              boxKey: SettingsBoxKey.showSquare,
-              defaultValue: true,
-            ),
+          /*
+          const SwitchItem(
+            icon: Icons.feed_outlined,
+            title: 'Show Square',
+            boxKey: SettingsBoxKey.showSquare,
+            defaultValue: true,
+          ),
+          */
           const SwitchItem(
             icon: Icons.history,
             title: 'Record History',

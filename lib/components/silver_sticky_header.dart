@@ -15,15 +15,14 @@ class SliverStickyHeader extends RenderObjectWidget {
   });
 
   @override
-  _RenderSliverStickyHeader createRenderObject(
+  RenderSliver createRenderObject(
     final BuildContext context,
   ) {
     return _RenderSliverStickyHeader();
   }
 
   @override
-  _SliverStickyHeaderElement createElement() =>
-      _SliverStickyHeaderElement(this);
+  RenderObjectElement createElement() => _SliverStickyHeaderElement(this);
 }
 
 class _SliverStickyHeaderElement extends RenderObjectElement {

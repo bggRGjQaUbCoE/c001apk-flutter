@@ -480,7 +480,7 @@ class _ImageUtil {
         }
       },
     );
-    imageStream = image.image.resolve(ImageConfiguration());
+    imageStream = image.image.resolve(const ImageConfiguration());
     imageStream.addListener(listener);
     return completer.future;
   }

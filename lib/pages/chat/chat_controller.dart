@@ -56,7 +56,7 @@ class ChatController extends CommonController {
           loadingState.value = LoadingState.success(dataList);
         }
       } else {
-        print(e.toString());
+        debugPrint(e.toString());
       }
     }
   }
@@ -75,7 +75,7 @@ class ChatController extends CommonController {
         SmartDialog.showToast(data.data!);
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -108,7 +108,7 @@ class ChatController extends CommonController {
       }
     } catch (e) {
       SmartDialog.dismiss();
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 

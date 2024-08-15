@@ -224,7 +224,7 @@ class _WebviewPageState extends State<WebviewPage> {
                 try {
                   suggestedFilename = Uri.decodeComponent(suggestedFilename);
                 } catch (e) {
-                  print(e.toString());
+                  debugPrint(e.toString());
                 }
                 return AlertDialog(
                   title: Text(

@@ -55,7 +55,7 @@ class MessageHeaderCard extends StatelessWidget {
                           try {
                             username = Uri.decodeComponent(username);
                           } catch (e) {
-                            print(e.toString());
+                            debugPrint(e.toString());
                           }
                           return username;
                         }(),

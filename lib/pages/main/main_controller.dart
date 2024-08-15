@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:get/get.dart' hide Response;
+import "package:flutter/foundation.dart";
 
 import '../../logic/network/network_repo.dart';
 import '../../logic/model/check_info/check.dart';
@@ -18,7 +19,7 @@ class MainController extends GetxController {
       if (response.statusCode == HttpStatus.ok) {
         CheckInfo responseData = CheckInfo.fromJson(response.data);
         if (!responseData.message.isNullOrEmpty) {
-          print(response.data['message']);
+          debugPrint(response.data['message']);
           if (response.data['message'] == '登录信息有误') {
             GStorage.setUid('');
             GStorage.setUsername('');
@@ -33,14 +34,14 @@ class MainController extends GetxController {
             GStorage.setToken(responseData.data!.token.orEmpty);
             GStorage.setIsLogin(true);
           } else {
-            print('null');
+            debugPrint('null');
           }
         }
       } else {
-        print('statusCode: ${response.statusCode}');
+        debugPrint('statusCode: ${response.statusCode}');
       }
     } catch (e) {
-      print('failed to get token: ${e.toString()}');
+      debugPrint('failed to get token: ${e.toString()}');
     }
 
     try {
@@ -49,7 +50,7 @@ class MainController extends GetxController {
         GlobalData().SESSID = SESSID.substring(0, SESSID.indexOf(';'));
       }
     } catch (e) {
-      print('failed to get SESSID: ${e.toString()}');
+      debugPrint('failed to get SESSID: ${e.toString()}');
     }
   }
 }

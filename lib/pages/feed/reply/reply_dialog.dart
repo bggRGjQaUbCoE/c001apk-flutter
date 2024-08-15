@@ -130,7 +130,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
       }
     } catch (e) {
       SmartDialog.dismiss();
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -188,7 +188,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
       }
     } catch (e) {
       SmartDialog.showToast('无法获取验证码: $e');
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -210,7 +210,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
         }
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 

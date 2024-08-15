@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide Response;
+import "package:flutter/foundation.dart";
 
 import '../../logic/model/feed/datum.dart';
 import '../../logic/model/login/login_response.dart';
@@ -93,7 +94,7 @@ class UserController extends CommonController {
         SmartDialog.showToast(isFollow == 1 ? '取消关注成功' : '关注成功');
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 }

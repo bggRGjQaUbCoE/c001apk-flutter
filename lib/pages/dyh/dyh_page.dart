@@ -37,6 +37,7 @@ class _DyhPageState extends State<DyhPage> with TickerProviderStateMixin {
   @override
   void dispose() {
     _tabController.dispose();
+    Get.delete<ReturnTopController>(tag: _id + _title + _random);
     super.dispose();
   }
 

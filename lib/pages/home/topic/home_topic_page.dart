@@ -24,13 +24,18 @@ class _HomeTopicPageState extends State<HomeTopicPage> {
     super.initState();
     _currentIndex = widget.tabType == TabType.TOPIC ? 1 : 0;
     _controller = PageController(initialPage: _currentIndex);
-    _homeTopicController = Get.put(HomeTopicController(tabType: widget.tabType),
-        tag: widget.tabType.name);
+    _homeTopicController = Get.put(
+      HomeTopicController(tabType: widget.tabType),
+      tag: widget.tabType.name,
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    Get.delete<HomeTopicController>(
+      tag: widget.tabType.name,
+    );
     super.dispose();
   }
 

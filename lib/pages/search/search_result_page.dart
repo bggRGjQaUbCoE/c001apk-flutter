@@ -71,6 +71,12 @@ class _SearchResultPageState extends State<SearchResultPage>
   void dispose() {
     _tabController.removeListener(() {});
     _tabController.dispose();
+    Get.delete<ReturnTopController>(
+      tag: '$_keyword$_title$_pageType$_pageParam$_random',
+    );
+    Get.delete<SearchOrderController>(
+      tag: '$_keyword$_title$_pageType$_pageParam$_random',
+    );
     super.dispose();
   }
 

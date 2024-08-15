@@ -23,6 +23,14 @@ class _HistoryPageState extends State<HistoryPage> {
   );
 
   @override
+  void dispose() {
+    Get.delete<HistoryController>(
+      tag: _type.name,
+    );
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(
       () => Scaffold(

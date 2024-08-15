@@ -39,6 +39,9 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void dispose() {
     _notificationController.scrollController?.dispose();
+    Get.delete<NotificationController>(
+      tag: type.name,
+    );
     super.dispose();
   }
 

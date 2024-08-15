@@ -50,6 +50,9 @@ class _FFFListContentState extends State<FFFListContent> {
   @override
   void dispose() {
     _fffController.scrollController?.dispose();
+    Get.delete<FFFListController>(
+      tag: '${widget.type.name}${widget.id}${widget.uid}',
+    );
     super.dispose();
   }
 

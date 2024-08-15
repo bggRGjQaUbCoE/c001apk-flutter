@@ -37,6 +37,7 @@ class _CoolpicPageState extends State<CoolpicPage>
   @override
   void dispose() {
     _tabController.dispose();
+    Get.delete<ReturnTopController>(tag: _title + _random);
     super.dispose();
   }
 

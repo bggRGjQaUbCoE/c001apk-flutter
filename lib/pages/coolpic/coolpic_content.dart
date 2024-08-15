@@ -52,6 +52,9 @@ class _CoolpicContentState extends State<CoolpicContent>
   @override
   void dispose() {
     _coolpicController.scrollController?.dispose();
+    Get.delete<CoolpicController>(
+      tag: widget.type + widget.title + widget.random,
+    );
     super.dispose();
   }
 

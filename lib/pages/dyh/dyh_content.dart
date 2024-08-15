@@ -53,6 +53,9 @@ class _DyhContentState extends State<DyhContent>
   @override
   void dispose() {
     _dyhController.scrollController?.dispose();
+    Get.delete<DyhController>(
+      tag: widget.type + widget.id + widget.random,
+    );
     super.dispose();
   }
 

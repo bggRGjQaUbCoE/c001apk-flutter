@@ -61,6 +61,10 @@ class _SearchResultContentState extends State<SearchResultContent>
   @override
   void dispose() {
     _searchController.scrollController?.dispose();
+    Get.delete<SearchController>(
+      tag:
+          '$_type${widget.keyword}${widget.pageType}${widget.pageParam}${widget.random}',
+    );
     super.dispose();
   }
 

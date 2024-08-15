@@ -31,6 +31,7 @@ class CopyPage extends StatelessWidget {
               alignment: Alignment.center,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: SelectableText(
+                scrollPhysics: const BouncingScrollPhysics(),
                 Utils.parseHtmlString(
                     '\n$text\n'.getAllLinkAndText.replaceAll("\n", "<br/>")),
                 style: const TextStyle(

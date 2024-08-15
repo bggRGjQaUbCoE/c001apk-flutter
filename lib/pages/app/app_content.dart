@@ -75,6 +75,9 @@ class _AppContentState extends State<AppContent>
   @override
   void dispose() {
     _appController.scrollController?.dispose();
+    Get.delete<AppContentController>(
+      tag: widget.id + widget.appType.name + widget.random,
+    );
     super.dispose();
   }
 

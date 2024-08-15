@@ -229,25 +229,27 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
-    if (mounted) {
+    if (mounted && context.mounted) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) {
-          // 键盘高度
-          final viewInsets = EdgeInsets.fromViewPadding(
-              View.of(context).viewInsets, View.of(context).devicePixelRatio);
-          _debouncer.run(
-            () {
-              if (mounted) {
-                if (_keyboardHeight == 0 && _emoteHeight == 0) {
-                  setState(() {
-                    _emoteHeight = _keyboardHeight = _keyboardHeight == 0.0
-                        ? viewInsets.bottom
-                        : _keyboardHeight;
-                  });
+          if (mounted && context.mounted) {
+            // 键盘高度
+            final viewInsets = EdgeInsets.fromViewPadding(
+                View.of(context).viewInsets, View.of(context).devicePixelRatio);
+            _debouncer.run(
+              () {
+                if (mounted && context.mounted) {
+                  if (_keyboardHeight == 0 && _emoteHeight == 0) {
+                    setState(() {
+                      _emoteHeight = _keyboardHeight = _keyboardHeight == 0.0
+                          ? viewInsets.bottom
+                          : _keyboardHeight;
+                    });
+                  }
                 }
-              }
-            },
-          );
+              },
+            );
+          }
         },
       );
     }
@@ -303,7 +305,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                     decoration: InputDecoration(
                         hintText: widget.username != null
                             ? '回复: ${widget.username}'
-                            : '发布${widget.title != null ? '于 ${widget.title}' : '动态'}',
+                            : '发布${widget.title != null ? '于: ${widget.title}' : '动态'}',
                         border: InputBorder.none,
                         hintStyle: const TextStyle(
                           fontSize: 14,

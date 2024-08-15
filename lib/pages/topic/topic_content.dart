@@ -50,6 +50,9 @@ class _TopicContentState extends State<TopicContent>
   @override
   void dispose() {
     _topicController.scrollController?.dispose();
+    Get.delete<TopicContentController>(
+      tag: widget.url + widget.title + widget.random,
+    );
     super.dispose();
   }
 

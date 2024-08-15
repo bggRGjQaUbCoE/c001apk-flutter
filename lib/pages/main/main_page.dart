@@ -35,6 +35,8 @@ class _MainPageState extends State<MainPage> {
   @override
   void dispose() async {
     await GStorage.close();
+    Get.delete<ReturnTopController>(tag: 'home');
+    Get.delete<MainController>();
     super.dispose();
   }
 

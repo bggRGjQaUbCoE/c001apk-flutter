@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -91,6 +93,17 @@ class _ImageViewPageState extends State<ImageViewPage> {
                           Get.back();
                         },
                       ),
+                      if (!Platform.isAndroid && !Platform.isIOS)
+                        ListTile(
+                          title: const Text(
+                            'Open In Browser',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          onTap: () {
+                            Utils.launchURL(_imgList[_initialPage]);
+                            Get.back();
+                          },
+                        ),
                     ],
                   ),
                 );

@@ -37,6 +37,9 @@ class _BlackListPageState extends State<BlackListPage> {
   void dispose() {
     _focusNode.dispose();
     _textController.dispose();
+    Get.delete<BlackListController>(
+      tag: _type.name,
+    );
     super.dispose();
   }
 

@@ -29,7 +29,7 @@ class _AppListPageState extends State<AppListPage>
     super.initState();
 
     _returnTopController.index.listen((index) {
-      if (index == 1) {
+      if (index == 1 && _scrollController.hasClients) {
         _animateToTop();
       }
     });
@@ -76,6 +76,7 @@ class _AppListPageState extends State<AppListPage>
     _scrollController.removeListener(() {});
     _scrollController.dispose;
     _fabAnimationCtr?.dispose();
+    Get.delete<AppListController>();
     super.dispose();
   }
 
@@ -98,6 +99,7 @@ class _AppListPageState extends State<AppListPage>
                     curve: Curves.easeInOut,
                   )),
                   child: FloatingActionButton(
+                    heroTag: null,
                     onPressed: () => Get.toNamed('/appUpdate'),
                     tooltip: 'Update',
                     child: const Icon(Icons.update),

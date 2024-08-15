@@ -20,12 +20,14 @@ class _SearchPageState extends State<SearchPage> {
   final String? _pageParam = Get.parameters['pageParam'];
   bool _shouldShowClearBtn = false;
 
-  late final _searchPageController = Get.put(SearchPageController());
+  late final _searchPageController =
+      Get.put(SearchPageController(), tag: '$_title$_pageType$_pageParam');
 
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
+    Get.delete<SearchPageController>(tag: '$_title$_pageType$_pageParam');
     super.dispose();
   }
 

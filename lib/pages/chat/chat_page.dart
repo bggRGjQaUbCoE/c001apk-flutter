@@ -42,9 +42,10 @@ class _ChatPageState extends State<ChatPage> {
     _chatController.scrollController = ScrollController();
   }
 
+  late final String _random = DeviceUtil.randHexString(8);
   late final _chatController = Get.put(
     ChatController(ukey: _ukey),
-    tag: _ukey + DeviceUtil.randHexString(8),
+    tag: _ukey + _random,
   );
   late final _focusNode = FocusNode();
   late final _controller = ChatBottomPanelContainerController<PanelType>();
@@ -56,6 +57,9 @@ class _ChatPageState extends State<ChatPage> {
     _focusNode.dispose();
     _chatController.editingController.dispose();
     _chatController.scrollController?.dispose();
+    Get.delete<ChatController>(
+      tag: _ukey + _random,
+    );
     super.dispose();
   }
 

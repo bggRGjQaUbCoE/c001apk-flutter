@@ -61,7 +61,7 @@ class Reply2ReplyPage extends StatelessWidget {
                             id: id,
                           ),
                         );
-                        if (result['data'] != null) {
+                        if (result != null && result['data'] != null) {
                           controller.updateReply(result['data'] as Datum, id);
                         }
                       }

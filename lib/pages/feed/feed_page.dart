@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -13,6 +16,7 @@ import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/feed/feed_controller.dart';
 import '../../pages/feed/reply/reply_dialog.dart';
+import '../../utils/device_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
@@ -36,6 +40,8 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
   AnimationController? _fabAnimationCtr;
   late bool _isFabVisible = true;
   late final _scrollController = ScrollController();
+  late final StreamController<bool> _titleStreamC = StreamController<bool>();
+  late bool _visibleTitle = false;
 
   @override
   void initState() {
@@ -75,15 +81,17 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
     _scrollController.removeListener(() {});
     _scrollController.dispose();
     _fabAnimationCtr?.dispose();
+    Get.delete<FeedController>(tag: _id + _random);
     super.dispose();
   }
 
+  late final String _random = DeviceUtil.randHexString(8);
   late final _feedController = Get.put(
     FeedController(
       id: _id,
       recordHistory: GStorage.recordHistory,
     ),
-    tag: _id,
+    tag: _id + _random,
   );
 
   static const List<(ReplySortType, String)> _shirtSizeOptions =
@@ -269,7 +277,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
         id: id,
       ),
     );
-    if (result['data'] != null) {
+    if (result != null && result['data'] != null) {
       _feedController.updateReply(
         type == ReplyType.reply,
         result['data'] as Datum,
@@ -321,12 +329,16 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                   _feedController.onGetData(false);
                 }
                 return Obx(
-                    () => footerWidget(_feedController.footerState.value, () {
-                          _feedController
-                            ..isEnd = false
-                            ..setFooterState(LoadingState.loading())
-                            ..onGetData(false);
-                        }));
+                  () => footerWidget(
+                    _feedController.footerState.value,
+                    () {
+                      _feedController
+                        ..isEnd = false
+                        ..setFooterState(LoadingState.loading())
+                        ..onGetData(false);
+                    },
+                  ),
+                );
               } else {
                 return FeedReplyCard(
                   data: dataList[index],
@@ -377,6 +389,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                   curve: Curves.easeInOut,
                 )),
                 child: FloatingActionButton(
+                  heroTag: null,
                   tooltip: 'Reply',
                   onPressed: () {
                     _onReply(
@@ -395,9 +408,41 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
         preferredSize: const Size(double.infinity, 56),
         child: Obx(
           () => AppBar(
-            title: !_feedController.feedTypeName.isNullOrEmpty
-                ? Text(_feedController.feedTypeName!)
-                : null,
+            titleSpacing: 0,
+            title: StreamBuilder(
+              stream: _titleStreamC.stream,
+              builder: (context, snapshot) {
+                return GestureDetector(
+                  onTap: () {
+                    if (_scrollController.offset != 0) {
+                      _scrollController.animateTo(0,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.ease);
+                    }
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    width: double.infinity,
+                    child: snapshot.data == true
+                        ? header(
+                            context,
+                            (_feedController.feedState.value as Success)
+                                .response,
+                            true,
+                            isHeader: true,
+                          )
+                        : _feedController.feedState.value is Success
+                            ? Text(
+                                _feedController.feedTypeName!,
+                                textAlign: Platform.isIOS
+                                    ? TextAlign.center
+                                    : TextAlign.start,
+                              )
+                            : null,
+                  ),
+                );
+              },
+            ),
             actions: _feedController.feedState.value is Success
                 ? [
                     PopupMenuButton(
@@ -460,6 +505,17 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
       body: Obx(
         () => _feedController.feedState.value is Success
             ? RefreshIndicator(
+                notificationPredicate: (notification) {
+                  final double offset = notification.metrics.pixels;
+                  if (offset > 50 && !_visibleTitle) {
+                    _visibleTitle = true;
+                    _titleStreamC.add(true);
+                  } else if (offset <= 50 && _visibleTitle) {
+                    _visibleTitle = false;
+                    _titleStreamC.add(false);
+                  }
+                  return notification.depth == 0;
+                },
                 key: _refreshKey,
                 onRefresh: () async {
                   _feedController.onReset();

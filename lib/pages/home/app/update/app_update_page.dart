@@ -27,7 +27,7 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
   late List<String> _versionCodes;
   late String _pkgs;
 
-  final AppListController _appListController = Get.put(AppListController());
+  final AppListController _appListController = Get.find<AppListController>();
   LoadingState? _loadingState = LoadingState.loading();
   int? _length;
 

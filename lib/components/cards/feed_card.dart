@@ -345,20 +345,27 @@ Widget header(
   BuildContext context,
   Datum data,
   bool isFeedContent, {
+  bool isHeader = false,
   bool isHistory = false,
   Function(dynamic id)? onDelete,
   Function()? onBlock,
 }) {
   return Row(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
       Flexible(
         flex: 1,
         child: Padding(
           padding: EdgeInsets.only(
-            left: isFeedContent ? 16 : 10,
-            top: isFeedContent ? 12 : 10,
+            left: isHeader
+                ? 0
+                : isFeedContent
+                    ? 16
+                    : 10,
+            top: isHeader
+                ? 0
+                : isFeedContent
+                    ? 12
+                    : 10,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -384,6 +391,7 @@ Widget header(
                       data.userInfo?.username ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 15),
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,7 +417,6 @@ Widget header(
                               icon: Icons.smartphone,
                               text: Utils.parseHtmlString(
                                   data.deviceTitle.orEmpty),
-                              onTap: null,
                             ),
                           ),
                       ],

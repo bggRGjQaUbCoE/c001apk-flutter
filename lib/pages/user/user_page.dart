@@ -14,6 +14,7 @@ import '../../components/item_card.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/user/user_controller.dart';
+import '../../utils/device_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
@@ -31,14 +32,18 @@ class UserPage extends StatefulWidget {
 class _UserPageState extends State<UserPage> {
   final String _uid = Get.parameters['uid'].orEmpty;
 
+  late final String _random = DeviceUtil.randHexString(8);
   late final UserController _userController = Get.put(
     UserController(uid: _uid),
-    tag: _uid,
+    tag: _uid + _random,
   );
 
   @override
   void dispose() {
     _userController.scrollController?.dispose();
+    Get.delete<UserController>(
+      tag: _uid + _random,
+    );
     super.dispose();
   }
 
@@ -170,7 +175,7 @@ class _UserPageState extends State<UserPage> {
                 if (offset >= 0) {
                   _userController.scrollRatio.value = min(1.0, offset / 105);
                 }
-                return true;
+                return notification.depth == 0;
               },
               onRefresh: () async {
                 if (!_userController.isBlocked) {

@@ -35,7 +35,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
   late final followType = GStorage.followType;
 
   late final _homeFeedController = Get.put(
-    HomeFeedNewController(
+    HomeFeedController(
       tabType: widget.tabType,
       installTime: GStorage.installTime,
       url: switch (widget.tabType) {
@@ -60,6 +60,9 @@ class _HomeFeedPageState extends State<HomeFeedPage>
     _homeFeedController.scrollController?.removeListener(() {});
     _homeFeedController.scrollController?.dispose();
     _fabAnimationCtr?.dispose();
+    Get.delete<HomeFeedController>(
+      tag: widget.tabType.name,
+    );
     super.dispose();
   }
 
@@ -123,6 +126,7 @@ class _HomeFeedPageState extends State<HomeFeedPage>
                     curve: Curves.easeInOut,
                   )),
                   child: FloatingActionButton(
+                    heroTag: null,
                     onPressed: () {
                       showModalBottomSheet<dynamic>(
                         context: context,

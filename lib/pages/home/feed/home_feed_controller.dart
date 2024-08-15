@@ -5,8 +5,8 @@ import '../../../pages/home/home_page.dart' show TabType;
 import '../../../utils/storage_util.dart';
 import '../../../utils/utils.dart';
 
-class HomeFeedNewController extends CommonController {
-  HomeFeedNewController({
+class HomeFeedController extends CommonController {
+  HomeFeedController({
     required this.tabType,
     required this.installTime,
     this.url,

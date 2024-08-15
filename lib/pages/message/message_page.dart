@@ -91,6 +91,7 @@ class _MessagePageState extends State<MessagePage> {
   @override
   void dispose() {
     _messageController.scrollController?.dispose();
+    Get.delete<MessageController>();
     super.dispose();
   }
 

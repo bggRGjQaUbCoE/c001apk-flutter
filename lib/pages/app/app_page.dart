@@ -56,6 +56,7 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
     _tabController.dispose();
     _scrollController.removeListener(() {});
     _scrollController.dispose();
+    Get.delete<ReturnTopController>(tag: _packageName + _random);
     super.dispose();
   }
 
@@ -123,6 +124,7 @@ class _AppPageState extends State<AppPage> with TickerProviderStateMixin {
                   !controller.isBlocked &&
                   controller.commentStatus == 1
               ? FloatingActionButton(
+                  heroTag: null,
                   onPressed: () {
                     showModalBottomSheet<dynamic>(
                       context: context,

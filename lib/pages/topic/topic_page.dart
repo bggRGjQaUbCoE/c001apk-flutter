@@ -75,6 +75,9 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
   void dispose() {
     _tabController?.removeListener(() {});
     _tabController?.dispose();
+    Get.delete<ReturnTopController>(tag: (_tag ?? _id!) + _random);
+    Get.delete<TopicOrderController>(tag: (_tag ?? _id!) + _random);
+    Get.delete<TopicController>(tag: '$_tag$_id$_random');
     super.dispose();
   }
 
@@ -115,6 +118,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
               floatingActionButton: GlobalData().isLogin &&
                       !_topicController.isBlocked
                   ? FloatingActionButton(
+                      heroTag: null,
                       onPressed: () {
                         showModalBottomSheet<dynamic>(
                           context: context,

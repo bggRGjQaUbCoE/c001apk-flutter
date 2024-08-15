@@ -374,7 +374,7 @@ class Utils {
     if (formatType == 'detail') {
       currentYearStr = 'MM-DD hh:mm';
       lastYearStr = 'YY-MM-DD hh:mm';
-      return CustomStamp_str(
+      return customStampStr(
           timestamp: timeStamp,
           date: lastYearStr,
           toInt: false,
@@ -389,13 +389,13 @@ class Utils {
       return '${(distance / 60 / 60).floor()}小时前';
     } else if (DateTime.fromMillisecondsSinceEpoch(time * 1000).year ==
         DateTime.fromMillisecondsSinceEpoch(timeStamp * 1000).year) {
-      return CustomStamp_str(
+      return customStampStr(
           timestamp: timeStamp,
           date: currentYearStr,
           toInt: false,
           formatType: formatType);
     } else {
-      return CustomStamp_str(
+      return customStampStr(
           timestamp: timeStamp,
           date: lastYearStr,
           toInt: false,
@@ -404,7 +404,7 @@ class Utils {
   }
 
   // 时间戳转时间
-  static String CustomStamp_str(
+  static String customStampStr(
       {int? timestamp, // 为空则显示当前时间
       String? date, // 显示格式，比如：'YY年MM月DD日 hh:mm:ss'
       bool toInt = true, // 去除0开头

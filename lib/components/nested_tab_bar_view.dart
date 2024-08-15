@@ -116,9 +116,8 @@ class NestedInnerScrollController extends ScrollController {
       ScrollContext context, ScrollPosition? oldPosition) {
     ScrollPosition scrollPosition;
     ScrollableState? scrollableState = context as ScrollableState;
-    if (scrollableState != null) {
-      _inner = PrimaryScrollController.maybeOf(scrollableState.context);
-    }
+    _inner = PrimaryScrollController.maybeOf(scrollableState.context);
+
     if (_inner == null) {
       scrollPosition =
           super.createScrollPosition(physics, context, oldPosition);

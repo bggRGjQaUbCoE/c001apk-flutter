@@ -103,7 +103,7 @@ class _MainPageState extends State<MainPage> {
 
     return PopScope(
         canPop: false,
-        onPopInvoked: (_) async {
+        onPopInvokedWithResult: (_, obj) async {
           onBackPressed();
         },
         child: LayoutBuilder(builder: (_, constriants) {

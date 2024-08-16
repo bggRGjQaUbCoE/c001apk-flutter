@@ -54,10 +54,12 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   html: ^0.15.4
+  image_picker: ^1.1.2
   indent: ^2.0.0
   intl: ^0.19.0
   json_annotation: ^4.9.0
   json_serializable: ^6.8.0
+  mime: ^1.0.5
   modal_bottom_sheet: ^3.0.0
   package_info_plus: ^8.0.1
   path_provider: ^2.1.4
@@ -66,7 +68,9 @@ dependencies:
   saver_gallery: ^3.0.5
   share_plus: ^10.0.0
   url_launcher: ^6.3.0
+  uuid: ^4.4.2
   window_manager: ^0.4.0
+  xml: ^6.5.0
 
 dev_dependencies:
   flutter_test:

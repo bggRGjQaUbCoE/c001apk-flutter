@@ -14,6 +14,14 @@ import '../../utils/storage_util.dart';
 import '../../utils/token_util.dart';
 
 class NetworkRepo {
+  static Future<Response> postOSSUploadPrepare({
+    required FormData data,
+  }) async {
+    return Request().post(Api.getDataFromUrl('/v6/upload/ossUploadPrepare'),
+        data: data,
+        options: Options(contentType: Headers.multipartFormDataContentType));
+  }
+
   static Future<Response> sendMessage({
     required dynamic uid,
     required FormData data,

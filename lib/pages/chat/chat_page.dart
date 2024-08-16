@@ -1,18 +1,31 @@
+import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:chat_bottom_container/chat_bottom_container.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide FormData;
+import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../components/cards/chat_card.dart';
 import '../../components/cards/chat_time_card.dart';
 import '../../components/common_body.dart';
 import '../../logic/model/feed/datum.dart';
+import '../../logic/model/oss_upload/datum.dart';
+import '../../logic/model/oss_upload/oss_upload_model.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/chat/chat_controller.dart';
 import '../../pages/feed/reply/emoji_panel.dart';
 import '../../utils/device_util.dart';
 import '../../utils/extensions.dart';
 import '../../utils/global_data.dart';
+import '../../utils/oss/aliyunoss_client.dart';
+import '../../utils/oss/aliyunoss_config.dart';
+import '../../utils/oss_util.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
 
@@ -33,15 +46,6 @@ class _ChatPageState extends State<ChatPage> {
   late final String _uid;
   late final String _username;
 
-  @override
-  void initState() {
-    super.initState();
-    _ukey = Get.parameters['ukey'] ?? '';
-    _uid = Get.parameters['uid'] ?? '';
-    _username = Get.parameters['username'] ?? '';
-    _chatController.scrollController = ScrollController();
-  }
-
   late final String _random = DeviceUtil.randHexString(8);
   late final _chatController = Get.put(
     ChatController(ukey: _ukey),
@@ -51,6 +55,20 @@ class _ChatPageState extends State<ChatPage> {
   late final _controller = ChatBottomPanelContainerController<PanelType>();
   PanelType _currentPanelType = PanelType.none;
   bool readOnly = false;
+  late final _enableSend = StreamController<bool>();
+  late bool _visibleSend = false;
+  late final _imagePicker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _ukey = Get.parameters['ukey'] ?? '';
+    _uid = Get.parameters['uid'] ?? '';
+    _username = Get.parameters['username'] ?? '';
+    _chatController.scrollController = ScrollController();
+
+    _enableSend.add(false);
+  }
 
   @override
   void dispose() {
@@ -254,6 +272,10 @@ class _ChatPageState extends State<ChatPage> {
       child: EmotePanel(
         index: 1,
         onClick: (emoji) {
+          if (!_visibleSend) {
+            _visibleSend = true;
+            _enableSend.add(true);
+          }
           _onChooseEmote(emoji);
         },
       ),
@@ -292,6 +314,15 @@ class _ChatPageState extends State<ChatPage> {
                 controller: _chatController.editingController,
                 minLines: 1,
                 maxLines: 4,
+                onChanged: (value) {
+                  if (value.isNotEmpty && !_visibleSend) {
+                    _visibleSend = true;
+                    _enableSend.add(true);
+                  } else if (value.isEmpty && _visibleSend) {
+                    _visibleSend = false;
+                    _enableSend.add(false);
+                  }
+                },
                 textInputAction: TextInputAction.newline,
                 decoration: InputDecoration(
                   filled: true,
@@ -307,15 +338,81 @@ class _ChatPageState extends State<ChatPage> {
               ),
             ),
           ),
-          IconButton(
-            onPressed: () {
-              if (_chatController.editingController.text.isNotEmpty) {
-                _chatController.onSendMessage(_uid);
-              }
-            },
-            icon: const Icon(Icons.send),
-            tooltip: 'Send',
-          ),
+          StreamBuilder(
+              stream: _enableSend.stream,
+              builder: (context, snapshot) {
+                return IconButton(
+                  onPressed: () async {
+                    if (snapshot.data == true) {
+                      _chatController.onSendMessage(_uid);
+                    } else {
+                      XFile? pickedFile = await _imagePicker.pickImage(
+                        source: ImageSource.gallery,
+                        imageQuality: 100,
+                      );
+                      if (pickedFile != null) {
+                        SmartDialog.showLoading(msg: '正在加载');
+                        Uint8List imageBytes = await pickedFile.readAsBytes();
+                        ui.Image image = await decodeImageFromList(imageBytes);
+                        int width = image.width;
+                        int height = image.height;
+                        Digest md5Hash = md5.convert(imageBytes);
+                        String mimeType =
+                            lookupMimeType(pickedFile.path) ?? 'image/png';
+                        String name =
+                            '${const Uuid().v1().replaceAll('-', '')}.${mimeType.replaceFirst('image/', '')}';
+                        OssUploadModel uploadModel = OssUploadModel(
+                          name: name,
+                          resolution: '${width}x$height',
+                          md5: md5Hash.toString(),
+                        );
+                        OssDatum? data = await OssUtil.onPostOSSUploadPrepare(
+                          'message',
+                          'message',
+                          [uploadModel],
+                          uid: _uid,
+                        );
+                        if (data != null) {
+                          SmartDialog.showLoading(msg: '正在上传图片');
+                          AliyunOssClient client = AliyunOssClient(
+                            accessKeyId: data.uploadPrepareInfo!.accessKeyId!,
+                            accessKeySecret:
+                                data.uploadPrepareInfo!.accessKeySecret!,
+                            securityToken:
+                                data.uploadPrepareInfo!.securityToken!,
+                          );
+                          AliyunOssConfig config = AliyunOssConfig(
+                            endpoint: data.uploadPrepareInfo!.endPoint!,
+                            bucket: data.uploadPrepareInfo!.bucket!,
+                            directory: "message",
+                          );
+                          AliyunOssResult result = await client.upload(
+                            id: '1',
+                            config: config,
+                            ossFileName: data.fileInfo![0].uploadFileName!
+                                .replaceFirst('message', ''),
+                            filePath: pickedFile.path,
+                          );
+                          if (result.state == AliyunOssResultState.success) {
+                            _chatController.onSendMessage(
+                              _uid,
+                              pic: '/${data.fileInfo![0].uploadFileName}',
+                            );
+                          } else if (result.state ==
+                              AliyunOssResultState.fail) {
+                            SmartDialog.dismiss();
+                            SmartDialog.showToast('上传失败: ${result.msg}');
+                          }
+                        }
+                      }
+                    }
+                  },
+                  icon: Icon(snapshot.data == true
+                      ? Icons.send
+                      : Icons.image_outlined),
+                  tooltip: snapshot.data == true ? 'Send' : 'Image',
+                );
+              }),
         ],
       ),
     );

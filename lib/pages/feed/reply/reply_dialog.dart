@@ -1,16 +1,28 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart' hide Response, FormData;
+import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../logic/model/feed/data_model.dart';
 import '../../../logic/model/login/login_response.dart';
+import '../../../logic/model/oss_upload/datum.dart';
+import '../../../logic/model/oss_upload/oss_upload_model.dart';
 import '../../../logic/network/network_repo.dart';
 import '../../../pages/feed/reply/emoji_panel.dart';
 import '../../../pages/feed/reply/toolbar_icon_button.dart';
 import '../../../utils/extensions.dart';
+import '../../../utils/oss/aliyunoss_client.dart';
+import '../../../utils/oss/aliyunoss_config.dart';
+import '../../../utils/oss_util.dart';
 
 /// From Pilipala
 
@@ -51,6 +63,12 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   final TextEditingController _captchaController = TextEditingController();
   bool _checkBoxValue = false;
 
+  late final _imagePicker = ImagePicker();
+  late final _pathStream = StreamController<List<String>>();
+  late final _pathList = <String>[];
+  late final _modelList = <OssUploadModel>[];
+  String? _pic;
+
   @override
   void initState() {
     super.initState();
@@ -81,7 +99,46 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
 
   Future _onPublish() async {
     try {
-      SmartDialog.showLoading();
+      if (_pathList.isNotEmpty) {
+        OssDatum? data = await OssUtil.onPostOSSUploadPrepare(
+          'image',
+          'feed',
+          _modelList,
+        );
+        if (data != null) {
+          _pic = data.fileInfo!
+              .map((item) =>
+                  '${data.uploadPrepareInfo!.uploadImagePrefix}/${item.uploadFileName}')
+              .toList()
+              .join(',');
+          AliyunOssClient client = AliyunOssClient(
+            accessKeyId: data.uploadPrepareInfo!.accessKeyId!,
+            accessKeySecret: data.uploadPrepareInfo!.accessKeySecret!,
+            securityToken: data.uploadPrepareInfo!.securityToken!,
+          );
+          AliyunOssConfig config = AliyunOssConfig(
+            endpoint: data.uploadPrepareInfo!.endPoint!,
+            bucket: data.uploadPrepareInfo!.bucket!,
+            directory: "feed",
+          );
+          for (int i = 0; i < data.fileInfo!.length; i++) {
+            SmartDialog.showLoading(msg: '正在上传图片 $i/${data.fileInfo!.length}');
+            AliyunOssResult result = await client.upload(
+              id: i.toString(),
+              config: config,
+              ossFileName:
+                  data.fileInfo![i].uploadFileName!.replaceFirst('feed', ''),
+              filePath: _pathList[i],
+            );
+            if (result.state == AliyunOssResultState.fail) {
+              SmartDialog.dismiss();
+              SmartDialog.showToast('#$i 上传失败: ${result.msg}');
+              return;
+            }
+          }
+        }
+      }
+      SmartDialog.showLoading(msg: '正在发布');
       if (widget.id == null) {
         Response response = await NetworkRepo.postCreateFeed(
           FormData.fromMap(
@@ -92,6 +149,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
               if (widget.targetId != null) 'targetId': widget.targetId,
               'message': _replyContentController.text,
               'status': _checkBoxValue ? -1 : 1,
+              'pic': _pic,
             },
           ),
         );
@@ -112,6 +170,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
           FormData.fromMap({
             'message': _replyContentController.text,
             'replyAndForward': _checkBoxValue ? 1 : 0,
+            'pic': _pic,
           }),
           widget.id,
           widget.type!.name,
@@ -337,7 +396,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                   toolbarType: _toolbarType,
                   selected: _toolbarType == 'input',
                 ),
-                const SizedBox(width: 20),
+                const SizedBox(width: 10),
                 ToolbarIconButton(
                   onPressed: () {
                     if (_toolbarType == 'input') {
@@ -348,6 +407,60 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                   icon: const Icon(Icons.emoji_emotions, size: 22),
                   toolbarType: _toolbarType,
                   selected: _toolbarType == 'emote',
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.image),
+                  color: Theme.of(context).colorScheme.outline,
+                  onPressed: () async {
+                    List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
+                      limit: 9,
+                      imageQuality: 100,
+                    );
+                    if (pickedFiles.isNotEmpty) {
+                      try {
+                        for (int i = 0; i < pickedFiles.length; i++) {
+                          if (_pathList.length == 9) {
+                            SmartDialog.dismiss();
+                            SmartDialog.showToast('最多选择9张图片');
+                            if (i != 0) {
+                              _pathStream.add(_pathList);
+                            }
+                            break;
+                          } else {
+                            SmartDialog.showLoading(
+                                msg: '正在加载图片: $i/${pickedFiles.length}');
+                            Uint8List imageBytes =
+                                await pickedFiles[i].readAsBytes();
+                            ui.Image image =
+                                await decodeImageFromList(imageBytes);
+                            int width = image.width;
+                            int height = image.height;
+                            Digest md5Hash = md5.convert(imageBytes);
+                            String mimeType =
+                                lookupMimeType(pickedFiles[i].path) ??
+                                    'image/png';
+                            String name =
+                                '${const Uuid().v1().replaceAll('-', '')}.${mimeType.replaceFirst('image/', '')}';
+                            OssUploadModel uploadModel = OssUploadModel(
+                              name: name,
+                              resolution: '${width}x$height',
+                              md5: md5Hash.toString(),
+                            );
+                            _pathList.add(pickedFiles[i].path);
+                            _modelList.add(uploadModel);
+                            if (i == pickedFiles.length - 1) {
+                              SmartDialog.dismiss();
+                              _pathStream.add(_pathList);
+                            }
+                          }
+                        }
+                      } catch (e) {
+                        SmartDialog.dismiss();
+                        debugPrint(e.toString());
+                      }
+                    }
+                  },
                 ),
                 const Spacer(),
                 TextButton(
@@ -408,6 +521,40 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
               ],
             ),
           ),
+          StreamBuilder(
+              stream: _pathStream.stream,
+              builder: (context, snapshot) {
+                if (snapshot.data.isSafeNotEmpty) {
+                  return Container(
+                    height: 75,
+                    margin: const EdgeInsets.only(bottom: 10),
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      itemCount: _pathList.length,
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () {
+                          _pathList.removeAt(index);
+                          _modelList.removeAt(index);
+                          _pathStream.add(_pathList);
+                        },
+                        child: Image(
+                          height: 75,
+                          fit: BoxFit.fitHeight,
+                          filterQuality: FilterQuality.low,
+                          image: FileImage(File(_pathList[index])),
+                        ),
+                      ),
+                      separatorBuilder: (_, index) => const SizedBox(width: 10),
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              }),
           AnimatedSize(
             curve: Curves.easeInOut,
             duration: const Duration(milliseconds: 300),

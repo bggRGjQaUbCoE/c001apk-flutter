@@ -132,6 +132,7 @@ class _BlackListPageState extends State<BlackListPage> {
                     SmartDialog.showToast('导出失败');
                     debugPrint(e.toString());
                   }
+                  _focusNode.requestFocus();
                 }
               },
               icon: const Icon(Icons.file_upload_outlined),
@@ -156,6 +157,7 @@ class _BlackListPageState extends State<BlackListPage> {
                   SmartDialog.showToast('导入失败');
                   debugPrint(e.toString());
                 }
+                _focusNode.requestFocus();
               },
               icon: const Icon(Icons.file_download_outlined),
               tooltip: 'Import',

@@ -79,15 +79,15 @@ class ChatController extends CommonController {
     }
   }
 
-  Future<void> onSendMessage(dynamic uid) async {
+  Future<void> onSendMessage(dynamic uid, {String? pic}) async {
     try {
-      SmartDialog.showLoading();
+      SmartDialog.showLoading(msg: '正在发送');
       Response response = await NetworkRepo.sendMessage(
         uid: uid,
         data: FormData.fromMap(
           {
             'message': editingController.text,
-            // 'message_pic': '',
+            if (pic != null) 'message_pic': pic,
           },
         ),
       );

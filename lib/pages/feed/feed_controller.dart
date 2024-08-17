@@ -151,16 +151,26 @@ class FeedController extends CommonController {
 
   @override
   List<Datum>? handleResponse(List<Datum> dataList) {
+    List<Datum> filterList = dataList;
     if (page == 1 && listType == 'lastupdate_desc') {
-      return ([
-                if (topReply != null) topReply!,
-                if (_replyMe != null) _replyMe!,
-              ] +
-              dataList)
-          .unique((data) => data.entityId);
-    } else {
-      return dataList.unique((data) => data.entityId);
+      filterList = [
+            if (topReply != null) topReply!,
+            if (_replyMe != null) _replyMe!,
+          ] +
+          filterList;
     }
+    List<String> userBlackList = GStorage.blackList
+        .get(BlackListBoxKey.userBlackList, defaultValue: <String>[]);
+    return filterList
+        .unique((data) => data.entityId)
+        .map((data) => data
+          ..replyRows = !data.replyRows.isNullOrEmpty
+              ? data.replyRows!
+                  .where(
+                      (reply) => !userBlackList.contains(reply.uid.toString()))
+                  .toList()
+              : null)
+        .toList();
   }
 
   void updateReply(bool isReply, Datum data, dynamic id, dynamic fid) {

@@ -394,7 +394,7 @@ Widget header(
                       style: const TextStyle(fontSize: 15),
                     ),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (isFeedContent || !data.infoHtml.isNullOrEmpty) ...[
                           Text(

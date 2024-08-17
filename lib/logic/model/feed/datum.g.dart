@@ -201,7 +201,7 @@ Datum _$DatumFromJson(Map<String, dynamic> json) => Datum(
       downCount: json['downCount'],
       feedCommentNumTxt: json['feed_comment_num_txt'],
       commentnumTxt: json['commentnum_txt'],
-      targetType: json['targetType'] as String?,
+      targetType: json['target_type'] as String?,
       fansNum: json['fans_num'],
       commentNum: json['comment_num'],
       feedUid: (json['feedUid'] as num?)?.toInt(),

@@ -57,6 +57,8 @@ Widget itemCard(
           return TextCard(text: data.title.orEmpty, isEndCard: true);
         case 'messageCard':
           return TextCard(text: data.description.orEmpty, isMessage: true);
+        case 'refreshCard':
+          return TextCard(text: data.title.orEmpty, isRefreshCard: true);
       }
     case 'feed':
       return FeedCard(

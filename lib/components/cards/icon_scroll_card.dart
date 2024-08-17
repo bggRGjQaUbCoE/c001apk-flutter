@@ -34,11 +34,11 @@ class IconScrollCard extends StatelessWidget {
               ),
             SelfSizedHorizontalList(
               gapSize: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 10),
               itemCount: data.entities!.length,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               childBuilder: (index) =>
                   _scrollCardItem(width, data.entities![index]),
-            ),
+            )
           ],
         ),
       );

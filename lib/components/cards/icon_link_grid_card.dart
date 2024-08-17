@@ -66,19 +66,29 @@ class _IconLinkGridCardState extends State<IconLinkGridCard> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(_page, (index) {
-                  return Container(
-                    margin: const EdgeInsets.all(2.5),
-                    width: _currentPage == index ? 10 : 7,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(12)),
-                      shape: BoxShape.rectangle,
-                      color: _currentPage == index
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withAlpha(128),
+                  return GestureDetector(
+                    onTap: () {
+                      _controller.animateToPage(
+                        index,
+                        duration: const Duration(milliseconds: 255),
+                        curve: Curves.ease,
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(2.5),
+                      width: _currentPage == index ? 10 : 7,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(12)),
+                        shape: BoxShape.rectangle,
+                        color: _currentPage == index
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withAlpha(128),
+                      ),
                     ),
                   );
                 }),

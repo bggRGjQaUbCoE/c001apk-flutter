@@ -455,7 +455,7 @@ class NetworkRepo {
     if (response.statusCode == HttpStatus.ok) {
       DataModel responseData = DataModel.fromJson(response.data);
       if (!responseData.message.isNullOrEmpty) {
-        return LoadingState.error(response.data['message']);
+        return LoadingState.error(responseData.message!);
       } else {
         if (responseData.data != null) {
           return LoadingState.success(responseData.data);
@@ -475,7 +475,7 @@ class NetworkRepo {
     if (response.statusCode == HttpStatus.ok) {
       DataListModel responseData = DataListModel.fromJson(response.data);
       if (!responseData.message.isNullOrEmpty) {
-        return LoadingState.error(response.data['message']);
+        return LoadingState.error(responseData.message!);
       } else {
         if (!responseData.data.isNullOrEmpty) {
           List<String> userBlackList = GStorage.blackList
@@ -483,15 +483,18 @@ class NetworkRepo {
           List<String> topicBlackList = GStorage.blackList
               .get(BlackListBoxKey.topicBlackList, defaultValue: <String>[]);
           List<Datum> filterList = responseData.data!.where((item) {
-            return (Constants.entityTypeList.contains(item.entityType) ||
-                    (Constants.entityTemplateList +
-                            (inCluldeConfigCard ? ['configCard'] : []))
-                        .contains(item.entityTemplate)) &&
-                !userBlackList.contains(item.uid.toString()) &&
-                topicBlackList.firstWhereOrNull((keyword) =>
-                        '${item.tags},${item.ttitle},${item.relationRows?.getOrNull(0)?.title}'
-                            .contains(keyword)) ==
-                    null;
+            return item.entityTemplate == 'refreshCard' &&
+                    item.title.orEmpty.contains('没有')
+                ? true
+                : (Constants.entityTypeList.contains(item.entityType) ||
+                        (Constants.entityTemplateList +
+                                (inCluldeConfigCard ? ['configCard'] : []))
+                            .contains(item.entityTemplate)) &&
+                    !userBlackList.contains(item.uid.toString()) &&
+                    topicBlackList.firstWhereOrNull((keyword) =>
+                            '${item.tags},${item.ttitle},${item.relationRows?.getOrNull(0)?.title}'
+                                .contains(keyword)) ==
+                        null;
           }).toList();
           return LoadingState.success(filterList);
         } else {

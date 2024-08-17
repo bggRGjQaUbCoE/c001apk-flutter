@@ -6,11 +6,13 @@ class TextCard extends StatelessWidget {
     required this.text,
     this.isMessage = false,
     this.isEndCard = false,
+    this.isRefreshCard = false,
   });
 
   final String text;
   final bool isMessage;
   final bool isEndCard;
+  final bool isRefreshCard;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class TextCard extends StatelessWidget {
       ),
       child: Text(
         text,
-        textAlign: isEndCard ? TextAlign.center : null,
+        textAlign: isRefreshCard || isEndCard ? TextAlign.center : null,
         style: TextStyle(
           color: isMessage
               ? Theme.of(context).colorScheme.onSecondaryContainer

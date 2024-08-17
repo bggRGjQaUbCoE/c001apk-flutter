@@ -10,10 +10,11 @@ class IconText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Icon(
           icon,
-          size: MediaQuery.textScalerOf(context).scale(14),
+          size: MediaQuery.textScalerOf(context).scale(13),
           color: Theme.of(context).colorScheme.outline,
         ),
         Flexible(
@@ -22,9 +23,10 @@ class IconText extends StatelessWidget {
             text,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.outline,
-                ),
+            style: TextStyle(
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.outline,
+            ),
           ),
         ),
       ],

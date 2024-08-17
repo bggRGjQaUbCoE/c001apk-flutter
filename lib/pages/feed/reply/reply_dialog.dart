@@ -23,6 +23,7 @@ import '../../../utils/extensions.dart';
 import '../../../utils/oss/aliyunoss_client.dart';
 import '../../../utils/oss/aliyunoss_config.dart';
 import '../../../utils/oss_util.dart';
+import '../../../utils/utils.dart';
 
 /// From Pilipala
 
@@ -55,7 +56,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
       TextEditingController(
           text: widget.targetType == 'tag' ? '#${widget.title}# ' : null);
   final FocusNode _replyContentFocusNode = FocusNode();
-  late double _emoteHeight = 0.0;
+  late double _emoteHeight = Utils.isDesktop ? 255.0 : 0.0;
   double _keyboardHeight = 0.0; // 键盘高度
   final _debouncer = Debouncer(milliseconds: 200); // 设置延迟时间
   String _toolbarType = 'input';
@@ -68,6 +69,8 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   late final _pathList = <String>[];
   late final _modelList = <OssUploadModel>[];
   String? _pic;
+
+  late final _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -321,6 +324,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
     _captchaController.dispose();
     _replyContentFocusNode.removeListener(() {});
     _replyContentFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -409,58 +413,63 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                   selected: _toolbarType == 'emote',
                 ),
                 const SizedBox(width: 10),
-                IconButton(
-                  icon: const Icon(Icons.image),
-                  color: Theme.of(context).colorScheme.outline,
-                  onPressed: () async {
-                    List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
-                      limit: 9,
-                      imageQuality: 100,
-                    );
-                    if (pickedFiles.isNotEmpty) {
-                      try {
-                        for (int i = 0; i < pickedFiles.length; i++) {
-                          if (_pathList.length == 9) {
-                            SmartDialog.dismiss();
-                            SmartDialog.showToast('最多选择9张图片');
-                            if (i != 0) {
-                              _pathStream.add(_pathList);
-                            }
-                            break;
-                          } else {
-                            SmartDialog.showLoading(
-                                msg: '正在加载图片: $i/${pickedFiles.length}');
-                            Uint8List imageBytes =
-                                await pickedFiles[i].readAsBytes();
-                            ui.Image image =
-                                await decodeImageFromList(imageBytes);
-                            int width = image.width;
-                            int height = image.height;
-                            Digest md5Hash = md5.convert(imageBytes);
-                            String mimeType =
-                                lookupMimeType(pickedFiles[i].path) ??
-                                    'image/png';
-                            String name =
-                                '${const Uuid().v1().replaceAll('-', '')}.${mimeType.replaceFirst('image/', '')}';
-                            OssUploadModel uploadModel = OssUploadModel(
-                              name: name,
-                              resolution: '${width}x$height',
-                              md5: md5Hash.toString(),
-                            );
-                            _pathList.add(pickedFiles[i].path);
-                            _modelList.add(uploadModel);
-                            if (i == pickedFiles.length - 1) {
+                SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: IconButton(
+                    icon: const Icon(Icons.image, size: 22),
+                    color: Theme.of(context).colorScheme.outline,
+                    onPressed: () async {
+                      List<XFile> pickedFiles =
+                          await _imagePicker.pickMultiImage(
+                        limit: 9,
+                        imageQuality: 100,
+                      );
+                      if (pickedFiles.isNotEmpty) {
+                        try {
+                          for (int i = 0; i < pickedFiles.length; i++) {
+                            if (_pathList.length == 9) {
                               SmartDialog.dismiss();
-                              _pathStream.add(_pathList);
+                              SmartDialog.showToast('最多选择9张图片');
+                              if (i != 0) {
+                                _pathStream.add(_pathList);
+                              }
+                              break;
+                            } else {
+                              SmartDialog.showLoading(
+                                  msg: '正在加载图片: $i/${pickedFiles.length}');
+                              Uint8List imageBytes =
+                                  await pickedFiles[i].readAsBytes();
+                              ui.Image image =
+                                  await decodeImageFromList(imageBytes);
+                              int width = image.width;
+                              int height = image.height;
+                              Digest md5Hash = md5.convert(imageBytes);
+                              String mimeType =
+                                  lookupMimeType(pickedFiles[i].path) ??
+                                      'image/png';
+                              String name =
+                                  '${const Uuid().v1().replaceAll('-', '')}.${mimeType.replaceFirst('image/', '')}';
+                              OssUploadModel uploadModel = OssUploadModel(
+                                name: name,
+                                resolution: '${width}x$height',
+                                md5: md5Hash.toString(),
+                              );
+                              _pathList.add(pickedFiles[i].path);
+                              _modelList.add(uploadModel);
+                              if (i == pickedFiles.length - 1) {
+                                SmartDialog.dismiss();
+                                _pathStream.add(_pathList);
+                              }
                             }
                           }
+                        } catch (e) {
+                          SmartDialog.dismiss();
+                          debugPrint(e.toString());
                         }
-                      } catch (e) {
-                        SmartDialog.dismiss();
-                        debugPrint(e.toString());
                       }
-                    }
-                  },
+                    },
+                  ),
                 ),
                 const Spacer(),
                 TextButton(
@@ -528,27 +537,35 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                   return Container(
                     height: 75,
                     margin: const EdgeInsets.only(bottom: 10),
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      physics: const AlwaysScrollableScrollPhysics(
-                        parent: BouncingScrollPhysics(),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      itemCount: _pathList.length,
-                      itemBuilder: (context, index) => GestureDetector(
-                        onTap: () {
-                          _pathList.removeAt(index);
-                          _modelList.removeAt(index);
-                          _pathStream.add(_pathList);
-                        },
-                        child: Image(
-                          height: 75,
-                          fit: BoxFit.fitHeight,
-                          filterQuality: FilterQuality.low,
-                          image: FileImage(File(_pathList[index])),
+                    child: Scrollbar(
+                      controller: _scrollController,
+                      thumbVisibility: Utils.isDesktop,
+                      interactive: Utils.isDesktop,
+                      thickness: Utils.isDesktop ? 8 : 0,
+                      child: ListView.separated(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
                         ),
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        itemCount: _pathList.length,
+                        itemBuilder: (context, index) => GestureDetector(
+                          onTap: () {
+                            _pathList.removeAt(index);
+                            _modelList.removeAt(index);
+                            _pathStream.add(_pathList);
+                          },
+                          child: Image(
+                            height: 75,
+                            fit: BoxFit.fitHeight,
+                            filterQuality: FilterQuality.low,
+                            image: FileImage(File(_pathList[index])),
+                          ),
+                        ),
+                        separatorBuilder: (_, index) =>
+                            const SizedBox(width: 10),
                       ),
-                      separatorBuilder: (_, index) => const SizedBox(width: 10),
                     ),
                   );
                 } else {

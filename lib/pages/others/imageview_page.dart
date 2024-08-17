@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -41,104 +39,153 @@ class _ImageViewPageState extends State<ImageViewPage> {
       appBar: AppBar(
         title: Text('${_initialPage + 1}/${_imgList.length}'),
       ),
-      body: GestureDetector(
-        onLongPress: () {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  clipBehavior: Clip.hardEdge,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: const Text(
-                          'Save',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        onTap: () {
-                          DownloadUtils.downloadImg([_imgList[_initialPage]]);
-                          Get.back();
-                        },
-                      ),
-                      if (_imgList.length != 1)
-                        ListTile(
-                          title: const Text(
-                            'Save All',
-                            style: TextStyle(fontSize: 14),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          GestureDetector(
+            onLongPress: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      clipBehavior: Clip.hardEdge,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ListTile(
+                            title: const Text(
+                              'Save',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            onTap: () {
+                              DownloadUtils.downloadImg(
+                                  [_imgList[_initialPage]]);
+                              Get.back();
+                            },
                           ),
-                          onTap: () {
-                            DownloadUtils.downloadImg(_imgList);
-                            Get.back();
-                          },
-                        ),
-                      ListTile(
-                        title: const Text(
-                          'Share',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        onTap: () {
-                          Utils.onShareImg(_imgList[_initialPage]);
-                          Get.back();
-                        },
-                      ),
-                      ListTile(
-                        title: const Text(
-                          'Copy',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        onTap: () {
-                          Utils.copyText(_imgList[_initialPage]);
-                          Get.back();
-                        },
-                      ),
-                      if (!Platform.isAndroid && !Platform.isIOS)
-                        ListTile(
-                          title: const Text(
-                            'Open In Browser',
-                            style: TextStyle(fontSize: 14),
+                          if (_imgList.length != 1)
+                            ListTile(
+                              title: const Text(
+                                'Save All',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              onTap: () {
+                                DownloadUtils.downloadImg(_imgList);
+                                Get.back();
+                              },
+                            ),
+                          ListTile(
+                            title: const Text(
+                              'Share',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            onTap: () {
+                              Utils.onShareImg(_imgList[_initialPage]);
+                              Get.back();
+                            },
                           ),
-                          onTap: () {
-                            Utils.launchURL(_imgList[_initialPage]);
-                            Get.back();
-                          },
-                        ),
-                    ],
-                  ),
-                );
-              });
-        },
-        child: PhotoViewGallery.builder(
-          backgroundDecoration: const BoxDecoration(
-            color: Colors.transparent,
-          ),
-          scrollPhysics: const BouncingScrollPhysics(),
-          builder: (BuildContext context, int index) {
-            return PhotoViewGalleryPageOptions(
-              imageProvider: CachedNetworkImageProvider(_imgList[index]),
-              initialScale: PhotoViewComputedScale.contained,
-              heroAttributes: PhotoViewHeroAttributes(tag: _imgList[index]),
-            );
-          },
-          itemCount: _imgList.length,
-          loadingBuilder: (context, event) => Center(
-            child: SizedBox(
-              width: 20.0,
-              height: 20.0,
-              child: CircularProgressIndicator(
-                value: event == null
-                    ? 0
-                    : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                          ListTile(
+                            title: const Text(
+                              'Copy',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            onTap: () {
+                              Utils.copyText(_imgList[_initialPage]);
+                              Get.back();
+                            },
+                          ),
+                          if (Utils.isDesktop)
+                            ListTile(
+                              title: const Text(
+                                'Open In Browser',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              onTap: () {
+                                Utils.launchURL(_imgList[_initialPage]);
+                                Get.back();
+                              },
+                            ),
+                        ],
+                      ),
+                    );
+                  });
+            },
+            child: PhotoViewGallery.builder(
+              backgroundDecoration: const BoxDecoration(
+                color: Colors.transparent,
               ),
+              scrollPhysics: const BouncingScrollPhysics(),
+              builder: (BuildContext context, int index) {
+                return PhotoViewGalleryPageOptions(
+                  imageProvider: CachedNetworkImageProvider(_imgList[index]),
+                  initialScale: PhotoViewComputedScale.contained,
+                  heroAttributes: PhotoViewHeroAttributes(tag: _imgList[index]),
+                );
+              },
+              itemCount: _imgList.length,
+              loadingBuilder: (context, event) => Center(
+                child: SizedBox(
+                  width: 20.0,
+                  height: 20.0,
+                  child: CircularProgressIndicator(
+                    value: event == null
+                        ? 0
+                        : event.cumulativeBytesLoaded /
+                            event.expectedTotalBytes!,
+                  ),
+                ),
+              ),
+              // backgroundDecoration: widget.backgroundDecoration,
+              pageController: _pageController,
+              onPageChanged: (index) {
+                setState(() => _initialPage = index);
+              },
             ),
           ),
-          // backgroundDecoration: widget.backgroundDecoration,
-          pageController: _pageController,
-          onPageChanged: (index) {
-            setState(() => _initialPage = index);
-          },
-        ),
+          if (Utils.isDesktop && _imgList.length != 1)
+            Positioned(
+              left: 0,
+              child: IconButton(
+                onPressed: () {
+                  _pageController.animateToPage(
+                    _pageController.page!.round() - 1,
+                    duration: const Duration(milliseconds: 255),
+                    curve: Curves.ease,
+                  );
+                },
+                icon: Icon(
+                  Icons.arrow_back,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
+                style: IconButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.5)),
+              ),
+            ),
+          if (Utils.isDesktop && _imgList.length != 1)
+            Positioned(
+              right: 0,
+              child: IconButton(
+                onPressed: () {
+                  _pageController.animateToPage(
+                    _pageController.page!.round() + 1,
+                    duration: const Duration(milliseconds: 255),
+                    curve: Curves.ease,
+                  );
+                },
+                icon: Icon(
+                  Icons.arrow_forward,
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
+                style: IconButton.styleFrom(
+                    backgroundColor:
+                        Theme.of(context).colorScheme.surface.withOpacity(0.5)),
+              ),
+            ),
+        ],
       ),
     );
   }

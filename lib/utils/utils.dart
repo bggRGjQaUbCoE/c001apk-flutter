@@ -28,6 +28,9 @@ enum ShareType { feed, u, apk, t, product }
 class Utils {
   static const platform = MethodChannel('samples.flutter.dev/channel');
 
+  static bool isDesktop =
+      Platform.isMacOS || Platform.isLinux || Platform.isWindows;
+
   static String getFollowTitle(int index) {
     return switch (index) {
       1 => '好友关注',

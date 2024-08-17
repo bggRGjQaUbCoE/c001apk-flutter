@@ -107,15 +107,24 @@ class _CarouselCardState extends State<CarouselCard> {
                   children: List.generate(
                       _filterList.length == 1 ? 1 : _filterList.length - 2,
                       (index) {
-                    return Container(
-                      margin: const EdgeInsets.all(2),
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _currentPage == index
-                            ? Colors.white
-                            : Colors.white.withAlpha(128),
+                    return GestureDetector(
+                      onTap: () {
+                        _controller.animateToPage(
+                          index + 1,
+                          duration: const Duration(milliseconds: 255),
+                          curve: Curves.ease,
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.all(2),
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _currentPage == index
+                              ? Colors.white
+                              : Colors.white.withAlpha(128),
+                        ),
                       ),
                     );
                   }),

@@ -2,16 +2,19 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../logic/model/feed/datum.dart';
 import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 
 class MessageHeaderCard extends StatelessWidget {
   const MessageHeaderCard({
     super.key,
+    this.userInfo,
     required this.onLogin,
     required this.onLogout,
   });
 
+  final Datum? userInfo;
   final Function() onLogin;
   final Function() onLogout;
 
@@ -36,10 +39,11 @@ class MessageHeaderCard extends StatelessWidget {
               children: [
                 const SizedBox(width: 20),
                 GestureDetector(
-                  onTap: () => Get.toNamed('/u/${GlobalData().uid}'),
+                  onTap: () =>
+                      Get.toNamed('/u/${userInfo?.uid ?? GlobalData().uid}'),
                   child: CircleAvatar(
-                    backgroundImage:
-                        CachedNetworkImageProvider(GStorage.userAvatar),
+                    backgroundImage: CachedNetworkImageProvider(
+                        userInfo?.userAvatar ?? GStorage.userAvatar),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -51,7 +55,8 @@ class MessageHeaderCard extends StatelessWidget {
                     children: [
                       Text(
                         () {
-                          String username = GlobalData().username;
+                          String username =
+                              userInfo?.username ?? GlobalData().username;
                           try {
                             username = Uri.decodeComponent(username);
                           } catch (e) {
@@ -71,19 +76,20 @@ class MessageHeaderCard extends StatelessWidget {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              'Lv.${GStorage.level}',
+                              'Lv.${userInfo?.level ?? GStorage.level}',
                               style: const TextStyle(fontSize: 13),
                             ),
                           ),
                           Text(
-                            '${GStorage.exp}/${GStorage.nextExp}',
+                            '${userInfo?.experience ?? GStorage.exp}/${userInfo?.nextLevelExperience ?? GStorage.nextExp}',
                             style: const TextStyle(fontSize: 13),
                           ),
                         ],
                       ),
                       const SizedBox(height: 5),
                       LinearProgressIndicator(
-                        value: GStorage.exp / GStorage.nextExp,
+                        value: (userInfo?.experience ?? GStorage.exp) /
+                            (userInfo?.nextLevelExperience ?? GStorage.nextExp),
                         borderRadius: const BorderRadius.all(
                           Radius.circular(10),
                         ),

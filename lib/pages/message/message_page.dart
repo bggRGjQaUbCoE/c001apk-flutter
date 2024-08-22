@@ -7,7 +7,6 @@ import '../../components/cards/message_second_card.dart';
 import '../../components/cards/message_third_card.dart';
 import '../../components/footer.dart';
 import '../../components/item_card.dart';
-import '../../components/sliver_pinned_box_adapter.dart';
 import '../../logic/model/feed/datum.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/message/message_controller.dart';
@@ -143,126 +142,125 @@ class _MessagePageState extends State<MessagePage> {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        if (GlobalData().isLogin) {
-          _isRefreshing = true;
-          await _onRefresh();
-        } else {
-          return Future.value();
-        }
-      },
-      child: CustomScrollView(
-        physics: const AlwaysScrollableScrollPhysics(
-          parent: BouncingScrollPhysics(),
-        ),
-        slivers: [
-          SliverPinnedBoxAdapter(
-            child: Container(
-              color: Theme.of(context).colorScheme.surface,
-              child: SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(height: 10),
-                    MessageHeaderCard(
-                      onLogin: () async {
-                        if (await Get.toNamed('/login')) {
-                          _onRefresh();
-                        }
-                      },
-                      onLogout: () {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('确定退出登录？'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Get.back(),
-                                    child: const Text('取消'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      _messageController.firstList.clear();
-                                      _messageController.thirdList.clear();
+    return Column(
+      children: [
+        SizedBox(height: MediaQuery.of(context).padding.top + 10),
+        Obx(
+          () => MessageHeaderCard(
+            userInfo: _messageController.userInfo.value,
+            onLogin: () async {
+              if (await Get.toNamed('/login')) {
+                _onRefresh();
+              }
+            },
+            onLogout: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('确定退出登录？'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: const Text('取消'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            _messageController.firstList.clear();
+                            _messageController.thirdList.clear();
 
-                                      GStorage.setUid('');
-                                      GStorage.setUsername('');
-                                      GStorage.setToken('');
-                                      GStorage.setUserAvatar('');
-                                      GStorage.setLevel(0);
-                                      GStorage.setExp(0);
-                                      GStorage.setNextExp(1);
-                                      GStorage.setIsLogin(false);
-                                      _messageController.setLoadingState(
-                                          LoadingState.loading());
-                                      _messageController
-                                          .setFooterState(LoadingState.empty());
-                                      Get.back();
-                                      Get.forceAppUpdate();
-                                    },
-                                    child: const Text('确定'),
-                                  ),
-                                ],
-                              );
-                            });
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    const Divider(height: 1)
-                  ],
-                ),
+                            GStorage.setUid('');
+                            GStorage.setUsername('');
+                            GStorage.setToken('');
+                            GStorage.setUserAvatar('');
+                            GStorage.setLevel(0);
+                            GStorage.setExp(0);
+                            GStorage.setNextExp(1);
+                            GStorage.setIsLogin(false);
+                            _messageController
+                                .setLoadingState(LoadingState.loading());
+                            _messageController
+                                .setFooterState(LoadingState.empty());
+                            Get.back();
+                            Get.forceAppUpdate();
+                          },
+                          child: const Text('确定'),
+                        ),
+                      ],
+                    );
+                  });
+            },
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Divider(height: 1),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              if (GlobalData().isLogin) {
+                _isRefreshing = true;
+                await _onRefresh();
+              } else {
+                return Future.value();
+              }
+            },
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.all(10),
+                  sliver: SliverList.separated(
+                    itemCount: 7,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return Obx(
+                          () => messageFirstCard(
+                            GlobalData().isLogin,
+                            context,
+                            _messageController.firstList,
+                          ),
+                        );
+                      } else if (index == 1) {
+                        return messageSeconfCard(GlobalData().isLogin, context);
+                      } else if (index >= 2 && index <= 6) {
+                        return Obx(
+                          () => messageThirdCard(
+                            context,
+                            _backgroundList[index - 2],
+                            _iconList[index - 2],
+                            _titleList[index - 2],
+                            _messageController.thirdList.getOrNull(index - 2),
+                            () {
+                              if (GlobalData().isLogin) {
+                                Get.toNamed('/notification', arguments: {
+                                  'type': NotificationType.values[index - 2]
+                                });
+                                int? count = _messageController.thirdList
+                                    .getOrNull(index - 2);
+                                if (count != null && count > 0) {
+                                  _messageController.thirdList[index - 2] =
+                                      null;
+                                }
+                              }
+                            },
+                          ),
+                        );
+                      }
+                      return const SizedBox();
+                    },
+                    separatorBuilder: (_, index) => const SizedBox(height: 10),
+                  ),
+                ),
+                if (GlobalData().isLogin)
+                  Obx(() =>
+                      _buildMessage(_messageController.loadingState.value)),
+              ],
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.all(10),
-            sliver: SliverList.separated(
-              itemCount: 7,
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Obx(
-                    () => messageFirstCard(
-                      GlobalData().isLogin,
-                      context,
-                      _messageController.firstList,
-                    ),
-                  );
-                } else if (index == 1) {
-                  return messageSeconfCard(GlobalData().isLogin, context);
-                } else if (index >= 2 && index <= 6) {
-                  return Obx(
-                    () => messageThirdCard(
-                      context,
-                      _backgroundList[index - 2],
-                      _iconList[index - 2],
-                      _titleList[index - 2],
-                      _messageController.thirdList.getOrNull(index - 2),
-                      () {
-                        if (GlobalData().isLogin) {
-                          Get.toNamed('/notification', arguments: {
-                            'type': NotificationType.values[index - 2]
-                          });
-                          int? count =
-                              _messageController.thirdList.getOrNull(index - 2);
-                          if (count != null && count > 0) {
-                            _messageController.thirdList[index - 2] = null;
-                          }
-                        }
-                      },
-                    ),
-                  );
-                }
-                return const SizedBox();
-              },
-              separatorBuilder: (_, index) => const SizedBox(height: 10),
-            ),
-          ),
-          if (GlobalData().isLogin)
-            Obx(() => _buildMessage(_messageController.loadingState.value)),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

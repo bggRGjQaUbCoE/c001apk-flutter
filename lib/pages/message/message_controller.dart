@@ -13,6 +13,7 @@ import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 
 class MessageController extends CommonController {
+  final Rx<Datum?> userInfo = Datum().obs;
   final RxList<int?> firstList = <int?>[].obs;
   final RxList<int?> thirdList = <int?>[].obs;
 
@@ -47,6 +48,7 @@ class MessageController extends CommonController {
       GStorage.setLevel(data?.level ?? 0);
       GStorage.setExp(data?.experience ?? 0);
       GStorage.setNextExp(data?.nextLevelExperience ?? 1);
+      userInfo.value = data;
       firstList.value = [data?.feed, data?.follow, data?.fans];
     } catch (e) {
       debugPrint(e.toString());

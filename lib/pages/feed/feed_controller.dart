@@ -162,7 +162,6 @@ class FeedController extends CommonController {
     List<String> userBlackList = GStorage.blackList
         .get(BlackListBoxKey.userBlackList, defaultValue: <String>[]);
     return filterList
-        .unique((data) => data.entityId)
         .map((data) => data
           ..replyRows = !data.replyRows.isNullOrEmpty
               ? data.replyRows!

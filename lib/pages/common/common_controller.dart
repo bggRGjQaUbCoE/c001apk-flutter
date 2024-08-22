@@ -25,6 +25,10 @@ abstract class CommonController extends GetxController {
   ReturnTopController? returnTopController;
 
   List<Datum>? handleResponse(List<Datum> dataList) {
+    return null;
+  }
+
+  List<Datum>? handleUnique(List<Datum> dataList) {
     return dataList.unique((data) => data.entityId);
   }
 
@@ -42,13 +46,18 @@ abstract class CommonController extends GetxController {
         List<Datum> dataList = response.response;
         firstItem ??= dataList.firstOrNull?.id.toString();
         lastItem = dataList.lastOrNull?.id.toString();
-        List<Datum>? handleList = handleResponse(dataList);
-        if (handleList != null) {
-          dataList = handleList;
+        List<Datum>? responseList = handleResponse(dataList);
+        if (responseList != null) {
+          dataList = responseList;
         }
-        loadingState.value = LoadingState.success(isRefresh
-            ? dataList
-            : (loadingState.value as Success).response + dataList);
+        if (!isRefresh) {
+          dataList = (loadingState.value as Success).response + dataList;
+        }
+        List<Datum>? uniqueList = handleUnique(dataList);
+        if (uniqueList != null) {
+          dataList = uniqueList;
+        }
+        loadingState.value = LoadingState.success(dataList);
         page++;
       } else {
         isEnd = true;

@@ -41,10 +41,10 @@ class FFFListController extends CommonController {
   }
 
   @override
-  List<Datum>? handleResponse(List<Datum> dataList) {
+  List<Datum>? handleUnique(List<Datum> dataList) {
     return [FFFListType.FOLLOW, FFFListType.FAN, FFFListType.USER_FOLLOW]
             .contains(type)
         ? null
-        : super.handleResponse(dataList);
+        : super.handleUnique(dataList);
   }
 }

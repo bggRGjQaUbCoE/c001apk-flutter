@@ -397,7 +397,6 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                     _replyContentFocusNode.requestFocus();
                   },
                   icon: const Icon(Icons.keyboard, size: 22),
-                  toolbarType: _toolbarType,
                   selected: _toolbarType == 'input',
                 ),
                 const SizedBox(width: 10),
@@ -409,67 +408,61 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                     FocusScope.of(context).unfocus();
                   },
                   icon: const Icon(Icons.emoji_emotions, size: 22),
-                  toolbarType: _toolbarType,
                   selected: _toolbarType == 'emote',
                 ),
                 const SizedBox(width: 10),
-                SizedBox(
-                  width: 36,
-                  height: 36,
-                  child: IconButton(
-                    icon: const Icon(Icons.image, size: 22),
-                    color: Theme.of(context).colorScheme.outline,
-                    onPressed: () async {
-                      List<XFile> pickedFiles =
-                          await _imagePicker.pickMultiImage(
-                        limit: 9,
-                        imageQuality: 100,
-                      );
-                      if (pickedFiles.isNotEmpty) {
-                        try {
-                          for (int i = 0; i < pickedFiles.length; i++) {
-                            if (_pathList.length == 9) {
+                ToolbarIconButton(
+                  selected: false,
+                  icon: const Icon(Icons.image, size: 22),
+                  onPressed: () async {
+                    List<XFile> pickedFiles = await _imagePicker.pickMultiImage(
+                      limit: 9,
+                      imageQuality: 100,
+                    );
+                    if (pickedFiles.isNotEmpty) {
+                      try {
+                        for (int i = 0; i < pickedFiles.length; i++) {
+                          if (_pathList.length == 9) {
+                            SmartDialog.dismiss();
+                            SmartDialog.showToast('最多选择9张图片');
+                            if (i != 0) {
+                              _pathStream.add(_pathList);
+                            }
+                            break;
+                          } else {
+                            SmartDialog.showLoading(
+                                msg: '正在加载图片: $i/${pickedFiles.length}');
+                            Uint8List imageBytes =
+                                await pickedFiles[i].readAsBytes();
+                            ui.Image image =
+                                await decodeImageFromList(imageBytes);
+                            int width = image.width;
+                            int height = image.height;
+                            Digest md5Hash = md5.convert(imageBytes);
+                            String mimeType =
+                                lookupMimeType(pickedFiles[i].path) ??
+                                    'image/png';
+                            String name =
+                                '${const Uuid().v1().replaceAll('-', '')}.${mimeType.replaceFirst('image/', '')}';
+                            OssUploadModel uploadModel = OssUploadModel(
+                              name: name,
+                              resolution: '${width}x$height',
+                              md5: md5Hash.toString(),
+                            );
+                            _pathList.add(pickedFiles[i].path);
+                            _modelList.add(uploadModel);
+                            if (i == pickedFiles.length - 1) {
                               SmartDialog.dismiss();
-                              SmartDialog.showToast('最多选择9张图片');
-                              if (i != 0) {
-                                _pathStream.add(_pathList);
-                              }
-                              break;
-                            } else {
-                              SmartDialog.showLoading(
-                                  msg: '正在加载图片: $i/${pickedFiles.length}');
-                              Uint8List imageBytes =
-                                  await pickedFiles[i].readAsBytes();
-                              ui.Image image =
-                                  await decodeImageFromList(imageBytes);
-                              int width = image.width;
-                              int height = image.height;
-                              Digest md5Hash = md5.convert(imageBytes);
-                              String mimeType =
-                                  lookupMimeType(pickedFiles[i].path) ??
-                                      'image/png';
-                              String name =
-                                  '${const Uuid().v1().replaceAll('-', '')}.${mimeType.replaceFirst('image/', '')}';
-                              OssUploadModel uploadModel = OssUploadModel(
-                                name: name,
-                                resolution: '${width}x$height',
-                                md5: md5Hash.toString(),
-                              );
-                              _pathList.add(pickedFiles[i].path);
-                              _modelList.add(uploadModel);
-                              if (i == pickedFiles.length - 1) {
-                                SmartDialog.dismiss();
-                                _pathStream.add(_pathList);
-                              }
+                              _pathStream.add(_pathList);
                             }
                           }
-                        } catch (e) {
-                          SmartDialog.dismiss();
-                          debugPrint(e.toString());
                         }
+                      } catch (e) {
+                        SmartDialog.dismiss();
+                        debugPrint(e.toString());
                       }
-                    },
-                  ),
+                    }
+                  },
                 ),
                 const Spacer(),
                 TextButton(

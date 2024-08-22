@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 class ToolbarIconButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Icon icon;
-  final String toolbarType;
   final bool selected;
 
   const ToolbarIconButton({
     super.key,
     required this.onPressed,
     required this.icon,
-    required this.toolbarType,
     required this.selected,
   });
 

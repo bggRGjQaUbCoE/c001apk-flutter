@@ -409,7 +409,7 @@ class _ChatPageState extends State<ChatPage> {
                   },
                   icon: Icon(snapshot.data == true
                       ? Icons.send
-                      : Icons.image_outlined),
+                      : Icons.add_photo_alternate_outlined),
                   tooltip: snapshot.data == true ? 'Send' : 'Image',
                 );
               }),

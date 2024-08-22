@@ -28,8 +28,9 @@ class MainActivity: FlutterActivity(){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
             call, result ->
             if (call.method == "getInstalledApps") {
-                val installedApps = getInstalledApps()
-                result.success(installedApps)
+                Thread {
+                    result.success(getInstalledApps())
+                }.start()
             } else if (call.method == "downloadApk") {
                 val url= call.argument<String>("url")
                 val name = call.argument<String>("name")

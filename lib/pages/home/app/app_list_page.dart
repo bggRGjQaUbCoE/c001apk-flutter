@@ -14,7 +14,10 @@ class AppListPage extends StatefulWidget {
 }
 
 class _AppListPageState extends State<AppListPage>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   final _scrollController = ScrollController();
   final _appListController = Get.put(AppListController());
   final _returnTopController = Get.find<ReturnTopController>(tag: 'home');

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +18,13 @@ class ImageViewPage extends StatefulWidget {
 
 class _ImageViewPageState extends State<ImageViewPage> {
   late int _initialPage;
+  final _currentPageStream = StreamController<int>();
   late List<String> _imgList;
   late final _pageController = PageController(initialPage: _initialPage);
 
   @override
   void dispose() {
+    _currentPageStream.close();
     _pageController.dispose();
     super.dispose();
   }
@@ -37,7 +41,12 @@ class _ImageViewPageState extends State<ImageViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${_initialPage + 1}/${_imgList.length}'),
+        title: StreamBuilder(
+          initialData: _initialPage,
+          stream: _currentPageStream.stream,
+          builder: (_, snapshot) =>
+              Text('${snapshot.data! + 1}/${_imgList.length}'),
+        ),
       ),
       body: Stack(
         alignment: Alignment.center,
@@ -139,7 +148,8 @@ class _ImageViewPageState extends State<ImageViewPage> {
               // backgroundDecoration: widget.backgroundDecoration,
               pageController: _pageController,
               onPageChanged: (index) {
-                setState(() => _initialPage = index);
+                _initialPage = index;
+                _currentPageStream.add(index);
               },
             ),
           ),

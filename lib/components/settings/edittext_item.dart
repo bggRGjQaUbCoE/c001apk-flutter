@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 import '../../components/dialog.dart';
 import '../../utils/storage_util.dart';
@@ -12,7 +11,6 @@ class EdittextItem extends StatefulWidget {
     required this.boxKey,
     this.needUpdateUserAgent = false,
     this.needUpdateXAppDevice = false,
-    this.forceAppUpdate = false,
     this.onChanged,
   });
 
@@ -21,7 +19,6 @@ class EdittextItem extends StatefulWidget {
   final String boxKey;
   final bool needUpdateUserAgent;
   final bool needUpdateXAppDevice;
-  final bool forceAppUpdate;
   final Function()? onChanged;
 
   @override
@@ -55,12 +52,8 @@ class EdittextItemState extends State<EdittextItem> {
     }
     if (widget.onChanged != null) {
       widget.onChanged!();
-    } else {
-      setState(() => this.value = value);
     }
-    if (widget.forceAppUpdate) {
-      Get.forceAppUpdate();
-    }
+    setState(() => this.value = value);
   }
 
   @override

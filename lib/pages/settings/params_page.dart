@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../components/settings/edittext_item.dart';
 import '../../utils/storage_util.dart';
@@ -12,17 +13,20 @@ class ParamsPage extends StatefulWidget {
 }
 
 class _ParamsPageState extends State<ParamsPage> {
-  void onChanged() {
-    setState(() {});
-  }
+  late final _paramsController = Get.put(ParamsController());
 
-  final manufacturerKey =
-      GlobalKey<EdittextItemState>(debugLabel: 'manufacturer');
-  final brandKey = GlobalKey<EdittextItemState>(debugLabel: 'brand');
-  final modelKey = GlobalKey<EdittextItemState>(debugLabel: 'model');
-  final buildKey = GlobalKey<EdittextItemState>(debugLabel: 'build');
-  final sdkKey = GlobalKey<EdittextItemState>(debugLabel: 'sdk');
-  final androidKey = GlobalKey<EdittextItemState>(debugLabel: 'android');
+  final manufacturerKey = GlobalKey<EdittextItemState>();
+  final brandKey = GlobalKey<EdittextItemState>();
+  final modelKey = GlobalKey<EdittextItemState>();
+  final buildKey = GlobalKey<EdittextItemState>();
+  final sdkKey = GlobalKey<EdittextItemState>();
+  final androidKey = GlobalKey<EdittextItemState>();
+
+  @override
+  void dispose() {
+    Get.delete<ParamsController>();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +44,7 @@ class _ParamsPageState extends State<ParamsPage> {
             title: 'Version Name',
             boxKey: SettingsBoxKey.versionName,
             needUpdateUserAgent: true,
-            onChanged: onChanged,
+            onChanged: _paramsController.onChanged,
           ),
           const EdittextItem(
             title: 'Api Version',
@@ -50,14 +54,14 @@ class _ParamsPageState extends State<ParamsPage> {
             title: 'Version Code',
             boxKey: SettingsBoxKey.versionCode,
             needUpdateUserAgent: true,
-            onChanged: onChanged,
+            onChanged: _paramsController.onChanged,
           ),
           EdittextItem(
             key: manufacturerKey,
             title: 'Manufacturer',
             boxKey: SettingsBoxKey.manufacturer,
             needUpdateXAppDevice: true,
-            onChanged: onChanged,
+            onChanged: () => _paramsController.onChanged(true),
           ),
           EdittextItem(
             key: brandKey,
@@ -65,7 +69,7 @@ class _ParamsPageState extends State<ParamsPage> {
             boxKey: SettingsBoxKey.brand,
             needUpdateUserAgent: true,
             needUpdateXAppDevice: true,
-            onChanged: onChanged,
+            onChanged: () => _paramsController.onChanged(true),
           ),
           EdittextItem(
             key: modelKey,
@@ -73,7 +77,7 @@ class _ParamsPageState extends State<ParamsPage> {
             boxKey: SettingsBoxKey.model,
             needUpdateUserAgent: true,
             needUpdateXAppDevice: true,
-            onChanged: onChanged,
+            onChanged: () => _paramsController.onChanged(true),
           ),
           EdittextItem(
             key: buildKey,
@@ -81,7 +85,7 @@ class _ParamsPageState extends State<ParamsPage> {
             boxKey: SettingsBoxKey.buildNumber,
             needUpdateUserAgent: true,
             needUpdateXAppDevice: true,
-            onChanged: onChanged,
+            onChanged: () => _paramsController.onChanged(true),
           ),
           EdittextItem(
             key: sdkKey,
@@ -93,33 +97,55 @@ class _ParamsPageState extends State<ParamsPage> {
             title: 'Android Version',
             boxKey: SettingsBoxKey.androidVersion,
             needUpdateUserAgent: true,
-            onChanged: onChanged,
+            onChanged: _paramsController.onChanged,
           ),
-          ListTile(
-            title: const Text('User Angent'),
-            subtitle: Text(GStorage.userAgent),
-            onTap: () => Utils.copyText(GStorage.userAgent),
+          Obx(
+            () => ListTile(
+              title: const Text('User Angent'),
+              subtitle: Text(_paramsController.userAgent.value),
+              onTap: () => Utils.copyText(_paramsController.userAgent.value),
+            ),
           ),
-          ListTile(
-            title: const Text('X-App-Device'),
-            subtitle: Text(GStorage.xAppDevice),
-            onTap: () => Utils.copyText(GStorage.xAppDevice),
+          Obx(
+            () => ListTile(
+              title: const Text('X-App-Device'),
+              subtitle: Text(_paramsController.xAppDevice.value),
+              onTap: () => Utils.copyText(_paramsController.xAppDevice.value),
+            ),
           ),
           ListTile(
             title: const Text('Regenerate Params'),
             onTap: () async {
               await GStorage.regenerateParams();
-              setState(() {});
               manufacturerKey.currentState?.updateValue();
               brandKey.currentState?.updateValue();
               modelKey.currentState?.updateValue();
               buildKey.currentState?.updateValue();
               sdkKey.currentState?.updateValue();
               androidKey.currentState?.updateValue();
+              _paramsController.onChanged(true);
             },
           ),
         ],
       ),
     );
+  }
+}
+
+class ParamsController extends GetxController {
+  RxString userAgent = ''.obs;
+  RxString xAppDevice = ''.obs;
+
+  void onChanged([bool updateXAppDevice = false]) {
+    userAgent.value = GStorage.userAgent;
+    if (updateXAppDevice) {
+      xAppDevice.value = GStorage.xAppDevice;
+    }
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    onChanged(true);
   }
 }

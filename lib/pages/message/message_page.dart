@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Response;
 
@@ -9,14 +8,11 @@ import '../../components/cards/message_third_card.dart';
 import '../../components/footer.dart';
 import '../../components/item_card.dart';
 import '../../components/sliver_pinned_box_adapter.dart';
-import '../../logic/model/check_count/check_count.dart';
-import '../../logic/model/check_count/datum.dart' as checkcountdata;
-import '../../logic/model/feed/data_model.dart';
 import '../../logic/model/feed/datum.dart';
-import '../../logic/network/network_repo.dart';
 import '../../logic/state/loading_state.dart';
 import '../../pages/message/message_controller.dart';
 import '../../pages/noitfication/notification_page.dart';
+import '../../utils/extensions.dart';
 import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 
@@ -46,47 +42,7 @@ class _MessagePageState extends State<MessagePage> {
   late final MessageController _messageController =
       Get.put(MessageController());
 
-  List<int?>? _firstList;
-  List<int?>? _thirdList;
-
   bool _isRefreshing = false;
-
-  Future<void> _checkCount() async {
-    try {
-      Response response = await NetworkRepo.checkCount();
-      checkcountdata.Datum? data = CheckCount.fromJson(response.data).data;
-      setState(() => _thirdList = [
-            data?.atme,
-            data?.atcommentme,
-            data?.feedlike,
-            data?.contactsFollow,
-            data?.message,
-          ]);
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  Future<void> _getProfile() async {
-    try {
-      Response response = await NetworkRepo.getProfile(GlobalData().uid);
-      Datum? data = DataModel.fromJson(response.data).data;
-      String username = data?.username ?? '';
-      try {
-        username = Uri.encodeComponent(username);
-      } catch (e) {
-        debugPrint(e.toString());
-      }
-      GStorage.setUserAvatar(data?.userAvatar ?? '');
-      GStorage.setUsername(username);
-      GStorage.setLevel(data?.level ?? 0);
-      GStorage.setExp(data?.experience ?? 0);
-      GStorage.setNextExp(data?.nextLevelExperience ?? 1);
-      setState(() => _firstList = [data?.feed, data?.follow, data?.fans]);
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-  }
 
   @override
   void dispose() {
@@ -105,8 +61,8 @@ class _MessagePageState extends State<MessagePage> {
 
   Future<void> _onRefresh() async {
     _messageController.onReset();
-    await _getProfile();
-    await _checkCount();
+    await _messageController.getProfile();
+    await _messageController.checkCount();
     await _messageController.onGetData();
     _isRefreshing = false;
   }
@@ -126,9 +82,8 @@ class _MessagePageState extends State<MessagePage> {
         return SliverToBoxAdapter(
           child: GestureDetector(
             onTap: () {
-              if (mounted) {
-                setState(() => loadingState = LoadingState.loading());
-              }
+              _messageController
+                  .setLoadingState(loadingState = LoadingState.loading());
               _onRefresh();
             },
             child: Container(
@@ -229,8 +184,8 @@ class _MessagePageState extends State<MessagePage> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      _firstList = null;
-                                      _thirdList = null;
+                                      _messageController.firstList.clear();
+                                      _messageController.thirdList.clear();
 
                                       GStorage.setUid('');
                                       GStorage.setUsername('');
@@ -267,25 +222,36 @@ class _MessagePageState extends State<MessagePage> {
               itemCount: 7,
               itemBuilder: (context, index) {
                 if (index == 0) {
-                  return messageFirstCard(
-                      GlobalData().isLogin, context, _firstList);
+                  return Obx(
+                    () => messageFirstCard(
+                      GlobalData().isLogin,
+                      context,
+                      _messageController.firstList,
+                    ),
+                  );
                 } else if (index == 1) {
                   return messageSeconfCard(GlobalData().isLogin, context);
                 } else if (index >= 2 && index <= 6) {
-                  return messageThirdCard(
-                    context,
-                    _backgroundList[index - 2],
-                    _iconList[index - 2],
-                    _titleList[index - 2],
-                    _thirdList?[index - 2],
-                    () {
-                      if (GlobalData().isLogin) {
-                        Get.toNamed('/notification', arguments: {
-                          'type': NotificationType.values[index - 2]
-                        });
-                        setState(() => _thirdList?[index - 2] = null);
-                      }
-                    },
+                  return Obx(
+                    () => messageThirdCard(
+                      context,
+                      _backgroundList[index - 2],
+                      _iconList[index - 2],
+                      _titleList[index - 2],
+                      _messageController.thirdList.getOrNull(index - 2),
+                      () {
+                        if (GlobalData().isLogin) {
+                          Get.toNamed('/notification', arguments: {
+                            'type': NotificationType.values[index - 2]
+                          });
+                          int? count =
+                              _messageController.thirdList.getOrNull(index - 2);
+                          if (count != null && count > 0) {
+                            _messageController.thirdList[index - 2] = null;
+                          }
+                        }
+                      },
+                    ),
                   );
                 }
                 return const SizedBox();

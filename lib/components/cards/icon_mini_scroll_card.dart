@@ -20,7 +20,7 @@ class IconMiniScrollCard extends StatelessWidget {
       childBuilder: (index) {
         return miniCardItem(
           context,
-          dataList[index].logo.orEmpty,
+          dataList[index].logo ?? dataList[index].pic.orEmpty,
           dataList[index].title.orEmpty,
           dataList[index].url.orEmpty,
           false,

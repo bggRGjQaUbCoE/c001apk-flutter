@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:crypto/crypto.dart';
@@ -59,10 +60,14 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   late double _emoteHeight = Utils.isDesktop ? 255.0 : 0.0;
   double _keyboardHeight = 0.0; // 键盘高度
   final _debouncer = Debouncer(milliseconds: 200); // 设置延迟时间
-  String _toolbarType = 'input';
+
+  final _keyBoardKey = GlobalKey<ToolbarIconButtonState>();
+  final _emojiKey = GlobalKey<ToolbarIconButtonState>();
+  final _publishStream = StreamController<bool>();
   bool _enablePublish = false;
-  final TextEditingController _captchaController = TextEditingController();
+  final _checkBoxStream = StreamController<bool>();
   bool _checkBoxValue = false;
+  final TextEditingController _captchaController = TextEditingController();
 
   late final _imagePicker = ImagePicker();
   late final _pathStream = StreamController<List<String>>();
@@ -95,7 +100,8 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   _focuslistener() {
     _replyContentFocusNode.addListener(() {
       if (_replyContentFocusNode.hasFocus) {
-        setState(() => _toolbarType = 'input');
+        _keyBoardKey.currentState?.updateSelected(true);
+        _emojiKey.currentState?.updateSelected(false);
       }
     });
   }
@@ -303,9 +309,12 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                 if (mounted && context.mounted) {
                   if (_keyboardHeight == 0 && _emoteHeight == 0) {
                     setState(() {
-                      _emoteHeight = _keyboardHeight = _keyboardHeight == 0.0
-                          ? viewInsets.bottom
-                          : _keyboardHeight;
+                      _emoteHeight = _keyboardHeight = max(
+                        200,
+                        _keyboardHeight == 0.0
+                            ? viewInsets.bottom
+                            : _keyboardHeight,
+                      );
                     });
                   }
                 }
@@ -320,6 +329,9 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _publishStream.close();
+    _checkBoxStream.close();
+    _pathStream.close();
     _replyContentController.dispose();
     _captchaController.dispose();
     _replyContentFocusNode.removeListener(() {});
@@ -363,16 +375,22 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                     autofocus: false,
                     focusNode: _replyContentFocusNode,
                     controller: _replyContentController,
-                    onChanged: (value) => setState(() =>
-                        _enablePublish = value.replaceAll('\n', '').isNotEmpty),
+                    onChanged: (value) {
+                      bool isNotEmpty = value.replaceAll('\n', '').isNotEmpty;
+                      if (isNotEmpty && !_enablePublish) {
+                        _enablePublish = true;
+                        _publishStream.add(true);
+                      } else if (!isNotEmpty && _enablePublish) {
+                        _enablePublish = false;
+                        _publishStream.add(false);
+                      }
+                    },
                     decoration: InputDecoration(
                         hintText: widget.username != null
                             ? '回复: ${widget.username}'
                             : '发布${widget.title != null ? '于: ${widget.title}' : '动态'}',
                         border: InputBorder.none,
-                        hintStyle: const TextStyle(
-                          fontSize: 14,
-                        )),
+                        hintStyle: const TextStyle(fontSize: 14)),
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
@@ -390,25 +408,25 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ToolbarIconButton(
+                  key: _keyBoardKey,
                   onPressed: () {
-                    if (_toolbarType == 'emote') {
-                      setState(() => _toolbarType = 'input');
-                    }
+                    _keyBoardKey.currentState?.updateSelected(true);
+                    _emojiKey.currentState?.updateSelected(false);
                     _replyContentFocusNode.requestFocus();
                   },
                   icon: const Icon(Icons.keyboard, size: 22),
-                  selected: _toolbarType == 'input',
+                  selected: true,
                 ),
                 const SizedBox(width: 10),
                 ToolbarIconButton(
+                  key: _emojiKey,
                   onPressed: () {
-                    if (_toolbarType == 'input') {
-                      setState(() => _toolbarType = 'emote');
-                    }
+                    _keyBoardKey.currentState?.updateSelected(false);
+                    _emojiKey.currentState?.updateSelected(true);
                     FocusScope.of(context).unfocus();
                   },
                   icon: const Icon(Icons.emoji_emotions, size: 22),
-                  selected: _toolbarType == 'emote',
+                  selected: false,
                 ),
                 const SizedBox(width: 10),
                 ToolbarIconButton(
@@ -465,60 +483,70 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                   },
                 ),
                 const Spacer(),
-                TextButton(
-                  onPressed: () =>
-                      setState(() => _checkBoxValue = !_checkBoxValue),
-                  style: FilledButton.styleFrom(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                    visualDensity: const VisualDensity(
-                      horizontal: -2,
-                      vertical: -2,
+                StreamBuilder(
+                  initialData: false,
+                  stream: _checkBoxStream.stream,
+                  builder: (_, snapshot) => TextButton(
+                    onPressed: () {
+                      _checkBoxValue = !_checkBoxValue;
+                      _checkBoxStream.add(_checkBoxValue);
+                    },
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 9),
+                      visualDensity: const VisualDensity(
+                        horizontal: -2,
+                        vertical: -2,
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Checkbox(
-                        side: BorderSide(
-                            width: 2,
-                            color: Theme.of(context).colorScheme.outline),
-                        fillColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return Theme.of(context).colorScheme.primary;
-                          }
-                          return null;
-                        }),
-                        value: _checkBoxValue,
-                        onChanged: null,
-                        visualDensity:
-                            const VisualDensity(horizontal: -4, vertical: -4),
-                      ),
-                      Text(
-                        widget.type == null ? '仅自己可见' : '回复并转发',
-                        style: TextStyle(
-                          height: 1,
-                          color: _checkBoxValue
-                              ? Theme.of(context).colorScheme.onSurface
-                              : Theme.of(context).colorScheme.outline,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Checkbox(
+                          side: BorderSide(
+                              width: 2,
+                              color: Theme.of(context).colorScheme.outline),
+                          fillColor: WidgetStateProperty.resolveWith((states) {
+                            if (states.contains(WidgetState.selected)) {
+                              return Theme.of(context).colorScheme.primary;
+                            }
+                            return null;
+                          }),
+                          value: _checkBoxValue,
+                          onChanged: null,
+                          visualDensity:
+                              const VisualDensity(horizontal: -4, vertical: -4),
                         ),
-                        strutStyle: const StrutStyle(height: 1, leading: 0),
-                      ),
-                    ],
+                        Text(
+                          widget.type == null ? '仅自己可见' : '回复并转发',
+                          style: TextStyle(
+                            height: 1,
+                            color: _checkBoxValue
+                                ? Theme.of(context).colorScheme.onSurface
+                                : Theme.of(context).colorScheme.outline,
+                          ),
+                          strutStyle: const StrutStyle(height: 1, leading: 0),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const Spacer(),
-                FilledButton.tonal(
-                  onPressed: _enablePublish ? _onPublish : null,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    visualDensity: const VisualDensity(
-                      horizontal: -2,
-                      vertical: -2,
+                StreamBuilder(
+                  initialData: false,
+                  stream: _publishStream.stream,
+                  builder: (_, snapshot) => FilledButton.tonal(
+                    onPressed: snapshot.data == true ? _onPublish : null,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                      visualDensity: const VisualDensity(
+                        horizontal: -2,
+                        vertical: -2,
+                      ),
                     ),
+                    child: const Text('发布'),
                   ),
-                  child: const Text('发布'),
                 ),
               ],
             ),
@@ -570,7 +598,7 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
             duration: const Duration(milliseconds: 300),
             child: Container(
               width: double.infinity,
-              height: _toolbarType == 'input'
+              height: _keyBoardKey.currentState?.selected == true
                   ? (keyboardHeight > _keyboardHeight
                       ? keyboardHeight
                       : _keyboardHeight)
@@ -582,7 +610,8 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                 onClick: (emoji) {
                   _onChooseEmote(emoji);
                   if (!_enablePublish) {
-                    setState(() => _enablePublish = true);
+                    _enablePublish = true;
+                    _publishStream.add(true);
                   }
                 },
               ),

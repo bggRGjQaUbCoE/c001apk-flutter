@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../pages/ffflist/ffflist_page.dart' show FFFListType;
+import '../../utils/extensions.dart';
 
 Widget messageFirstCard(
   bool isLogin,
@@ -54,7 +55,7 @@ Widget messageFirstCardRow(
           flex: 1,
           child: _messageFirstCardItem(
             context,
-            values?[0],
+            values?.getOrNull(0),
             titles[0],
             onTaps[0],
             icons?[0],
@@ -68,7 +69,7 @@ Widget messageFirstCardRow(
           flex: 1,
           child: _messageFirstCardItem(
             context,
-            values?[1],
+            values?.getOrNull(1),
             titles[1],
             onTaps[1],
             icons?[1],
@@ -82,7 +83,7 @@ Widget messageFirstCardRow(
           flex: 1,
           child: _messageFirstCardItem(
             context,
-            values?[2],
+            values?.getOrNull(2),
             titles[2],
             onTaps[2],
             icons?[2],

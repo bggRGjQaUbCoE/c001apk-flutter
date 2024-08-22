@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -26,7 +27,7 @@ class _BlackListPageState extends State<BlackListPage> {
 
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
-  bool _shouldShowClearBtn = false;
+  final _clearStream = StreamController<bool>();
 
   late final _controller = Get.put(
     BlackListController(type: _type),
@@ -35,6 +36,7 @@ class _BlackListPageState extends State<BlackListPage> {
 
   @override
   void dispose() {
+    _clearStream.close();
     _focusNode.dispose();
     _textController.dispose();
     Get.delete<BlackListController>(
@@ -53,8 +55,9 @@ class _BlackListPageState extends State<BlackListPage> {
             controller: _textController,
             onTap: () => _focusNode.requestFocus(),
             style: const TextStyle(fontSize: 18),
-            onChanged: (value) =>
-                setState(() => _shouldShowClearBtn = value.isNotEmpty),
+            onChanged: (value) {
+              _clearStream.add(value.isNotEmpty);
+            },
             decoration: InputDecoration(
               border: InputBorder.none,
               hintText: _type == BlackListType.user ? 'uid' : 'topic',
@@ -76,22 +79,27 @@ class _BlackListPageState extends State<BlackListPage> {
               if (value.isNotEmpty) {
                 _textController.clear();
                 _controller.handleData(value);
-                setState(() => _shouldShowClearBtn = false);
+                _clearStream.add(false);
               }
               _focusNode.requestFocus();
             },
           ),
           actions: [
-            if (_shouldShowClearBtn)
-              IconButton(
-                onPressed: () {
-                  _textController.clear();
-                  _focusNode.requestFocus();
-                  setState(() => _shouldShowClearBtn = false);
-                },
-                icon: const Icon(Icons.clear),
-                tooltip: 'Clear',
-              ),
+            StreamBuilder(
+              initialData: false,
+              stream: _clearStream.stream,
+              builder: (_, snapshot) => snapshot.data == true
+                  ? IconButton(
+                      onPressed: () {
+                        _textController.clear();
+                        _focusNode.requestFocus();
+                        _clearStream.add(false);
+                      },
+                      icon: const Icon(Icons.clear),
+                      tooltip: 'Clear',
+                    )
+                  : const SizedBox.shrink(),
+            ),
             if (_controller.dataList.isNotEmpty)
               IconButton(
                 onPressed: () => showDialog(

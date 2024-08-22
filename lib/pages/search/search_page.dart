@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,13 +20,14 @@ class _SearchPageState extends State<SearchPage> {
   final String? _title = Get.parameters['title'];
   final String? _pageType = Get.parameters['pageType'];
   final String? _pageParam = Get.parameters['pageParam'];
-  bool _shouldShowClearBtn = false;
+  final _clearStream = StreamController<bool>();
 
   late final _searchPageController =
       Get.put(SearchPageController(), tag: '$_title$_pageType$_pageParam');
 
   @override
   void dispose() {
+    _clearStream.close();
     _controller.dispose();
     _focusNode.dispose();
     Get.delete<SearchPageController>(tag: '$_title$_pageType$_pageParam');
@@ -53,8 +56,9 @@ class _SearchPageState extends State<SearchPage> {
           onTap: () => _focusNode.requestFocus(),
           controller: _controller,
           style: const TextStyle(fontSize: 18),
-          onChanged: (_) =>
-              setState(() => _shouldShowClearBtn = _controller.text.isNotEmpty),
+          onChanged: (value) {
+            _clearStream.add(value.isNotEmpty);
+          },
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: 'Search${!_title.isNullOrEmpty ? ' in $_title' : ''}',
@@ -70,16 +74,21 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         actions: [
-          if (_shouldShowClearBtn)
-            IconButton(
-              onPressed: () {
-                _controller.clear();
-                _focusNode.requestFocus();
-                setState(() => _shouldShowClearBtn = false);
-              },
-              icon: const Icon(Icons.clear),
-              tooltip: 'Clear',
-            ),
+          StreamBuilder(
+            initialData: false,
+            stream: _clearStream.stream,
+            builder: (_, snapshot) => snapshot.data == true
+                ? IconButton(
+                    onPressed: () {
+                      _controller.clear();
+                      _focusNode.requestFocus();
+                      _clearStream.add(false);
+                    },
+                    icon: const Icon(Icons.clear),
+                    tooltip: 'Clear',
+                  )
+                : const SizedBox.shrink(),
+          ),
           IconButton(
             onPressed: () {
               onSearch(_controller.text);
@@ -152,7 +161,7 @@ class _SearchPageState extends State<SearchPage> {
                             text: text,
                             onTap: () {
                               _controller.text = text;
-                              setState(() => _shouldShowClearBtn = true);
+                              _clearStream.add(true);
                               onSearch(text);
                             },
                             onLongPress: () =>

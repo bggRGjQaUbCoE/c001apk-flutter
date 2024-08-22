@@ -63,8 +63,8 @@ class _AppUpdatePageState extends State<AppUpdatePage> {
       if (response.statusCode == HttpStatus.ok) {
         CheckUpdate responseData = CheckUpdate.fromJson(response.data);
         if (!responseData.message.isNullOrEmpty) {
-          setState(() =>
-              _loadingState = LoadingState.error(response.data['message']));
+          setState(
+              () => _loadingState = LoadingState.error(responseData.message!));
         } else {
           if (!responseData.data.isNullOrEmpty) {
             setState(() {

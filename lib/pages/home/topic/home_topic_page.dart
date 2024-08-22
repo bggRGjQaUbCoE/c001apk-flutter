@@ -16,14 +16,13 @@ class HomeTopicPage extends StatefulWidget {
 
 class _HomeTopicPageState extends State<HomeTopicPage> {
   late HomeTopicController _homeTopicController;
-  late int _currentIndex;
   late PageController _controller;
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.tabType == TabType.TOPIC ? 1 : 0;
-    _controller = PageController(initialPage: _currentIndex);
+    _controller =
+        PageController(initialPage: widget.tabType == TabType.TOPIC ? 1 : 0);
     _homeTopicController = Get.put(
       HomeTopicController(tabType: widget.tabType),
       tag: widget.tabType.name,
@@ -55,46 +54,57 @@ class _HomeTopicPageState extends State<HomeTopicPage> {
                     ? data![0].entities!.length
                     : data!.length,
                 itemBuilder: (context, index) => IntrinsicHeight(
-                  child: InkWell(
-                    onTap: () {
-                      setState(() => _currentIndex = index);
-                      _controller.jumpToPage(index);
-                    },
-                    child: Ink(
-                      color: index == _currentIndex
-                          ? Theme.of(context).colorScheme.onInverseSurface
-                          : Colors.transparent,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            height: double.infinity,
-                            width: 3,
-                            color: index == _currentIndex
-                                ? Theme.of(context).colorScheme.primary
-                                : Colors.transparent,
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              alignment: Alignment.center,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Text(
-                                widget.tabType == TabType.TOPIC
-                                    ? data[0].entities![index].title.toString()
-                                    : data[index].title.toString(),
-                                style: TextStyle(
-                                  color: index == _currentIndex
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.onSurface,
-                                  fontSize: 15,
+                  child: Obx(
+                    () => InkWell(
+                      onTap: () {
+                        _homeTopicController.currentIndex.value = index;
+                        _controller.jumpToPage(index);
+                      },
+                      child: Ink(
+                        color: index == _homeTopicController.currentIndex.value
+                            ? Theme.of(context).colorScheme.onInverseSurface
+                            : Colors.transparent,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              height: double.infinity,
+                              width: 3,
+                              color: index ==
+                                      _homeTopicController.currentIndex.value
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Colors.transparent,
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                child: Text(
+                                  widget.tabType == TabType.TOPIC
+                                      ? data[0]
+                                          .entities![index]
+                                          .title
+                                          .toString()
+                                      : data[index].title.toString(),
+                                  style: TextStyle(
+                                    color: index ==
+                                            _homeTopicController
+                                                .currentIndex.value
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                    fontSize: 15,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

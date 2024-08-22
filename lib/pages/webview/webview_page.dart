@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -23,8 +25,8 @@ class WebviewPage extends StatefulWidget {
 class _WebviewPageState extends State<WebviewPage> {
   final String _url = Get.parameters['url'] ?? '';
   final bool _isLogin = Get.parameters['isLogin'] == '1';
-  String? _title;
-  double _progress = 0;
+  final _titleStream = StreamController<String?>();
+  final _progressStream = StreamController<double>();
 
   late final InAppWebViewController _webViewController;
 
@@ -68,6 +70,8 @@ class _WebviewPageState extends State<WebviewPage> {
 
   @override
   void dispose() {
+    _titleStream.close();
+    _progressStream.close();
     _webViewController.dispose();
     super.dispose();
   }
@@ -76,21 +80,29 @@ class _WebviewPageState extends State<WebviewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _title != null
-            ? Text(
-                _title!,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              )
-            : null,
-        bottom: _progress < 1.0
-            ? PreferredSize(
-                preferredSize: Size.zero,
-                child: LinearProgressIndicator(
-                  value: _progress,
-                ),
-              )
-            : null,
+        title: StreamBuilder(
+          initialData: null,
+          stream: _titleStream.stream,
+          builder: (_, snapshot) => snapshot.data != null
+              ? Text(
+                  snapshot.data!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )
+              : const SizedBox.shrink(),
+        ),
+        bottom: PreferredSize(
+          preferredSize: Size.zero,
+          child: StreamBuilder(
+            initialData: 0.0,
+            stream: _progressStream.stream,
+            builder: (_, snapshot) => snapshot.data as double < 1
+                ? LinearProgressIndicator(
+                    value: snapshot.data as double,
+                  )
+                : const SizedBox.shrink(),
+          ),
+        ),
         actions: [
           PopupMenuButton(
             onSelected: (item) async {
@@ -160,10 +172,10 @@ class _WebviewPageState extends State<WebviewPage> {
           _webViewController = controller;
         },
         onProgressChanged: (controller, progress) {
-          setState(() => _progress = progress / 100);
+          _progressStream.add(progress / 100);
         },
         onTitleChanged: (controller, title) {
-          setState(() => _title = title);
+          _titleStream.add(title);
         },
         onCloseWindow: (controller) => Get.back(),
         shouldOverrideUrlLoading: (controller, navigationAction) async {
@@ -248,7 +260,7 @@ class _WebviewPageState extends State<WebviewPage> {
                   ],
                 );
               });
-          setState(() => _progress = 1);
+          _progressStream.add(1);
         },
       ),
     );

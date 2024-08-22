@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -32,13 +33,8 @@ enum FollowType { ALL, USER, TOPIC, PRODUCT, APP }
 enum ImageQuality { AUTO, ORIGIN, THUMBNAIL }
 
 class _SettingsPageState extends State<SettingsPage> {
-  String _cacheSize = '';
+  late final _settingsController = Get.put(SettingsController());
   String _version = '1.0.0(1)';
-
-  Future<void> _getCacheSize() async {
-    final res = await CacheManage().loadApplicationCache();
-    setState(() => _cacheSize = res);
-  }
 
   void _getVersionInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -48,8 +44,13 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    _getCacheSize();
     _getVersionInfo();
+  }
+
+  @override
+  void dispose() {
+    Get.delete<SettingsController>();
+    super.dispose();
   }
 
   @override
@@ -268,29 +269,48 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: () =>
                 Get.toNamed('/about', parameters: {'version': _version}),
           ),
-          ListTile(
-            title: const Text('Clear Cache'),
-            subtitle: _cacheSize.isNotEmpty ? Text(_cacheSize) : null,
-            leading: const Icon(Icons.cleaning_services_outlined),
-            onTap: () async {
-              await _getCacheSize();
-              if (context.mounted) {
-                showDialog<void>(
-                  context: context,
-                  builder: (context) => ClearDialog(
-                    cacheSize: _cacheSize,
-                    onClearCache: () async {
-                      if (await CacheManage().clearCacheAll()) {
-                        _getCacheSize();
-                      }
-                    },
-                  ),
-                );
-              }
-            },
+          Obx(
+            () => ListTile(
+              title: const Text('Clear Cache'),
+              subtitle: _settingsController.cacheSize.value.isNotEmpty
+                  ? Text(_settingsController.cacheSize.value)
+                  : null,
+              leading: const Icon(Icons.cleaning_services_outlined),
+              onTap: () async {
+                await _settingsController.getCacheSize();
+                if (context.mounted) {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) => ClearDialog(
+                      cacheSize: _settingsController.cacheSize.value,
+                      onClearCache: () async {
+                        if (await CacheManage().clearCacheAll()) {
+                          _settingsController.getCacheSize();
+                        }
+                      },
+                    ),
+                  );
+                }
+              },
+            ),
           ),
         ],
       ),
     );
+  }
+}
+
+class SettingsController extends GetxController {
+  RxString cacheSize = ''.obs;
+
+  Future<void> getCacheSize() async {
+    final res = await CacheManage().loadApplicationCache();
+    cacheSize.value = res;
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    getCacheSize();
   }
 }

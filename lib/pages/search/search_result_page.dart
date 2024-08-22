@@ -1,5 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -42,7 +44,7 @@ class _SearchResultPageState extends State<SearchResultPage>
   final String? _pageParam = Get.parameters['pageParam'];
 
   late final TabController _tabController;
-  bool _shouldShowActions = true;
+  final _shouldShowActionsStream = StreamController<bool>();
 
   late ReturnTopController _pageScrollController;
   late SearchOrderController _searchOrderController;
@@ -63,12 +65,13 @@ class _SearchResultPageState extends State<SearchResultPage>
       length: _title.isNullOrEmpty ? SearchContentType.values.length : 1,
     );
     _tabController.addListener(() {
-      setState(() => _shouldShowActions = _tabController.index == 0);
+      _shouldShowActionsStream.add(_tabController.index == 0);
     });
   }
 
   @override
   void dispose() {
+    _shouldShowActionsStream.close();
     _tabController.removeListener(() {});
     _tabController.dispose();
     Get.delete<ReturnTopController>(
@@ -104,36 +107,40 @@ class _SearchResultPageState extends State<SearchResultPage>
                 : null,
           ),
         ),
-        actions: _shouldShowActions
-            ? [
-                PopupMenuButton(
-                  onSelected: (SearchMenuType item) {
-                    switch (item) {
-                      case SearchMenuType.Type:
-                        _showPopupMenu(isSearchType: true);
-                        break;
-                      case SearchMenuType.Sort:
-                        _showPopupMenu(isSearchSortType: true);
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => SearchMenuType.values
-                      .map((item) => PopupMenuItem<SearchMenuType>(
-                            value: item,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: Text(item.name),
-                                ),
-                                const Icon(Icons.arrow_right)
-                              ],
-                            ),
-                          ))
-                      .toList(),
-                )
-              ]
-            : null,
+        actions: [
+          StreamBuilder(
+            initialData: true,
+            stream: _shouldShowActionsStream.stream,
+            builder: (_, snapshot) => snapshot.data == true
+                ? PopupMenuButton(
+                    onSelected: (SearchMenuType item) {
+                      switch (item) {
+                        case SearchMenuType.Type:
+                          _showPopupMenu(isSearchType: true);
+                          break;
+                        case SearchMenuType.Sort:
+                          _showPopupMenu(isSearchSortType: true);
+                          break;
+                      }
+                    },
+                    itemBuilder: (context) => SearchMenuType.values
+                        .map((item) => PopupMenuItem<SearchMenuType>(
+                              value: item,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Text(item.name),
+                                  ),
+                                  const Icon(Icons.arrow_right)
+                                ],
+                              ),
+                            ))
+                        .toList(),
+                  )
+                : const SizedBox.shrink(),
+          )
+        ],
         bottom: _title.isNullOrEmpty
             ? TabBar(
                 isScrollable: true,

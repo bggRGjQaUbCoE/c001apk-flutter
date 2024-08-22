@@ -66,7 +66,7 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
       );
       setShouldShowActions(initialIndex);
       _tabController?.addListener(() {
-        setState(() => setShouldShowActions(_tabController!.index));
+        setShouldShowActions(_tabController!.index);
       });
     });
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -54,7 +55,8 @@ class _ChatPageState extends State<ChatPage> {
   late final _focusNode = FocusNode();
   late final _controller = ChatBottomPanelContainerController<PanelType>();
   PanelType _currentPanelType = PanelType.none;
-  bool readOnly = false;
+  bool _readOnly = false;
+  final _readOnlyStream = StreamController<bool>();
   late final _enableSend = StreamController<bool>();
   late bool _visibleSend = false;
   late final _imagePicker = ImagePicker();
@@ -72,6 +74,8 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   void dispose() {
+    _readOnlyStream.close();
+    _enableSend.close();
     _focusNode.dispose();
     _chatController.editingController.dispose();
     _chatController.scrollController?.dispose();
@@ -89,6 +93,7 @@ class _ChatPageState extends State<ChatPage> {
         title: Text(_username),
         actions: [
           PopupMenuButton(
+              onOpened: _focusNode.unfocus,
               onSelected: (value) {
                 switch (value) {
                   case ChatMenuType.Check:
@@ -263,7 +268,7 @@ class _ChatPageState extends State<ChatPage> {
     double height = 300;
     final keyboardHeight = _controller.keyboardHeight;
     if (keyboardHeight != 0) {
-      height = keyboardHeight;
+      height = max(200, keyboardHeight);
     }
 
     return Container(
@@ -304,36 +309,41 @@ class _ChatPageState extends State<ChatPage> {
             child: Listener(
               onPointerUp: (event) {
                 // Currently it may be emojiPanel.
-                if (readOnly) {
+                if (_readOnly) {
                   updatePanelType(PanelType.keyboard);
                 }
               },
-              child: TextField(
-                readOnly: readOnly,
-                focusNode: _focusNode,
-                controller: _chatController.editingController,
-                minLines: 1,
-                maxLines: 4,
-                onChanged: (value) {
-                  if (value.isNotEmpty && !_visibleSend) {
-                    _visibleSend = true;
-                    _enableSend.add(true);
-                  } else if (value.isEmpty && _visibleSend) {
-                    _visibleSend = false;
-                    _enableSend.add(false);
-                  }
-                },
-                textInputAction: TextInputAction.newline,
-                decoration: InputDecoration(
-                  filled: true,
-                  hintText: '写私信...',
-                  fillColor: Theme.of(context).colorScheme.surface,
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(4),
-                    gapPadding: 0,
+              child: StreamBuilder(
+                initialData: false,
+                stream: _readOnlyStream.stream,
+                builder: (context, snapshot) => TextField(
+                  readOnly: snapshot.data ?? false,
+                  focusNode: _focusNode,
+                  controller: _chatController.editingController,
+                  minLines: 1,
+                  maxLines: 4,
+                  onChanged: (value) {
+                    bool isNotEmpty = value.replaceAll('\n', '').isNotEmpty;
+                    if (isNotEmpty && !_visibleSend) {
+                      _visibleSend = true;
+                      _enableSend.add(true);
+                    } else if (!isNotEmpty && _visibleSend) {
+                      _visibleSend = false;
+                      _enableSend.add(false);
+                    }
+                  },
+                  textInputAction: TextInputAction.newline,
+                  decoration: InputDecoration(
+                    filled: true,
+                    hintText: '写私信...',
+                    fillColor: Theme.of(context).colorScheme.surface,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(4),
+                      gapPadding: 0,
+                    ),
+                    contentPadding: const EdgeInsets.all(10),
                   ),
-                  contentPadding: const EdgeInsets.all(10),
                 ),
               ),
             ),
@@ -468,10 +478,9 @@ class _ChatPageState extends State<ChatPage> {
   bool updateInputView({
     required bool isReadOnly,
   }) {
-    if (readOnly != isReadOnly) {
-      readOnly = isReadOnly;
-      // You can just refresh the input view.
-      setState(() {});
+    if (_readOnly != isReadOnly) {
+      _readOnly = isReadOnly;
+      _readOnlyStream.add(_readOnly);
       return true;
     }
     return false;

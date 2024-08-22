@@ -11,6 +11,8 @@ class HomeTopicController extends GetxController with StateMixin<List<Datum>> {
   });
   final TabType tabType;
 
+  late RxInt currentIndex = (tabType == TabType.TOPIC ? 1 : 0).obs;
+
   void onReload() {
     change(null, status: RxStatus.loading());
     getData();

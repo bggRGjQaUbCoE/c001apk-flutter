@@ -78,6 +78,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _titleStreamC.close();
     _scrollController.removeListener(() {});
     _scrollController.dispose();
     _fabAnimationCtr?.dispose();

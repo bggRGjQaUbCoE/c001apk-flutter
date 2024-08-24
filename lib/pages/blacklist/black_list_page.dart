@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:c001apk_flutter/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -126,19 +127,32 @@ class _BlackListPageState extends State<BlackListPage> {
                 tooltip: 'Clear All',
               ),
             IconButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_controller.dataList.isNotEmpty) {
-                  try {
-                    Share.shareXFiles([
-                      XFile.fromData(
-                          utf8.encode(_controller.dataList.toString()),
-                          mimeType: 'text/plain')
-                    ], fileNameOverrides: [
-                      '${_type.name}-blacklist_${DateUtil.format(DateTime.now().microsecondsSinceEpoch ~/ 1000)}.json'
-                    ]);
-                  } catch (e) {
-                    SmartDialog.showToast('导出失败');
-                    debugPrint(e.toString());
+                  String data = _controller.dataList.toString();
+                  String fileName =
+                      '${_type.name}-blacklist_${DateUtil.format(DateTime.now().microsecondsSinceEpoch ~/ 1000)}.json';
+                  if (Platform.isAndroid) {
+                    Utils.platform.invokeMethod(
+                      'exportData',
+                      {
+                        'data': data,
+                        'fileName': fileName,
+                      },
+                    );
+                  } else {
+                    try {
+                      Share.shareXFiles([
+                        XFile.fromData(utf8.encode(data),
+                            mimeType: 'text/plain')
+                      ], fileNameOverrides: [
+                        fileName
+                      ]);
+                      SmartDialog.showToast('导出成功');
+                    } catch (e) {
+                      SmartDialog.showToast('导出失败');
+                      debugPrint(e.toString());
+                    }
                   }
                   _focusNode.requestFocus();
                 }

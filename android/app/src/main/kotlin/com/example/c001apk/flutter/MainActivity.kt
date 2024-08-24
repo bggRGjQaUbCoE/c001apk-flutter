@@ -14,31 +14,45 @@ import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.P
 import android.os.Environment
 import android.webkit.MimeTypeMap;
-import io.flutter.embedding.android.FlutterActivity
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
+import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
 
-class MainActivity: FlutterActivity(){
+class MainActivity : FlutterFragmentActivity() {
     private val CHANNEL = "samples.flutter.dev/channel"
+
+
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
-            call, result ->
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            CHANNEL
+        ).setMethodCallHandler { call, result ->
             if (call.method == "getInstalledApps") {
                 Thread {
                     result.success(getInstalledApps())
                 }.start()
             } else if (call.method == "downloadApk") {
-                val url= call.argument<String>("url")
+                val url = call.argument<String>("url")
                 val name = call.argument<String>("name")
-                if(url != null && name != null){
+                if (url != null && name != null) {
                     val response = downloadApk(url, name)
                     result.success(response)
                 } else {
                     result.success(false)
+                }
+            } else if (call.method == "exportData") {
+                val data = call.argument<String>("data")
+                val fileName = call.argument<String>("fileName")
+                if (data != null && fileName != null) {
+                    exportData = data
+                    exportData(fileName)
                 }
             } else {
                 result.notImplemented()
@@ -46,31 +60,57 @@ class MainActivity: FlutterActivity(){
         }
     }
 
+    private var exportData: String? = null
+
+    private val backupSAFLauncher =
+        registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) backup@{ uri ->
+            if (uri == null) return@backup
+            contentResolver.openOutputStream(uri).use { output ->
+                if (output == null)
+                    return@backup
+                else if(exportData != null) {
+                        output.write(exportData!!.toByteArray())
+                        exportData = null
+                    }
+                else
+                    Toast.makeText(this, "null", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun exportData(fileName: String) {
+        try {
+            backupSAFLauncher.launch(fileName)
+        } catch (e: Exception) {
+            Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun downloadApk(url: String, name: String): Boolean {
-        try{
-            val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(url))
+        try {
+            val mimeType = MimeTypeMap.getSingleton()
+                .getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(url))
             val downloadManager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val request = DownloadManager
-            .Request(Uri.parse(url))
-            .setMimeType(mimeType)
-            .setTitle(name)
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, name)
+                .Request(Uri.parse(url))
+                .setMimeType(mimeType)
+                .setTitle(name)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, name)
             if (SDK_INT < 29) {
                 request.allowScanningByMediaScanner()
                 request.setVisibleInDownloadsUi(true)
             }
             downloadManager.enqueue(request)
             return true
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             return false
         }
     }
 
     private fun getInstalledApps(): List<Map<String, Any?>> {
-        var appList = packageManager.getInstalledApplications(0).filter { info -> 
+        var appList = packageManager.getInstalledApplications(0).filter { info ->
             (info.flags and ApplicationInfo.FLAG_SYSTEM) != ApplicationInfo.FLAG_SYSTEM
-         }
+        }
         return appList.map { info ->
             val packageInfo = packageManager.getPackageInfo(info.packageName, 0)
             mapOf(

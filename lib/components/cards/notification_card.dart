@@ -60,7 +60,7 @@ class NotificationCard extends StatelessWidget {
                         builder: (context) {
                           return _MorePanel(
                             id: data.id.toString(),
-                            uid: data.uid.toString(),
+                            uid: data.fromuid.toString(),
                             note: data.note ?? '',
                             onBlock: onBlock != null
                                 ? () => onBlock!(data.uid)
@@ -185,7 +185,7 @@ class _MorePanel extends StatelessWidget {
         break;
       case PanelAction.report:
         Get.back();
-        Utils.report(id, ReportType.Reply);
+        Utils.report(uid, ReportType.User);
         break;
     }
   }

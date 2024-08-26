@@ -32,7 +32,11 @@ enum FollowType { ALL, USER, TOPIC, PRODUCT, APP }
 // ignore: constant_identifier_names
 enum ImageQuality { AUTO, ORIGIN, THUMBNAIL }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   late final _settingsController = Get.put(SettingsController());
   String _version = '1.0.0(1)';
 
@@ -55,6 +59,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),

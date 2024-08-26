@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
@@ -24,7 +25,9 @@ class _MainPageState extends State<MainPage> {
   final ReturnTopController _pageScrollController =
       Get.put(ReturnTopController(), tag: 'home');
   int _selectedIndex = 0;
+  final _indexSctream = StreamController<int>.broadcast();
   late final MainController _mainController = Get.put(MainController());
+  final _contrller = PageController();
 
   @override
   void initState() {
@@ -42,7 +45,7 @@ class _MainPageState extends State<MainPage> {
 
   void onBackPressed() async {
     if (_selectedIndex != 0) {
-      setState(() => _selectedIndex = 0);
+      onDestinationSelected(0);
     } else {
       if (Platform.isAndroid) {
         AndroidIntent intent = const AndroidIntent(
@@ -102,47 +105,63 @@ class _MainPageState extends State<MainPage> {
     ];
 
     return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (_, obj) async {
-          onBackPressed();
-        },
-        child: LayoutBuilder(builder: (_, constriants) {
+      canPop: false,
+      onPopInvokedWithResult: (_, obj) async {
+        onBackPressed();
+      },
+      child: LayoutBuilder(
+        builder: (_, constriants) {
           bool isPortait = constriants.maxHeight > constriants.maxWidth;
 
           return Scaffold(
             body: Row(children: [
               if (!isPortait)
-                NavigationRail(
-                  destinations: railDestinations,
-                  selectedIndex: _selectedIndex,
-                  onDestinationSelected: (int index) {
-                    if (index == 0 && _selectedIndex == 0) {
-                      _pageScrollController.setIndex(998);
-                    }
-                    setState(() => _selectedIndex = index);
-                  },
+                StreamBuilder(
+                  initialData: _selectedIndex,
+                  stream: _indexSctream.stream,
+                  builder: (_, snapshot) => NavigationRail(
+                    destinations: railDestinations,
+                    selectedIndex: snapshot.data,
+                    onDestinationSelected: onDestinationSelected,
+                  ),
                 ),
               Expanded(
-                  child: IndexedStack(
-                index: _selectedIndex,
-                children: pages,
-              )),
+                child: PageView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: _contrller,
+                  children: pages,
+                ),
+              ),
             ]),
             bottomNavigationBar: isPortait
-                ? NavigationBar(
-                    destinations: barDestinations,
-                    selectedIndex: _selectedIndex,
-                    onDestinationSelected: (int index) {
-                      if (index == 0 && _selectedIndex == 0) {
-                        _pageScrollController.setIndex(998);
-                      }
-                      setState(() => _selectedIndex = index);
-                    },
-                    labelBehavior:
-                        NavigationDestinationLabelBehavior.onlyShowSelected,
+                ? StreamBuilder(
+                    initialData: _selectedIndex,
+                    stream: _indexSctream.stream,
+                    builder: (_, snapshot) => NavigationBar(
+                      destinations: barDestinations,
+                      selectedIndex: snapshot.data!,
+                      onDestinationSelected: onDestinationSelected,
+                      labelBehavior:
+                          NavigationDestinationLabelBehavior.onlyShowSelected,
+                    ),
                   )
                 : null,
           );
-        }));
+        },
+      ),
+    );
+  }
+
+  void onDestinationSelected(int index) {
+    if (index == 0 && _selectedIndex == 0) {
+      _pageScrollController.setIndex(998);
+    }
+    _contrller.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.ease,
+    );
+    _selectedIndex = index;
+    _indexSctream.add(index);
   }
 }

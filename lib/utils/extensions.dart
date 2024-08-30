@@ -7,6 +7,18 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+extension ScrollControllerExt on ScrollController {
+  void animToTop() {
+    if (hasClients) {
+      animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.ease,
+      );
+    }
+  }
+}
+
 extension Unique<E, Id> on List<E> {
   List<E> unique([Id Function(E element)? id, bool inplace = true]) {
     final ids = <dynamic>{};

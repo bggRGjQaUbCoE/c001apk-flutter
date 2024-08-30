@@ -416,9 +416,7 @@ class _FeedPageState extends State<FeedPage> with TickerProviderStateMixin {
                 return GestureDetector(
                   onTap: () {
                     if (_scrollController.offset != 0) {
-                      _scrollController.animateTo(0,
-                          duration: const Duration(milliseconds: 500),
-                          curve: Curves.ease);
+                      _scrollController.animToTop();
                     }
                   },
                   child: Container(

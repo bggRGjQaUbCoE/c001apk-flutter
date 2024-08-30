@@ -92,8 +92,7 @@ abstract class CommonController extends GetxController {
   }
 
   Future<void> animateToTop() async {
-    await scrollController?.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.ease);
+    scrollController?.animToTop();
     returnTopController?.setIndex(999);
     refreshKey?.currentState?.show();
   }

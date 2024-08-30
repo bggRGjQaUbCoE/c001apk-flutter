@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../pages/home/app/app_list_controller.dart';
 import '../../../pages/home/return_top_controller.dart';
+import '../../../utils/extensions.dart';
 import '../../../utils/storage_util.dart';
 
 class AppListPage extends StatefulWidget {
@@ -68,8 +69,7 @@ class _AppListPageState extends State<AppListPage>
   }
 
   void _animateToTop() async {
-    await _scrollController.animateTo(0,
-        duration: const Duration(milliseconds: 500), curve: Curves.ease);
+    _scrollController.animToTop();
     _returnTopController.setIndex(999);
     _refreshKey.currentState?.show();
   }

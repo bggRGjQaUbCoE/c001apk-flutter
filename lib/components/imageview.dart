@@ -52,6 +52,7 @@ Widget image(
         decoration: BoxDecoration(
           border: Border.all(
             color: Theme.of(context).colorScheme.outline.withOpacity(0.5),
+            strokeAlign: BorderSide.strokeAlignOutside,
           ),
           borderRadius: BorderRadius.circular(12),
         ),

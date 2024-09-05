@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:get/get_navigation/src/dialog/dialog_route.dart';
 
 import '../../../components/common_body.dart';
-import '../../../pages/feed/reply/reply_dialog.dart';
 import '../../../pages/home/feed/home_feed_controller.dart';
 import '../../../pages/home/home_page.dart' show TabType;
 import '../../../pages/home/return_top_controller.dart';
 import '../../../utils/global_data.dart';
 import '../../../utils/storage_util.dart';
 import '../../../utils/utils.dart';
+import '../../feed/reply/reply_page.dart';
 
 class HomeFeedPage extends StatefulWidget {
   const HomeFeedPage({
@@ -128,11 +129,34 @@ class _HomeFeedPageState extends State<HomeFeedPage>
                   child: FloatingActionButton(
                     heroTag: null,
                     onPressed: () {
-                      showModalBottomSheet<dynamic>(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (context) => const ReplyDialog(),
+                      Navigator.of(context).push(
+                        GetDialogRoute(
+                          pageBuilder:
+                              (buildContext, animation, secondaryAnimation) {
+                            return const ReplyPage();
+                          },
+                          transitionDuration: const Duration(milliseconds: 500),
+                          transitionBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            const begin = Offset(0.0, 1.0);
+                            const end = Offset.zero;
+                            const curve = Curves.linear;
+
+                            var tween = Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: curve));
+
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
+                        ),
                       );
+                      // showModalBottomSheet<dynamic>(
+                      //   context: context,
+                      //   isScrollControlled: true,
+                      //   builder: (context) => const ReplyDialog(),
+                      // );
                     },
                     tooltip: 'Create Feed',
                     child: const Icon(Icons.add),

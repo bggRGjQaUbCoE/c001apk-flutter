@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ToolbarIconButton extends StatefulWidget {
+class ToolbarIconButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Icon icon;
   final bool selected;
@@ -13,24 +13,13 @@ class ToolbarIconButton extends StatefulWidget {
   });
 
   @override
-  State<StatefulWidget> createState() => ToolbarIconButtonState();
-}
-
-class ToolbarIconButtonState extends State<ToolbarIconButton> {
-  late bool selected = widget.selected;
-
-  void updateSelected(bool selected) {
-    setState(() => this.selected = selected);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 36,
       height: 36,
       child: IconButton(
-        onPressed: widget.onPressed,
-        icon: widget.icon,
+        onPressed: onPressed,
+        icon: icon,
         highlightColor: Theme.of(context).colorScheme.secondaryContainer,
         color: selected
             ? Theme.of(context).colorScheme.onSecondaryContainer

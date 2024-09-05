@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_navigation/src/dialog/dialog_route.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../logic/state/loading_state.dart';
 import '../../pages/home/return_top_controller.dart';
+import '../../pages/feed/reply/reply_page.dart';
 import '../../pages/topic/topic_content.dart';
 import '../../pages/topic/topic_controller.dart';
 import '../../pages/topic/topic_order_controller.dart';
@@ -12,7 +14,6 @@ import '../../utils/extensions.dart';
 import '../../utils/global_data.dart';
 import '../../utils/storage_util.dart';
 import '../../utils/utils.dart';
-import '../../pages/feed/reply/reply_dialog.dart';
 
 // ignore: constant_identifier_names
 enum TopicMenuItem { Copy, Share, Sort, Follow, Block }
@@ -120,17 +121,48 @@ class _TopicPageState extends State<TopicPage> with TickerProviderStateMixin {
                   ? FloatingActionButton(
                       heroTag: null,
                       onPressed: () {
-                        showModalBottomSheet<dynamic>(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (context) => ReplyDialog(
-                            targetType: _topicController.entityType == 'topic'
-                                ? 'tag'
-                                : 'product_phone',
-                            targetId: _topicController.id,
-                            title: _topicController.title,
+                        Navigator.of(context).push(
+                          GetDialogRoute(
+                            pageBuilder:
+                                (buildContext, animation, secondaryAnimation) {
+                              return ReplyPage(
+                                targetType:
+                                    _topicController.entityType == 'topic'
+                                        ? 'tag'
+                                        : 'product_phone',
+                                targetId: _topicController.id,
+                                title: _topicController.title,
+                              );
+                            },
+                            transitionDuration:
+                                const Duration(milliseconds: 500),
+                            transitionBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              const begin = Offset(0.0, 1.0);
+                              const end = Offset.zero;
+                              const curve = Curves.linear;
+
+                              var tween = Tween(begin: begin, end: end)
+                                  .chain(CurveTween(curve: curve));
+
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
                           ),
                         );
+                        // showModalBottomSheet<dynamic>(
+                        //   context: context,
+                        //   isScrollControlled: true,
+                        //   builder: (context) => ReplyDialog(
+                        //     targetType: _topicController.entityType == 'topic'
+                        //         ? 'tag'
+                        //         : 'product_phone',
+                        //     targetId: _topicController.id,
+                        //     title: _topicController.title,
+                        //   ),
+                        // );
                       },
                       tooltip: 'Create Feed',
                       child: const Icon(Icons.add),

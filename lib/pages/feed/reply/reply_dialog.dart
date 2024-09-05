@@ -61,8 +61,8 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   double _keyboardHeight = 0.0; // 键盘高度
   final _debouncer = Debouncer(milliseconds: 200); // 设置延迟时间
 
-  final _keyBoardKey = GlobalKey<ToolbarIconButtonState>();
-  final _emojiKey = GlobalKey<ToolbarIconButtonState>();
+  // final _keyBoardKey = GlobalKey<ToolbarIconButtonState>();
+  // final _emojiKey = GlobalKey<ToolbarIconButtonState>();
   final _publishStream = StreamController<bool>();
   bool _enablePublish = false;
   final _checkBoxStream = StreamController<bool>();
@@ -100,8 +100,8 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
   _focuslistener() {
     _replyContentFocusNode.addListener(() {
       if (_replyContentFocusNode.hasFocus) {
-        _keyBoardKey.currentState?.updateSelected(true);
-        _emojiKey.currentState?.updateSelected(false);
+        // _keyBoardKey.currentState?.updateSelected(true);
+        // _emojiKey.currentState?.updateSelected(false);
       }
     });
   }
@@ -408,10 +408,10 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ToolbarIconButton(
-                  key: _keyBoardKey,
+                  // key: _keyBoardKey,
                   onPressed: () {
-                    _keyBoardKey.currentState?.updateSelected(true);
-                    _emojiKey.currentState?.updateSelected(false);
+                    // _keyBoardKey.currentState?.updateSelected(true);
+                    // _emojiKey.currentState?.updateSelected(false);
                     _replyContentFocusNode.requestFocus();
                   },
                   icon: const Icon(Icons.keyboard, size: 22),
@@ -419,10 +419,10 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
                 ),
                 const SizedBox(width: 10),
                 ToolbarIconButton(
-                  key: _emojiKey,
+                  // key: _emojiKey,
                   onPressed: () {
-                    _keyBoardKey.currentState?.updateSelected(false);
-                    _emojiKey.currentState?.updateSelected(true);
+                    // _keyBoardKey.currentState?.updateSelected(false);
+                    // _emojiKey.currentState?.updateSelected(true);
                     FocusScope.of(context).unfocus();
                   },
                   icon: const Icon(Icons.emoji_emotions, size: 22),
@@ -598,11 +598,11 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
             duration: const Duration(milliseconds: 300),
             child: Container(
               width: double.infinity,
-              height: _keyBoardKey.currentState?.selected == true
-                  ? (keyboardHeight > _keyboardHeight
-                      ? keyboardHeight
-                      : _keyboardHeight)
-                  : _emoteHeight,
+              // height: _keyBoardKey.currentState?.selected == true
+              //     ? (keyboardHeight > _keyboardHeight
+              //         ? keyboardHeight
+              //         : _keyboardHeight)
+              // : _emoteHeight,
               padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).padding.bottom),
               child: EmotePanel(

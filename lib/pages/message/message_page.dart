@@ -153,7 +153,7 @@ class _MessagePageState extends State<MessagePage>
           () => MessageHeaderCard(
             userInfo: _messageController.userInfo.value,
             onLogin: () async {
-              if (await Get.toNamed('/login')) {
+              if ((await Get.toNamed('/login')) == true) {
                 _onRefresh();
               }
             },

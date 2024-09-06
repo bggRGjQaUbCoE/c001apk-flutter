@@ -28,7 +28,7 @@ class _WebviewPageState extends State<WebviewPage> {
   final _titleStream = StreamController<String?>();
   final _progressStream = StreamController<double>();
 
-  late final InAppWebViewController _webViewController;
+  InAppWebViewController? _webViewController;
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class _WebviewPageState extends State<WebviewPage> {
   void dispose() {
     _titleStream.close();
     _progressStream.close();
-    _webViewController.dispose();
+    _webViewController = null;
     super.dispose();
   }
 
@@ -108,16 +108,16 @@ class _WebviewPageState extends State<WebviewPage> {
             onSelected: (item) async {
               switch (item) {
                 case WebviewMenuItem.Refresh:
-                  _webViewController.reload();
+                  _webViewController?.reload();
                   break;
                 case WebviewMenuItem.Copy:
-                  WebUri? uri = await _webViewController.getUrl();
+                  WebUri? uri = await _webViewController?.getUrl();
                   if (uri != null) {
                     Utils.copyText(uri.toString());
                   }
                   break;
                 case WebviewMenuItem.Open_In_Browser:
-                  WebUri? uri = await _webViewController.getUrl();
+                  WebUri? uri = await _webViewController?.getUrl();
                   if (uri != null) {
                     Utils.launchURL(uri.toString());
                   }
@@ -125,15 +125,15 @@ class _WebviewPageState extends State<WebviewPage> {
                 case WebviewMenuItem.Clear_Cache:
                   try {
                     await InAppWebViewController.clearAllCache();
-                    await _webViewController.clearHistory();
+                    await _webViewController?.clearHistory();
                     SmartDialog.showToast('已清理');
                   } catch (e) {
                     SmartDialog.showToast(e.toString());
                   }
                   break;
                 case WebviewMenuItem.Go_Back:
-                  if (await _webViewController.canGoBack()) {
-                    _webViewController.goBack();
+                  if (await _webViewController?.canGoBack() == true) {
+                    _webViewController?.goBack();
                   }
                   break;
               }

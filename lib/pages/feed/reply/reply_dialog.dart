@@ -342,9 +342,9 @@ class _ReplyDialogState extends State<ReplyDialog> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    double keyboardHeight = EdgeInsets.fromViewPadding(
-            View.of(context).viewInsets, View.of(context).devicePixelRatio)
-        .bottom;
+    // double keyboardHeight = EdgeInsets.fromViewPadding(
+    //         View.of(context).viewInsets, View.of(context).devicePixelRatio)
+    //     .bottom;
     return Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(

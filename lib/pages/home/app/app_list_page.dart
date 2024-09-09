@@ -85,6 +85,7 @@ class _AppListPageState extends State<AppListPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return _appListController.obx(
       (data) => RefreshIndicator(
         key: _refreshKey,

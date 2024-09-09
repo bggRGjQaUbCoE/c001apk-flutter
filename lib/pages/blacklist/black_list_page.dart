@@ -142,7 +142,7 @@ class _BlackListPageState extends State<BlackListPage> {
                     );
                   } else {
                     try {
-                      Share.shareXFiles([
+                      await Share.shareXFiles([
                         XFile.fromData(utf8.encode(data),
                             mimeType: 'text/plain')
                       ], fileNameOverrides: [

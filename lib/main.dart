@@ -36,6 +36,7 @@ void main() async {
       await windowManager.focus();
     });
   }
+
   await GStorage.init();
   HttpOverrides.global = CustomHttpOverrides();
 

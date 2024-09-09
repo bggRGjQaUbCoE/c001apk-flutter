@@ -25,8 +25,6 @@ import java.io.ByteArrayOutputStream
 class MainActivity : FlutterFragmentActivity() {
     private val CHANNEL = "samples.flutter.dev/channel"
 
-
-
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
@@ -65,15 +63,20 @@ class MainActivity : FlutterFragmentActivity() {
     private val backupSAFLauncher =
         registerForActivityResult(ActivityResultContracts.CreateDocument("application/json")) backup@{ uri ->
             if (uri == null) return@backup
-            contentResolver.openOutputStream(uri).use { output ->
-                if (output == null)
-                    return@backup
-                else if(exportData != null) {
-                        output.write(exportData!!.toByteArray())
-                        exportData = null
-                    }
-                else
-                    Toast.makeText(this, "null", Toast.LENGTH_SHORT).show()
+            try{
+                contentResolver.openOutputStream(uri).use { output ->
+                    if (output == null)
+                        return@backup
+                    else if (exportData != null) {
+                            output.write(exportData!!.toByteArray())
+                            exportData = null
+                            Toast.makeText(this, "导出成功", Toast.LENGTH_SHORT).show()
+                        }
+                    else
+                        Toast.makeText(this, "null", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show()
             }
     }
 

@@ -51,7 +51,7 @@ class ApiInterceptor extends Interceptor {
       TokenUtils.isPreGetLoginParam = false;
 
       options.headers['sec-ch-ua'] =
-          'Android WebView";v="117", "Not;A=Brand";v="8", "Chromium";v="117';
+          '"Android WebView";v="117", "Not;A=Brand";v="8", "Chromium";v="117"';
       options.headers['sec-ch-ua-mobile'] = '?1';
       options.headers['sec-ch-ua-platform'] = 'Android';
       options.headers['Upgrade-Insecure-Requests'] = '1';
@@ -64,7 +64,7 @@ class ApiInterceptor extends Interceptor {
       TokenUtils.isGetLoginParam = false;
 
       options.headers['sec-ch-ua'] =
-          'Android WebView";v="117", "Not;A=Brand";v="8", "Chromium";v="117';
+          '"Android WebView";v="117", "Not;A=Brand";v="8", "Chromium";v="117"';
       options.headers['sec-ch-ua-mobile'] = '?1';
       options.headers['sec-ch-ua-platform'] = 'Android';
       options.headers['Upgrade-Insecure-Requests'] = '1';
@@ -72,7 +72,6 @@ class ApiInterceptor extends Interceptor {
       options.headers['Accept'] =
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7';
       options.headers['X-Requested-With'] = Constants.APP_ID;
-      options.headers['X-App-Id'] = Constants.APP_ID;
       options.headers['Cookie'] = GlobalData().SESSID;
     } else if (TokenUtils.isGetCaptcha) {
       options.headers.clear();
@@ -80,7 +79,7 @@ class ApiInterceptor extends Interceptor {
 
       options.headers['User-Agent'] = userAgent;
       options.headers['sec-ch-ua'] =
-          'Android WebView";v="117", "Not;A=Brand";v="8", "Chromium";v="117';
+          '"Android WebView";v="117", "Not;A=Brand";v="8", "Chromium";v="117"';
       options.headers['sec-ch-ua-mobile'] = '?1';
       options.headers['sec-ch-ua-platform'] = 'Android';
       options.headers['Accept'] =

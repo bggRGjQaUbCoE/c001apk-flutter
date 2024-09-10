@@ -8,7 +8,7 @@ part of 'entity.dart';
 
 Entity _$EntityFromJson(Map<String, dynamic> json) => Entity(
       entityType: json['entityType'] as String?,
-      title: json['title'] as String?,
+      title: json['title']?.toString(),
       url: json['url'] as String?,
       pic: json['pic'] as String?,
       logo: json['logo'] as String?,

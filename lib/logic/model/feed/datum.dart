@@ -95,7 +95,7 @@ class Datum {
   // int? reportnum;
   // int? relatednum;
   // int? favnum;
-  @JsonKey(name: 'share_num')
+  // @JsonKey(name: 'share_num')
   // int? shareNum;
   // @JsonKey(name: 'comment_block_num')
   // int? commentBlockNum;
@@ -197,7 +197,7 @@ class Datum {
   // String? editorTitle;
   // @JsonKey(name: 'top_reply_ids')
   // List<dynamic>? topReplyIds;
-  @JsonKey(name: 'is_ks_doc')
+  // @JsonKey(name: 'is_ks_doc')
   // int? isKsDoc;
   List<Datum>? replyRows;
   List<Datum>? topReplyRows;

@@ -14,9 +14,13 @@ class HomeTopicPage extends StatefulWidget {
   State<HomeTopicPage> createState() => _HomeTopicPageState();
 }
 
-class _HomeTopicPageState extends State<HomeTopicPage> {
+class _HomeTopicPageState extends State<HomeTopicPage>
+    with AutomaticKeepAliveClientMixin {
   late HomeTopicController _homeTopicController;
   late PageController _controller;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -40,6 +44,7 @@ class _HomeTopicPageState extends State<HomeTopicPage> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return _homeTopicController.obx(
       (data) {
         return Row(

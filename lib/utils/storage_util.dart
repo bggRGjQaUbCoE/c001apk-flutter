@@ -129,7 +129,8 @@ class GStorage {
     blackList = await Hive.openBox('blackList');
     settings = await Hive.openBox('settings');
 
-    if (szlmId.isEmpty) {
+    if (installTime.isEmpty) {
+      setInstallTime(DateTime.now().millisecondsSinceEpoch.toString());
       await regenerateParams();
     }
 

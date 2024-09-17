@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -41,17 +41,15 @@ class ChatCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (isLeft) ...[
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: GestureDetector(
-                    onTap: () {
-                      Get.toNamed('/u/${data.messageUid}');
-                    },
-                    child: CircleAvatar(
-                      backgroundImage:
-                          CachedNetworkImageProvider(data.fromUserAvatar ?? ''),
-                    ),
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed('/u/${data.messageUid}');
+                  },
+                  child: clipNetworkImage(
+                    data.fromUserAvatar ?? '',
+                    isAvatar: true,
+                    width: 40,
+                    height: 40,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -84,17 +82,15 @@ class ChatCard extends StatelessWidget {
                 _chatImage(context, maxWidth / 2),
               if (!isLeft) ...[
                 const SizedBox(width: 10),
-                SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: GestureDetector(
-                    onTap: () {
-                      Get.toNamed('/u/${data.fromuid}');
-                    },
-                    child: CircleAvatar(
-                      backgroundImage:
-                          CachedNetworkImageProvider(data.fromUserAvatar ?? ''),
-                    ),
+                GestureDetector(
+                  onTap: () {
+                    Get.toNamed('/u/${data.fromuid}');
+                  },
+                  child: clipNetworkImage(
+                    data.fromUserAvatar ?? '',
+                    isAvatar: true,
+                    width: 40,
+                    height: 40,
                   ),
                 ),
               ],
@@ -117,14 +113,12 @@ class ChatCard extends StatelessWidget {
         ),
         width: width,
         height: width * imageLp[1] / imageLp[0],
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: GestureDetector(
-            onTap: onViewImage,
-            child: CachedNetworkImage(
-              imageUrl: data.messagePic!,
-              fit: BoxFit.fill,
-            ),
+        child: GestureDetector(
+          onTap: onViewImage,
+          child: clipNetworkImage(
+            data.messagePic!,
+            radius: 12,
+            fit: BoxFit.fill,
           ),
         ),
       );

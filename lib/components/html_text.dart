@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
@@ -93,15 +93,10 @@ Widget htmlText(
                           height: size * 1.3,
                         )
                       : src.startsWith('http')
-                          ? CachedNetworkImage(
-                              imageUrl: src,
+                          ? networkImage(
+                              src,
                               width: size * 1.3,
                               height: size * 1.3,
-                              errorWidget: (context, url, _) => Icon(
-                                size: size * 1.3,
-                                Icons.broken_image_outlined,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
                             )
                           : Container(
                               padding: const EdgeInsets.symmetric(

@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -28,14 +28,12 @@ class AppInfoCard extends StatelessWidget {
               };
               Get.toNamed('/imageview', arguments: arguments);
             },
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(18)),
-              child: CachedNetworkImage(
-                imageUrl: data.logo.toString(),
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-              ),
+            child: clipNetworkImage(
+              data.logo.toString(),
+              radius: 18,
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 10),

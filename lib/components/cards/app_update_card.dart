@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -46,13 +46,11 @@ class _AppUpdateCardState extends State<AppUpdateCard> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  child: CachedNetworkImage(
-                    imageUrl: widget.data.logo.orEmpty,
-                    width: 40,
-                    height: 40,
-                  ),
+                clipNetworkImage(
+                  widget.data.logo.orEmpty,
+                  radius: 8,
+                  width: 40,
+                  height: 40,
                 ),
                 const SizedBox(width: 10),
                 Expanded(

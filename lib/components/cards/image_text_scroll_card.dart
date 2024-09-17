@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/cards/title_card.dart';
@@ -51,21 +51,16 @@ class ImageTextScrollCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                  child: CachedNetworkImage(
-                    imageUrl: data.pic.orEmpty,
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.broken_image_outlined,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                    width: width,
-                    height: width / 2.22,
-                    fit: BoxFit.cover,
-                  )),
+              clipNetworkImage(
+                data.pic.orEmpty,
+                width: width,
+                height: width / 2.22,
+                fit: BoxFit.cover,
+                clipBorderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
+              ),
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

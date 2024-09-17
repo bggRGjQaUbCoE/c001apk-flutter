@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/self_sized_horizontal_list.dart';
@@ -27,47 +27,41 @@ class ImageSquareScrollCard extends StatelessWidget {
   }
 
   Widget _imageSquareScrollCardItem(double width, Entity data) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.all(Radius.circular(12)),
-      child: SizedBox(
-        width: width,
-        height: width,
-        child: GestureDetector(
-          onTap: () => Utils.onOpenLink(data.url.toString(), data.title),
-          child: Stack(
-            children: [
-              CachedNetworkImage(
-                imageUrl: data.pic.toString(),
-                imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                      colorFilter: const ColorFilter.mode(
-                        Color(0x8D000000),
-                        BlendMode.darken,
-                      ),
+    return SizedBox(
+      width: width,
+      height: width,
+      child: GestureDetector(
+        onTap: () => Utils.onOpenLink(data.url.toString(), data.title),
+        child: Stack(
+          children: [
+            clipNetworkImage(
+              data.pic.toString(),
+              radius: 12,
+              imageBuilder: (context, imageProvider) => Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                    colorFilter: const ColorFilter.mode(
+                      Color(0x8D000000),
+                      BlendMode.darken,
                     ),
                   ),
                 ),
-                errorWidget: (context, url, error) => Icon(
-                  Icons.broken_image_outlined,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
               ),
-              Center(
-                child: Text(
-                  data.title.toString(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                      color: Color(0xFFEEEEEE)),
-                ),
+            ),
+            Center(
+              child: Text(
+                data.title.toString(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: Color(0xFFEEEEEE)),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

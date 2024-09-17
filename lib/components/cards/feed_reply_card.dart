@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -99,16 +99,13 @@ class FeedReplyCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: GestureDetector(
-                      onTap: () => Get.toNamed('/u/${data.uid}'),
-                      child: CircleAvatar(
-                        backgroundImage: CachedNetworkImageProvider(
-                          data.userAvatar.toString(),
-                        ),
-                      ),
+                  GestureDetector(
+                    onTap: () => Get.toNamed('/u/${data.uid}'),
+                    child: clipNetworkImage(
+                      data.userAvatar ?? '',
+                      isAvatar: true,
+                      height: 30,
+                      width: 30,
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -204,14 +201,12 @@ class FeedReplyCard extends StatelessWidget {
           child: Row(
             children: [
               if (!feed.pic.isNullOrEmpty) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    imageUrl: feed.pic!,
-                    fit: BoxFit.cover,
-                    width: 40,
-                    height: 40,
-                  ),
+                clipNetworkImage(
+                  feed.pic!,
+                  radius: 8,
+                  fit: BoxFit.cover,
+                  width: 40,
+                  height: 40,
                 ),
                 const SizedBox(width: 10),
               ],

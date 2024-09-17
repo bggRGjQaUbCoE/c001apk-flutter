@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -40,13 +40,11 @@ class MessageCard extends StatelessWidget {
           children: [
             GestureDetector(
               onTap: () => Get.toNamed('/u/${data.messageUid}'),
-              child: SizedBox(
+              child: clipNetworkImage(
+                data.messageUserAvatar ?? '',
+                isAvatar: true,
                 width: 40,
                 height: 40,
-                child: CircleAvatar(
-                  backgroundImage:
-                      CachedNetworkImageProvider(data.messageUserAvatar ?? ''),
-                ),
               ),
             ),
             const SizedBox(width: 10),

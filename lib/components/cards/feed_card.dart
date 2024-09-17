@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -191,14 +191,12 @@ class FeedCard extends StatelessWidget {
             child: Row(
               children: [
                 !data.extraPic.isNullOrEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                          imageUrl: data.extraPic!,
-                        ),
+                    ? clipNetworkImage(
+                        data.extraPic!,
+                        radius: 8,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
                       )
                     : Container(
                         width: 40,
@@ -370,15 +368,14 @@ Widget header(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                width: 35,
-                height: 35,
-                child: GestureDetector(
-                  onTap: () => Get.toNamed('/u/${data.uid}'),
-                  child: CircleAvatar(
-                    backgroundImage:
-                        CachedNetworkImageProvider(data.userAvatar.orEmpty),
-                  ),
+              GestureDetector(
+                onTap: () => Get.toNamed('/u/${data.uid}'),
+                child: clipNetworkImage(
+                  data.userAvatar.orEmpty,
+                  radius: 50,
+                  width: 35,
+                  height: 35,
+                  isAvatar: true,
                 ),
               ),
               const SizedBox(width: 10),

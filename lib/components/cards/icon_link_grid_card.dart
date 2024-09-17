@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
 
@@ -109,14 +109,11 @@ class _IconLinkGridCardState extends State<IconLinkGridCard> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CachedNetworkImage(
-                imageUrl: data.pic.orEmpty,
+              networkImage(
+                data.pic.orEmpty,
                 height: 30,
                 width: 30,
-                errorWidget: (context, url, error) => Icon(
-                  Icons.broken_image_outlined,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
+                borderRadius: BorderRadius.circular(8),
               ),
               Text(
                 data.title.orEmpty,

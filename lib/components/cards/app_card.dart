@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -49,24 +49,26 @@ class AppCard extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.all(Radius.circular(8)),
-            child: CachedNetworkImage(
-              width: 40,
-              height: 40,
-              imageUrl: [
-                AppCardType.APP,
-                AppCardType.PRODUCT,
-                AppCardType.TOPIC,
-                AppCardType.RECENT
-              ].contains(appCardType)
-                  ? data.logo.orEmpty
-                  : appCardType == AppCardType.USER
-                      ? data.userAvatar.orEmpty
-                      : data.userInfo?.userAvatar != null
-                          ? data.userInfo!.userAvatar.toString()
-                          : data.fUserInfo!.userAvatar.toString(),
-            ),
+          clipNetworkImage(
+            [
+              AppCardType.APP,
+              AppCardType.PRODUCT,
+              AppCardType.TOPIC,
+              AppCardType.RECENT
+            ].contains(appCardType)
+                ? data.logo.orEmpty
+                : appCardType == AppCardType.USER
+                    ? data.userAvatar.orEmpty
+                    : data.userInfo?.userAvatar != null
+                        ? data.userInfo!.userAvatar.toString()
+                        : data.fUserInfo!.userAvatar.toString(),
+            isAvatar: [AppCardType.USER, AppCardType.CONTACTS]
+                    .contains(appCardType) ||
+                (appCardType == AppCardType.RECENT &&
+                    data.targetType == 'user'),
+            radius: 8,
+            width: 40,
+            height: 40,
           ),
           const SizedBox(width: 10),
           Column(

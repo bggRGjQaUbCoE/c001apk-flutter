@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/cards/title_card.dart';
@@ -55,9 +55,11 @@ class IconScrollCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              backgroundImage:
-                  CachedNetworkImageProvider(data.userAvatar.orEmpty),
+            clipNetworkImage(
+              data.userAvatar.orEmpty,
+              isAvatar: true,
+              width: width - 10,
+              height: width - 10,
             ),
             const SizedBox(height: 5),
             Text(

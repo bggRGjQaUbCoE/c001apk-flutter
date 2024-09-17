@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as dom;
@@ -84,17 +84,14 @@ class NotificationCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: 30,
-                    width: 30,
-                    child: GestureDetector(
-                      onTap: () =>
-                          Get.toNamed('/u/${data.fromuid ?? data.uid ?? ''}'),
-                      child: CircleAvatar(
-                        backgroundImage: CachedNetworkImageProvider(
-                          data.fromUserAvatar ?? '',
-                        ),
-                      ),
+                  GestureDetector(
+                    onTap: () =>
+                        Get.toNamed('/u/${data.fromuid ?? data.uid ?? ''}'),
+                    child: clipNetworkImage(
+                      data.fromUserAvatar ?? '',
+                      isAvatar: true,
+                      width: 30,
+                      height: 30,
                     ),
                   ),
                   const SizedBox(width: 10),

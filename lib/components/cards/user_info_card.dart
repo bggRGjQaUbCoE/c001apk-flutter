@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -40,10 +40,11 @@ class UserInfoCard extends StatelessWidget {
                     };
                     Get.toNamed('/imageview', arguments: arguments);
                   },
-                  child: CachedNetworkImage(
-                    imageUrl: data.cover.toString(),
+                  child: networkImage(
+                    data.cover.toString(),
                     width: double.infinity,
                     height: 125,
+                    borderRadius: null,
                     imageBuilder: (context, imageProvider) => Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(
@@ -66,8 +67,6 @@ class UserInfoCard extends StatelessWidget {
             Positioned(
               top: 85,
               left: 20,
-              width: 80,
-              height: 80,
               child: GestureDetector(
                 onTap: () {
                   Map<dynamic, dynamic> arguments = {
@@ -83,10 +82,11 @@ class UserInfoCard extends StatelessWidget {
                     ),
                     shape: BoxShape.circle,
                   ),
-                  child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(
-                      data.userAvatar ?? '',
-                    ),
+                  child: clipNetworkImage(
+                    data.userAvatar ?? '',
+                    isAvatar: true,
+                    width: 76,
+                    height: 76,
                   ),
                 ),
               ),

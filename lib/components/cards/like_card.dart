@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -29,13 +29,11 @@ class LikeCard extends StatelessWidget {
             children: [
               GestureDetector(
                 onTap: () => Get.toNamed('/u/${data.likeUserInfo?.uid ?? ''}'),
-                child: SizedBox(
+                child: clipNetworkImage(
+                  data.likeUserInfo?.userAvatar ?? '',
+                  isAvatar: true,
                   width: 30,
                   height: 30,
-                  child: CircleAvatar(
-                    backgroundImage: CachedNetworkImageProvider(
-                        data.likeUserInfo?.userAvatar ?? ''),
-                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -64,14 +62,12 @@ class LikeCard extends StatelessWidget {
               child: Row(
                 children: [
                   if (!data.pic.isNullOrEmpty) ...[
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: data.pic!,
-                        width: 30,
-                        height: 30,
-                        fit: BoxFit.cover,
-                      ),
+                    clipNetworkImage(
+                      data.pic!,
+                      radius: 8,
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.cover,
                     ),
                     const SizedBox(width: 10),
                   ],

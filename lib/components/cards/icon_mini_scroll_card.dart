@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../components/self_sized_horizontal_list.dart';
@@ -57,18 +57,12 @@ Widget miniCardItem(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: CachedNetworkImage(
-                imageUrl: logo,
-                fit: BoxFit.cover,
-                height: 18,
-                width: 18,
-                errorWidget: (context, url, error) => Icon(
-                  Icons.broken_image_outlined,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ),
+            clipNetworkImage(
+              logo,
+              radius: 4,
+              height: 18,
+              width: 18,
+              fit: BoxFit.cover,
             ),
             const SizedBox(width: 4),
             Flexible(

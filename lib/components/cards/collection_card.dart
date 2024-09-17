@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -26,14 +26,12 @@ class CollectionCard extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: data.coverPic ?? '',
-                width: 53,
-                height: 40,
-                fit: BoxFit.cover,
-              ),
+            clipNetworkImage(
+              data.coverPic ?? '',
+              radius: 8,
+              width: 53,
+              height: 40,
+              fit: BoxFit.cover,
             ),
             const SizedBox(width: 10),
             Expanded(

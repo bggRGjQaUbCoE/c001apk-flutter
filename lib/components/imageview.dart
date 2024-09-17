@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -61,17 +61,15 @@ Widget image(
           child: Stack(
             alignment: Alignment.bottomRight,
             children: [
-              CachedNetworkImage(
-                width: imageWidth,
-                height: imageHeight,
-                imageUrl: isFeedArticle
+              networkImage(
+                isFeedArticle
                     ? '$articleImg${Constants.SUFFIX_THUMBNAIL}'
                     : '${picArr[index]}${Constants.SUFFIX_THUMBNAIL}',
+                width: imageWidth,
+                height: imageHeight,
                 fit: isFeedArticle || picArr.length == 1
                     ? BoxFit.fill
                     : BoxFit.cover,
-                placeholder: (context, url) => _placeHolder(context),
-                errorWidget: (context, url, error) => _placeHolder(context),
               ),
               if ((articleImg ?? picArr[index]).endsWith(Constants.SUFFIX_GIF))
                 _badge(context, 'GIF'),
@@ -83,15 +81,6 @@ Widget image(
           ),
         ),
       ),
-    ),
-  );
-}
-
-Widget _placeHolder(BuildContext context) {
-  return DecoratedBox(
-    decoration: BoxDecoration(
-      color: Theme.of(context).colorScheme.outline.withOpacity(0.25),
-      borderRadius: BorderRadius.circular(12),
     ),
   );
 }

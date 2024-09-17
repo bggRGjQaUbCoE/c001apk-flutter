@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:c001apk_flutter/components/network_image.dart';
 import 'package:flutter/material.dart';
 
 import '../../logic/model/feed/entity.dart';
@@ -88,13 +88,10 @@ class _CarouselCardState extends State<CarouselCard> {
                     _filterList[page].url.orEmpty,
                     _filterList[page].title,
                   ),
-                  child: CachedNetworkImage(
-                    imageUrl: _filterList[page].pic.orEmpty,
+                  child: networkImage(
+                    _filterList[page].pic.orEmpty,
                     fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => Icon(
-                      Icons.broken_image_outlined,
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
+                    borderRadius: null,
                   ),
                 );
               },
